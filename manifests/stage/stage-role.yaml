@@ -1,0 +1,10 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: stage 
+  name: stage-update-editor
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods","deployments"]
+  verbs: ["get", "patch", "list","update"]
+
