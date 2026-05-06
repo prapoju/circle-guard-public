@@ -1,5 +1,35 @@
 # Pruebas
 
+## Tests Unitarios para Auth Service (QrTokenService)
+
+### 1. testQrToken_ContainsCorrectSubject
+
+**Archivo:** `services/circleguard-auth-service/src/test/java/com/circleguard/auth/service/QrTokenServiceTest.java` (NUEVO)
+
+**Metodo:** `QrTokenService.generateQrToken(UUID anonymousId)`
+
+**Recibe:** `UUID anonymousId` - el identificador anónimo del usuario
+
+**Que se testea:** Se genera un token JWT y se verifica que el "sub" (subject) del payload contiene exactamente el UUID que se pasó. Se decodifica el token y se extrae el claim "sub".
+
+**Por que es pertinente:** El token QR es usado por la app móvil para registrar presencia. Si el subject no contiene el ID correcto, el sistema no podrá vincular el check-in al usuario anónimo correcto. Esto rompería el rastreo de contactos y la generación de estadísticas de proximidad. Este test garantiza que el token transporta la identidad correcta.
+
+---
+
+### 2. testQrToken_ExpiresCorrectly
+
+**Archivo:** `QrTokenServiceTest.java` (mismo archivo)
+
+**Metodo:** `QrTokenService.generateQrToken(UUID anonymousId)`
+
+**Recibe:** `UUID anonymousId` - el identificador anónimo del usuario
+
+**Que se testea:** Se genera un token y se verifica que el claim "exp" (expiration) sea igual a la hora actual + el tiempo de expiración configurado (por defecto 60000ms). Se permite una tolerancia de ±5 segundos por posibles delays en la ejecución del test.
+
+**Por que es pertinente:** Los tokens QR tienen una vida útil corta (60 segundos) por seguridad. Si el token no expirara o expirara en un tiempo incorrecto, un atacante podría reutilizar tokens viejos. Además, si expira muy rápido, los usuarios no tendrían tiempo de escanear el código. Este test asegura que la configuración de expiración se aplica correctamente.
+
+---
+
 ## Tests Unitarios para Identity Service
 
 ### 1. testGetOrCreateAnonymousId_ExistingUser_ReturnsExisting
