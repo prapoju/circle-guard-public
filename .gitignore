@@ -17,6 +17,10 @@ build/
 target/
 **/target/
 
+# Compiled binaries (Eclipse/IDE)
+bin/
+**/bin/
+
 # IDEs
 .idea/
 *.iml
