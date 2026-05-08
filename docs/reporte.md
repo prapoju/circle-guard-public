@@ -104,6 +104,22 @@
 
 ---
 
+## Tests Unitarios para Dashboard Service 
+
+### 1. testGetTimeSeries_FallsBackToMockData 
+
+**Archivo:** `services/circleguard-dashboard-service/src/test/java/com/circleguard/dashboard/service/AnalyticsServiceTest.java` 
+
+**Metodo:** `AnalyticsService.getTimeSeries(String period, int limit)`
+
+**Recibe:** `String period` ("hourly" o "daily"), `int limit`
+
+**Que se testea:** Cuando la tabla status_events no existe (por exception), el metodo debe retornar datos mock generados en lugar de fallar. Se verifica que se retorna una lista con datos y no se lanza exception.
+
+**Por que es pertinente:** El dashboard necesita funcionar incluso cuando la base de datos no esta completamente configurada (ej: durante desarrollo inicial o migraciones). Si el metodo falla cuando la tabla no existe, el dashboard mostraria errores en produccion durante deployments. Este test asegura resiliencia - el sistema continua funcionando con datos mock cuando hay problemas de infraestructura, y el equipo recibe aviso visual de que los datos no son reales.
+
+---
+
 
 
 
