@@ -4,7 +4,7 @@
 
 ### 1. testQrToken_ContainsCorrectSubject
 
-**Archivo:** `services/circleguard-auth-service/src/test/java/com/circleguard/auth/service/QrTokenServiceTest.java` (NUEVO)
+**Archivo:** `services/circleguard-auth-service/src/test/java/com/circleguard/auth/service/QrTokenServiceTest.java` 
 
 **Metodo:** `QrTokenService.generateQrToken(UUID anonymousId)`
 
@@ -18,7 +18,7 @@
 
 ### 2. testQrToken_ExpiresCorrectly
 
-**Archivo:** `QrTokenServiceTest.java` (mismo archivo)
+**Archivo:** `QrTokenServiceTest.java` 
 
 **Metodo:** `QrTokenService.generateQrToken(UUID anonymousId)`
 
@@ -48,7 +48,7 @@
 
 ### 2. testResolveRealIdentity_NotFound_Throws404
 
-**Archivo:** `IdentityVaultServiceTest.java` (mismo archivo)
+**Archivo:** `IdentityVaultServiceTest.java` 
 
 **Metodo:** `IdentityVaultService.resolveRealIdentity(UUID anonymousId)`
 
@@ -73,3 +73,37 @@
 **Por que es pertinente:** El hash es la clave primaria para buscar mappings en la base de datos. Si SHA-256 produjera resultados diferentes para el mismo input, el sistema no podria encontrar mappings existentes - cada lookup crearia un duplicado. Este es el fundamento de toda la operacion del identity vault. Ademas, testear un metodo privado requiere reflexion o usar tecnicas de testing como mocks con Whitebox.
 
 ---
+
+## Tests Unitarios para Form Service 
+
+### 1. testActivateQuestionnaire_DeactivatesOthers
+
+**Archivo:** `services/circleguard-form-service/src/test/java/com/circleguard/form/service/QuestionnaireServiceTest.java`
+
+**Metodo:** `QuestionnaireService.activateQuestionnaire(UUID id)`
+
+**Recibe:** `UUID id` - el ID del cuestionario a activar
+
+**Que se testea:** Al activar un cuestionario, todos los demas cuestionarios deben marcarse como inactivos. Se verifica que el repository.save() se llama para cada cuestionario que estaba activo previamente, marcandolos con `setIsActive(false)`, y que solo el objetivo recibe `setIsActive(true)`.
+
+**Por que es pertinente:** Solo puede haber un cuestionario activo a la vez. Esta restriccion es critica porque el sistema necesita consistencia en las preguntas que hace a los estudiantes. Si por un bug dos cuestionarios quedan activos simultaneamente, el sistema podria evaluar sintomas de manera inconsistente - algunos estudiantes harian preguntas diferentes a otros. Este test asegura que la logica de exclusividad mutua funciona correctamente y que no hay race conditions donde dos cuestionarios quedan activos al mismo tiempo.
+
+---
+
+### 2. testGetActiveQuestionnaire_ReturnsActiveQuestionnaire 
+
+**Archivo:** `services/circleguard-form-service/src/test/java/com/circleguard/form/service/QuestionnaireServiceTest.java` 
+
+**Metodo:** `QuestionnaireService.getActiveQuestionnaire()`
+
+**Recibe:** Nada (no tiene parametros)
+
+**Que se testea:** Cuando existe un cuestionario activo en la base de datos, debe retornarlo correctamente. Se verifica que el repository llama a `findFirstByIsActiveTrueOrderByVersionDesc()` y retorna el Optional con el cuestionario activo.
+
+**Por que es pertinente:** Este metodo es el punto de entrada para todos los envios de encuestas de salud. Cuando un estudiante envia su survey diario, el sistema necesita saber cual es el cuestionario activo para evaluar sus respuestas. Si este metodo falla o retorna null incorrectamente, ningun estudiante podra enviar surveys. Ademas, un cuestionario activo es quello que define que preguntas se hacen y como se evalua la presencia de sintomas. Es fundamental para el flujo de salud del campus.
+
+---
+
+
+
+
