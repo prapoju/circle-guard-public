@@ -1,5 +1,8 @@
 # Pruebas
 
+Los microservicios seleccionados fueron:
+Auth, Identity, Form, File, dashboard y notification
+
 ## Tests Unitarios para Auth Service (QrTokenService)
 
 ### 1. testQrToken_ContainsCorrectSubject
@@ -104,11 +107,27 @@
 
 ---
 
-## Tests Unitarios para Dashboard Service 
+## Tests Unitarios para File Service
 
-### 1. testGetTimeSeries_FallsBackToMockData 
+### 1. testSaveFile_ReturnsFilename
 
-**Archivo:** `services/circleguard-dashboard-service/src/test/java/com/circleguard/dashboard/service/AnalyticsServiceTest.java` 
+**Archivo:** `services/circleguard-file-service/src/test/java/com/circleguard/file/service/FileStorageServiceTest.java`
+
+**Metodo:** `FileStorageService.saveFile(MultipartFile file)`
+
+**Recibe:** `MultipartFile file` - archivo a guardar
+
+**Que se testea:** Cuando se guarda un archivo, debe retornar un filename que incluye UUID y el nombre original. Se verifica que el nombre tiene el formato correcto.
+
+**Por que es pertinente:** Este es el unico metodo implementado del file-storage. Garantiza que cada archivo guardado tiene un identificador unico (UUID) que evita colisiones de nombres. Si dos usuarios suben archivos con el mismo nombre, el UUID diferencia los archivos. Ademas, el UUID previene que usuarios malicious adivinen URLs de archivos de otros usuarios.
+
+---
+
+## Tests Unitarios para Dashboard Service
+
+### 1. testGetTimeSeries_FallsBackToMockData
+
+**Archivo:** `services/circleguard-dashboard-service/src/test/java/com/circleguard/dashboard/service/AnalyticsServiceTest.java`
 
 **Metodo:** `AnalyticsService.getTimeSeries(String period, int limit)`
 
@@ -120,6 +139,41 @@
 
 ---
 
+# Tests de Integración
 
+## Auth Service - Login Flow
 
+### 1. testLogin_ReturnsJwtWithAnonymousId
 
+**Archivo:** `services/circleguard-auth-service/src/integrationTest/java/com/circleguard/auth/AuthLoginIntegrationTest.java`
+
+**Metodo:** `LoginController.login()` (HTTP POST `/api/v1/auth/login`)
+
+**Que se testea:** El flujo completo de login: usuario envía credenciales LDAP → auth valida contra LDAP → auth obtiene anonymousId de identity-service → auth retorna JWT con anonymousId.
+
+**Por que es pertinente:** Este es el punto de entrada principal de la app. Si el login falla, ningún usuario puede autenticarse. El test valida la comunicación entre auth-service e identity-service.
+
+## Comandos para Lanzar
+
+```bash
+# 1. Levantar infraestructura
+docker compose -f services/circleguard-auth-service/docker-compose.integration.yml up -d
+
+# 2. Correr todos los tests de integración
+./gradlew :services:circleguard-auth-service:integrationTest
+
+# 3. Correr un test específico
+./gradlew :services:circleguard-auth-service:integrationTest --tests '*AuthLoginIntegrationTest*'
+```
+
+## Correr Integration Tests
+
+```bash
+./gradlew :services:circleguard-auth-service:integrationTest
+```
+
+## Correr un Test Específico
+
+```bash
+./gradlew :services/circleguard-auth-service:integrationTest --tests '*AuthLoginIntegrationTest*'
+```
