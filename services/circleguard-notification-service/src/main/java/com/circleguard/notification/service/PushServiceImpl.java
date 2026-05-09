@@ -17,17 +17,17 @@ public class PushServiceImpl implements PushService {
 
     private final WebClient webClient;
 
-    @Value("${push.gotify.url:http://localhost:8080}")
+    @Value("${push.gotify.url}")
     private String gotifyUrl;
 
-    @Value("${push.gotify.token:MOCK_TOKEN}")
+    @Value("${push.gotify.token}")
     private String gotifyToken;
 
     @jakarta.annotation.Resource
     private AuditLogService auditLogService;
 
-    public PushServiceImpl(WebClient.Builder webClientBuilder, 
-                           @Value("${push.gotify.url:http://localhost:8080}") String gotifyUrl) {
+    public PushServiceImpl(WebClient.Builder webClientBuilder,
+                           @Value("${push.gotify.url}") String gotifyUrl) {
         this.webClient = webClientBuilder.baseUrl(gotifyUrl).build();
     }
 

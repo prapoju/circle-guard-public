@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class RoomReservationServiceImpl implements RoomReservationService {
 
-    @Value("${room.booking.api.url:https://facilities.university.edu/api/v1/rooms}")
+    @Value("${room.booking.service.url}")
     private String roomBookingApiUrl;
 
     @Override

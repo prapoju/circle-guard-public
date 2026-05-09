@@ -11,10 +11,10 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class LmsServiceImpl implements LmsService {
 
-    @Value("${lms.api.url:https://lms.university.edu/api/v1}")
+    @Value("${lms.service.url}")
     private String lmsApiUrl;
 
-    @Value("${identity.api.url:http://circleguard-identity-service:8081}")
+    @Value("${identity.service.url}")
     private String identityApiUrl;
 
     @Override

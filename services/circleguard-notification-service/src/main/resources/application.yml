@@ -19,8 +19,32 @@ spring:
             enable: false
 
 auth:
-  api:
-    url: ${AUTH_API_URL:http://localhost:8180}
+  service:
+    url: ${AUTH_SERVICE_URL:http://localhost:8180}
+
+identity:
+  service:
+    url: ${IDENTITY_SERVICE_URL:http://localhost:8081}
+
+lms:
+  service:
+    url: ${LMS_SERVICE_URL:https://lms.university.edu/api/v1}
+
+push:
+  gotify:
+    url: ${PUSH_GOTIFY_URL:http://localhost:8080}
+    token: ${PUSH_GOTIFY_TOKEN:MOCK_TOKEN}
+
+room:
+  booking:
+    service:
+      url: ${ROOM_BOOKING_SERVICE_URL:https://facilities.university.edu/api/v1/rooms}
+
+notification:
+  service:
+    testing: ${NOTIFICATION_SERVICE_TESTING:https://circleguard.example.com/testing}
+    isolation: ${NOTIFICATION_SERVICE_ISOLATION:https://circleguard.example.com/isolation}
+    guidelines: ${NOTIFICATION_SERVICE_GUIDELINES:circleguard://guidelines}
 
 jwt:
   secret: "my-super-secret-dev-key-32-chars-long-12345678"

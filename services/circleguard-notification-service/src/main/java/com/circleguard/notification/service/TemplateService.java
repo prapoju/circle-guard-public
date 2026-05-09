@@ -18,13 +18,13 @@ public class TemplateService {
 
     private final Configuration freemarkerConfig;
 
-    @Value("${notification.url.testing:https://circleguard.example.com/testing}")
+    @Value("${notification.service.testing}")
     private String testingUrl;
 
-    @Value("${notification.url.isolation:https://circleguard.example.com/isolation}")
+    @Value("${notification.service.isolation}")
     private String isolationUrl;
 
-    @Value("${notification.url.guidelines:circleguard://guidelines}")
+    @Value("${notification.service.guidelines}")
     private String guidelinesDeepLink;
 
     public String generateEmailContent(String status, String userName) {
