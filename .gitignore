@@ -50,3 +50,6 @@ web-build/
 *_data/
 pgdata/
 neo4jdata/
+
+# Environment files
+*.env
