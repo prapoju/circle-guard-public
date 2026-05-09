@@ -1,0 +1,68 @@
+#!/usr/bin/env groovy
+
+pipeline {
+
+    agent {
+        kubernetes {
+            defaultContainer 'jdk21'
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+                - name: jdk21
+                  image: eclipse-temurin:21-jdk
+                  command: ["sleep"]
+                  args: ["infinity"]
+            '''
+        }
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh 'chmod +x gradlew && ./gradlew --no-daemon :services:circleguard-form-service:compileJava'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh './gradlew --no-daemon :services:circleguard-form-service:test'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: '**/circleguard-form-service/build/test-results/test/*.xml'
+                }
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                sh './gradlew --no-daemon :services:circleguard-form-service:integrationTest'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: '**/circleguard-form-service/build/test-results/integrationTest/*.xml'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'circleguard-form-service pipeline completed successfully!'
+        }
+        failure {
+            echo 'circleguard-form-service pipeline failed. Check the logs.'
+        }
+    }
+}

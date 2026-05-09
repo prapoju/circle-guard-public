@@ -1,0 +1,98 @@
+#!/usr/bin/env groovy
+
+pipeline {
+
+    agent {
+        kubernetes {
+            defaultContainer 'jdk21'
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+                - name: jdk21
+                  image: eclipse-temurin:21-jdk
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: docker
+                  image: docker:24-dind
+                  securityContext:
+                    privileged: true
+                  env:
+                    - name: DOCKER_TLS_CERTDIR
+                      value: ""
+                  command: ["dockerd-entrypoint.sh"]
+                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
+            '''
+        }
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh 'chmod +x gradlew && ./gradlew --no-daemon :services:circleguard-auth-service:compileJava'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh './gradlew --no-daemon :services:circleguard-auth-service:test'
+            }
+            post {
+                always {
+                    junit '**/circleguard-auth-service/build/test-results/test/*.xml'
+                }
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                // El docker-compose construye la imagen del identity-service desde su Dockerfile.
+                // Necesitamos el JAR compilado antes de que Docker lo copie.
+                sh './gradlew --no-daemon :services:circleguard-identity-service:bootJar'
+
+                container('docker') {
+                    sh '''
+                        docker compose \
+                            -f services/circleguard-auth-service/docker-compose.integration.yml \
+                            up -d --build
+                    '''
+                }
+
+                // Esperar a que postgres, LDAP e identity-service estén listos
+                sh 'sleep 60'
+
+                sh './gradlew --no-daemon :services:circleguard-auth-service:integrationTest'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: '**/circleguard-auth-service/build/test-results/integrationTest/*.xml'
+                    container('docker') {
+                        sh '''
+                            docker compose \
+                                -f services/circleguard-auth-service/docker-compose.integration.yml \
+                                down -v || true
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'circleguard-auth-service pipeline completed successfully!'
+        }
+        failure {
+            echo 'circleguard-auth-service pipeline failed. Check the logs.'
+        }
+    }
+}

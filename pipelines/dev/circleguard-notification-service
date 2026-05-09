@@ -1,0 +1,96 @@
+#!/usr/bin/env groovy
+
+pipeline {
+
+    agent {
+        kubernetes {
+            defaultContainer 'jdk21'
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+                - name: jdk21
+                  image: eclipse-temurin:21-jdk
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: docker
+                  image: docker:24-dind
+                  securityContext:
+                    privileged: true
+                  env:
+                    - name: DOCKER_TLS_CERTDIR
+                      value: ""
+                  command: ["dockerd-entrypoint.sh"]
+                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
+            '''
+        }
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh 'chmod +x gradlew && ./gradlew --no-daemon :services:circleguard-notification-service:compileJava'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh './gradlew --no-daemon :services:circleguard-notification-service:test'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: '**/circleguard-notification-service/build/test-results/test/*.xml'
+                }
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                // Solo necesita Kafka + Zookeeper (sin servicios externos que compilar)
+                container('docker') {
+                    sh '''
+                        docker compose \
+                            -f services/circleguard-notification-service/docker-compose.integration.yml \
+                            up -d
+                    '''
+                }
+
+                // Esperar a que Kafka y Zookeeper inicialicen
+                sh 'sleep 30'
+
+                sh './gradlew --no-daemon :services:circleguard-notification-service:integrationTest'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: '**/circleguard-notification-service/build/test-results/integrationTest/*.xml'
+                    container('docker') {
+                        sh '''
+                            docker compose \
+                                -f services/circleguard-notification-service/docker-compose.integration.yml \
+                                down -v || true
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'circleguard-notification-service pipeline completed successfully!'
+        }
+        failure {
+            echo 'circleguard-notification-service pipeline failed. Check the logs.'
+        }
+    }
+}

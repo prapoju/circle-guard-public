@@ -1,0 +1,100 @@
+#!/usr/bin/env groovy
+
+pipeline {
+
+    agent {
+        kubernetes {
+            defaultContainer 'jdk21'
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+                - name: jdk21
+                  image: eclipse-temurin:21-jdk
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: docker
+                  image: docker:24-dind
+                  securityContext:
+                    privileged: true
+                  env:
+                    - name: DOCKER_TLS_CERTDIR
+                      value: ""
+                  command: ["dockerd-entrypoint.sh"]
+                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
+            '''
+        }
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh 'chmod +x gradlew && ./gradlew --no-daemon :services:circleguard-dashboard-service:compileJava'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh './gradlew --no-daemon :services:circleguard-dashboard-service:test'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: '**/circleguard-dashboard-service/build/test-results/test/*.xml'
+                }
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                // El docker-compose construye la imagen del promotion-service desde su Dockerfile.
+                // Necesitamos el JAR compilado antes de que Docker lo copie.
+                sh './gradlew --no-daemon :services:circleguard-promotion-service:bootJar'
+
+                container('docker') {
+                    sh '''
+                        docker compose \
+                            -f services/circleguard-dashboard-service/docker-compose.integration.yml \
+                            up -d --build
+                    '''
+                }
+
+                // Esperar a que postgres, Neo4j, Kafka, Redis y promotion-service estén listos
+                // Neo4j tarda bastante en iniciar
+                sh 'sleep 90'
+
+                sh './gradlew --no-daemon :services:circleguard-dashboard-service:integrationTest'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: '**/circleguard-dashboard-service/build/test-results/integrationTest/*.xml'
+                    container('docker') {
+                        sh '''
+                            docker compose \
+                                -f services/circleguard-dashboard-service/docker-compose.integration.yml \
+                                down -v || true
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'circleguard-dashboard-service pipeline completed successfully!'
+        }
+        failure {
+            echo 'circleguard-dashboard-service pipeline failed. Check the logs.'
+        }
+    }
+}
