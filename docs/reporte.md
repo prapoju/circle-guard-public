@@ -153,6 +153,51 @@ Auth, Identity, Form, File, dashboard y notification
 
 **Por que es pertinente:** Este es el punto de entrada principal de la app. Si el login falla, ningún usuario puede autenticarse. El test valida la comunicación entre auth-service e identity-service.
 
+## Dashboard Service - PromotionClient
+
+**Archivo:** `services/circleguard-dashboard-service/src/integrationTest/java/com/circleguard/dashboard/client/PromotionClientIntegrationTest.java`
+
+**Clase:** `PromotionClientIntegrationTest`
+
+**Servicios involucrados:**
+- `dashboard-service` (el que corre el test)
+- `promotion-service` (el que se consume)
+
+**Tests:**
+
+**`testGetHealthStats_ReturnsMapWithTotalUsers`**
+- Metodo: `PromotionClient.getHealthStats()`
+- Que se testea: El cliente hace GET a `/api/v1/health-status/stats` del promotion-service y verifica que retorna un mapa con las claves `totalUsers` y `timestamp`, sin errores.
+- Por que es pertinente: El dashboard muestra estadísticas de salud de usuarios. Este test valida que el `PromotionClient` puede comunicarse con el promotion-service y obtener datos reales para el dashboard.
+
+**`testGetHealthStatsByDepartment_ReturnsDepartmentStats`**
+- Metodo: `PromotionClient.getHealthStatsByDepartment(String department)`
+- Que se testea: El cliente hace GET a `/api/v1/health-status/stats/department/{department}` con `department=INGENIERIA` y verifica que retorna un mapa con `totalUsers`, `department=INGENIERIA` y sin errores.
+- Por que es pertinente: El dashboard filtra estadísticas por departamento. Este test valida que los filtros funcionan correctamente y que el promotion-service retorna datos segmentados.
+
+**Configuración:**
+- Puerto del dashboard: `8080`
+- Puerto del promotion-service (docker): `8088`
+- Archivo env: `services/circleguard-dashboard-service/promotion-service.env`
+
+**Comandos:**
+
+```bash
+# 1. Compilar el JAR de promotion-service
+./gradlew :services:circleguard-promotion-service:bootJar
+
+# 2. Levantar infraestructura
+docker compose -f services/circleguard-dashboard-service/docker-compose.integration.yml up -d --build
+
+# 3. Correr integration tests
+./gradlew :services:circleguard-dashboard-service:integrationTest
+
+# 4. Test específico
+./gradlew :services:circleguard-dashboard-service:integrationTest --tests '*PromotionClientIntegrationTest*'
+```
+
+---
+
 ## Comandos para Lanzar
 
 ```bash
@@ -163,6 +208,18 @@ docker compose -f services/circleguard-auth-service/docker-compose.integration.y
 ./gradlew :services:circleguard-auth-service:integrationTest
 
 # 3. Correr un test específico
+./gradlew :services:circleguard-auth-service:integrationTest --tests '*AuthLoginIntegrationTest*'
+```
+
+## Correr Integration Tests
+
+```bash
+./gradlew :services:circleguard-auth-service:integrationTest
+```
+
+## Correr un Test Específico
+
+```bash
 ./gradlew :services:circleguard-auth-service:integrationTest --tests '*AuthLoginIntegrationTest*'
 ```
 
