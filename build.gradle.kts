@@ -43,7 +43,18 @@ subprojects {
         }
     }
 
-    tasks.withType<Test> {
-        useJUnitPlatform()
+    tasks.withType<Test>().configureEach {
+        if (name != "integrationTest") {
+            useJUnitPlatform {
+                excludeTags("integration")
+            }
+        }
+    }
+
+    tasks.register("integrationTest", Test::class) {
+        group = "verification"
+        useJUnitPlatform {
+            includeTags("integration")
+        }
     }
 }
