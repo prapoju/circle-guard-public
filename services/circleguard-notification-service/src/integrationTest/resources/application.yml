@@ -1,0 +1,58 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  mail:
+    host: localhost
+    port: 2525
+
+server:
+  port: 8082
+
+auth:
+  service:
+    url: http://localhost:8180
+
+identity:
+  service:
+    url: http://localhost:8083
+
+lms:
+  service:
+    url: http://localhost:9999
+
+push:
+  gotify:
+    url: http://localhost:8081
+    token: MOCK_TOKEN
+
+room:
+  booking:
+    service:
+      url: http://localhost:9998
+
+notification:
+  service:
+    testing: https://circleguard.example.com/testing
+    isolation: https://circleguard.example.com/isolation
+    guidelines: circleguard://guidelines
+
+jwt:
+  secret: "my-super-secret-dev-key-32-chars-long-12345678"
+  expiration: 3600000
+
+qr:
+  secret: "my-qr-secret-key-for-dev-1234567890"
+  expiration: 300
+
+twilio:
+  account-sid: AC_MOCK_SID
+  auth-token: MOCK_TOKEN
+  from-number: "+15550000000"

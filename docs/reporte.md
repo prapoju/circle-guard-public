@@ -198,6 +198,85 @@ docker compose -f services/circleguard-dashboard-service/docker-compose.integrat
 
 ---
 
+## Notification Service - LmsService
+
+**Archivo:** `services/circleguard-notification-service/src/integrationTest/java/com/circleguard/notification/service/LmsServiceIntegrationTest.java`
+
+**Clase:** `LmsServiceIntegrationTest`
+
+**Servicios involucrados:**
+- `notification-service` (el que corre el test)
+- `identity-service` (consumido por LmsServiceImpl para resolver anonymousId)
+
+**Tests:**
+
+**`syncRemoteAttendance_completesWithoutError`**
+- Metodo: `LmsService.syncRemoteAttendance(String userId, String status)`
+- Que se testea: Llama al servicio con un `anonymousId` (UUID) y status `"SUSPECT"`. Verifica que retorna un `CompletableFuture` que completa sin excepciones en 5 segundos.
+- Por que es pertinente: El `LmsServiceImpl` usa `${identity.service.url}` para resolver el anonymousId en una identidad real antes de sincronizar con el LMS externo. Este test valida que la cadena de resolución funciona end-to-end. Ademas, el metodo es `@Async`, asi que el test verifica que la ejecucion asincrona no falla.
+
+**Configuracion:**
+- Puerto del notification-service: `8082`
+- Puerto de identity-service (docker): `8083`
+- Kafka: `localhost:9092`
+
+**Comandos:**
+```bash
+# 1. Compilar el JAR de identity-service
+./gradlew :services:circleguard-identity-service:bootJar
+
+# 2. Levantar kafka
+docker compose -f services/circleguard-notification-service/docker-compose.integration.yml up -d
+
+# 3. Correr integration tests
+./gradlew :services:circleguard-notification-service:integrationTest
+
+# 4. Test especifico
+./gradlew :services:circleguard-notification-service:integrationTest --tests '*LmsServiceIntegrationTest*'
+```
+
+---
+
+## Notification Service - PriorityAlertListener
+
+**Archivo:** `services/circleguard-notification-service/src/integrationTest/java/com/circleguard/notification/service/PriorityAlertListenerIntegrationTest.java`
+
+**Clase:** `PriorityAlertListenerIntegrationTest`
+
+**Servicios involucrados:**
+- `notification-service` (el que corre el test)
+- `auth-service` (consumido por PriorityAlertListener para obtener admins con permiso `alert:receive_priority`)
+
+**Tests:**
+
+**`handlePriorityAlert_consumesMessageFromKafka`**
+- Metodo: `PriorityAlertListener.handlePriorityAlert(String message)` (triggered por `@KafkaListener`)
+- Que se testea: Envia un mensaje JSON al topic Kafka `alert.priority` con `{"eventType":"CONFIRMED_CASE","affectedCount":3}`. Verifica que el consumer group `notification-priority-group` avanza su offset mas alla del mensaje enviado, confirmando que el listener lo consumio y proceso en 15 segundos.
+- Por que es pertinente: El `PriorityAlertListener` usa `${auth.service.url}/api/v1/users/permissions/alert:receive_priority` para obtener la lista de admins. Este test valida: (1) que Kafka listener funciona, (2) que la llamada a auth-service retorna datos, (3) que el procesamiento asincrono no falla.
+
+**Configuracion:**
+- Puerto del notification-service: `8082`
+- Puerto de auth-service (docker): `8180`
+- Kafka topic: `alert.priority`
+- Kafka group: `notification-priority-group`
+
+**Comandos:**
+```bash
+# 1. Compilar el JAR de auth-service
+./gradlew :services:circleguard-auth-service:bootJar
+
+# 2. Levantar kafka
+docker compose -f services/circleguard-notification-service/docker-compose.integration.yml up -d
+
+# 3. Correr integration tests
+./gradlew :services:circleguard-notification-service:integrationTest
+
+# 4. Test especifico
+./gradlew :services:circleguard-notification-service:integrationTest --tests '*PriorityAlertListenerIntegrationTest*'
+```
+
+---
+
 ## Comandos para Lanzar
 
 ```bash
