@@ -83,6 +83,8 @@ pipeline {
                 container('git') {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     sh '''
+                        git config --global --add safe.directory "$WORKSPACE"
+
                         # Determinar version: fecha + short commit
                         VERSION="v$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)"
 
