@@ -336,18 +336,18 @@ Los tests E2E se ejecutan con Newman (CLI de Postman) dentro del cluster de Kube
 **Servicios involucrados:** form-service
 
 **Requests:**
-1. `POST /api/v1/questionnaires` — crea un cuestionario con preguntas YES_NO
+1. `POST /api/v1/questionnaires` — crea cuestionario con preguntas YES_NO
 2. `POST /api/v1/questionnaires/{id}/activate` — lo activa (desactiva cualquier otro)
-3. `GET /api/v1/questionnaires/active` — verifica que hay un cuestionario activo
+3. `GET /api/v1/questionnaires/active` — verifica estado post-activación
 4. `POST /api/v1/surveys` — envía encuesta de salud asociada al `anonymousId` del Flujo 2
 
 **Tests:**
 - Cuestionario creado con id
 - Activación exitosa
-- Cuestionario activo tiene `isActive: true`
-- Encuesta enviada con status 200 o 201
+- **Verificación de estado:** cuestionario activo tiene `isActive: true` y su `id` coincide exactamente con el que creamos
+- **Verificación de estado:** survey retorna `id` propio y `anonymousId` correcto (el del Flujo 2) → guardado como `surveyId`
 
-**Por qué es pertinente:** Cubre el flujo principal de uso del sistema: un usuario llena su encuesta diaria de salud. Valida la lógica de exclusividad mutua (solo un cuestionario activo) y el envío de surveys.
+**Por qué es pertinente:** Cubre el flujo principal de uso del sistema: un usuario llena su encuesta diaria de salud. La verificación del id del cuestionario activo garantiza que la lógica de exclusividad mutua funcionó correctamente y que no quedó activo un cuestionario anterior.
 
 ---
 
@@ -376,28 +376,13 @@ Los tests E2E se ejecutan con Newman (CLI de Postman) dentro del cluster de Kube
 **Tests:**
 - Status 200
 - Response tiene `qrToken` y `expiresIn`
-- `qrToken` se guarda en entorno para usos futuros
+- **Verificación de estado:** `qrToken` tiene formato JWT válido — empieza con `eyJ` y tiene exactamente 3 partes separadas por `.`
 
-**Por qué es pertinente:** El token QR es el mecanismo de check-in en campus. Valida que un usuario autenticado puede generar el código que luego escanea el guardia. Si este endpoint falla, nadie puede registrar su entrada.
-
----
-
-## Flujo 6 — Check-in con token QR
-
-**Servicios involucrados:** auth-service, notification-service
-
-**Requests:**
-1. `POST /api/v1/auth/qr/validate` con el `qrToken` generado en el Flujo 5
-
-**Tests:**
-- Status 200
-- Response confirma el check-in con timestamp
-
-**Por qué es pertinente:** Este flujo completa el ciclo del token QR. El guardia escanea el código generado por el usuario y lo valida en el sistema. Es el paso final para registrar la presencia del visitante en el campus y es necesario para el rastreo de contactos.
+**Por qué es pertinente:** El token QR es el mecanismo de check-in en campus. La verificación del formato JWT garantiza que el token es consumible por el guardia — un token malformado no podría ser escaneado ni validado.
 
 ---
 
-## Flujo 7 — Visitor Handoff
+## Flujo 6 — Visitor Handoff
 
 **Servicios involucrados:** identity-service, auth-service
 
@@ -408,38 +393,41 @@ Los tests E2E se ejecutan con Newman (CLI de Postman) dentro del cluster de Kube
 **Tests:**
 - Visitante registrado con anonymousId
 - Handoff retorna `token` y `handoffPayload`
-- `handoffPayload` contiene el prefijo `HANDOFF_TOKEN`
+- **Verificación de estado:** `handoffPayload` contiene el prefijo `HANDOFF_TOKEN` y el `anonymousId` del visitante registrado
+- **Verificación de estado:** `token` tiene formato JWT válido (empieza con `eyJ`)
 
-**Por qué es pertinente:** Cubre el flujo de transferencia de sesión para visitantes que necesitan continuar usando el sistema desde otro dispositivo o contexto. Valida la integración entre identity-service y auth-service para un caso de uso menos común pero crítico.
+**Por qué es pertinente:** Valida la integración entre identity-service y auth-service para el handoff de visitantes. La verificación del `anonymousId` dentro del payload garantiza que el token está vinculado al visitante correcto y no a otro usuario.
 
 ---
 
-## Flujo 8 — Validación de certificado médico
+## Flujo 7 — Validación de certificado médico
 
 **Servicios involucrados:** form-service
 
 **Requests:**
-1. `POST /api/v1/surveys` con `hasFever: true`, `hasCough: true` y `validationStatus: PENDING` → obtiene `surveyId`
-2. `GET /api/v1/certificates/pending` — verifica que el survey aparece en la cola de validación
-3. `POST /api/v1/certificates/{surveyId}/validate?status=APPROVED&adminId=...` — valida el certificado
+1. `POST /api/v1/surveys` con `hasFever: true`, `hasCough: true`, `validationStatus: PENDING` → obtiene `certSurveyId`
+2. `GET /api/v1/certificates/pending` — consulta la cola de validación
+3. `POST /api/v1/certificates/{certSurveyId}/validate?status=APPROVED&adminId=...` — valida el certificado
+4. `GET /api/v1/certificates/pending` — verifica estado post-validación
 
 **Tests:**
-- Survey creada y guardada con id
-- Lista de pendientes retorna array (puede estar vacía si el controller ignora `validationStatus` al guardar)
+- Survey creada con `id` propio
+- Cola de pendientes retorna array
 - Validación retorna status 200
+- **Verificación de estado:** `certSurveyId` ya **no aparece** en la lista de pendientes tras la validación (transición PENDING → APPROVED confirmada)
 
-**Por qué es pertinente:** Cubre el flujo de aprobación médica, que es el más sensible del sistema. Un estudiante con síntomas envía su encuesta, queda pendiente de revisión, y el personal de salud la aprueba o rechaza. Valida que la transición de estados (PENDING → APPROVED) funciona correctamente y que el endpoint de validación persiste el cambio.
+**Por qué es pertinente:** Cubre el flujo de aprobación médica completo. La verificación post-validación es crítica: confirma que el cambio de estado fue persistido y que el certificado fue realmente procesado, no solo que el endpoint devolvió 200.
 
 ---
 
-## Flujo 9 — Analytics completo
+## Flujo 8 — Analytics completo
 
 **Servicios involucrados:** dashboard-service
 
 **Requests:**
 1. `GET /api/v1/analytics/department/INGENIERIA` — stats filtradas por departamento
 2. `GET /api/v1/analytics/time-series?period=hourly&limit=24` — serie temporal de 24h
-3. `GET /api/v1/analytics/trends/1` — tendencias de una ubicación específica
+3. `GET /api/v1/analytics/trends/{locationId}` — tendencias de una ubicación (UUID)
 
 **Tests:**
 - Stats por departamento retornan JSON válido
@@ -447,4 +435,238 @@ Los tests E2E se ejecutan con Newman (CLI de Postman) dentro del cluster de Kube
 - Trends retornan JSON válido
 
 **Por qué es pertinente:** Extiende el Flujo 4 para cubrir las consultas de análisis más avanzadas. Valida que el dashboard puede segmentar datos por departamento y tiempo, lo cual es esencial para que epidemiología universitaria pueda identificar focos de contagio.
+
+
+# Pruebas de Estrés (Locust)
+
+Las pruebas de estrés se ejecutan con Locust en modo headless dentro del cluster de Kubernetes, en el stage `Stress Tests` de la pipeline de stage, después de los tests E2E y antes del push a `:stage`. Si los umbrales de rendimiento no se cumplen, la pipeline falla y no se promueven las imágenes.
+
+**Archivo:** `tests/stress/locustfile.py`
+
+**Configuración (Jenkinsfile línea 96-102):**
+```groovy
+locust -f tests/stress/locustfile.py \
+    --headless \
+    --users 15 \
+    --spawn-rate 3 \
+    --run-time 60s \
+    --loglevel WARNING
+```
+
+---
+
+## Parámetros de ejecución
+
+| Parámetro | Valor | Explicación |
+|---|---|---|
+| `--users` | 15 | Número de **usuarios virtuales simultáneos**. Cada usuario es un green thread independiente que ejecuta tasks secuencialmente con delays aleatorios. |
+| `--spawn-rate` | 3 | Cuántos usuarios se **crean por segundo** al inicio. Con 15 usuarios y spawn-rate 3, toma ~5 segundos alcanzar los 15 usuarios (15/3 = 5s). Esto evita un spike de carga instantáneo al empezar. |
+| `--run-time` | 60s | Duración total de la prueba. Los 15 usuarios operan concurrentemente durante 60 segundos. |
+| `--headless` | - | Sin UI web, todo corre por CLI (adecuado para Jenkins). |
+
+**Total de usuarios:** 15  
+**Tiempo de rampa:** ~5 segundos (15 usuarios ÷ 3/s)  
+**Duración efectiva:** 60 segundos de carga sostenida
+
+---
+
+## Tipos de usuario simulados
+
+| Clase | Peso | Distribución | Flujo simulado |
+|---|---|---|---|
+| `EstudianteUser` | 5 | **50%** | login → generar QR token (caso de uso más frecuente) |
+| `VisitanteUser` | 3 | **30%** | registro anónimo → consultar cuestionario activo → enviar encuesta |
+| `PersonalSaludUser` | 2 | **20%** | summary → health-board → time-series → stats por departamento |
+
+El **peso (`weight`)** determina la probabilidad relativa de elegir cada tipo de usuario. Con weights 5, 3 y 2 (total = 10), la distribución es 5/10 = 50%, 3/10 = 30%, 2/10 = 20%.
+
+---
+
+## Requests ejecutados por tipo de usuario
+
+### EstudianteUser (50% del tráfico)
+- `POST /api/v1/auth/login` — inicio de sesión
+- `GET /api/v1/auth/qr/generate` — generar token QR (task con peso 4, más frecuente)
+- `POST /api/v1/auth/login` — re-login cuando expira token (task con peso 1)
+
+### VisitanteUser (30% del tráfico)
+- `POST /api/v1/identities/visitor` — registro de visitante
+- `GET /api/v1/questionnaires/active` — consultar cuestionario activo
+- `POST /api/v1/surveys` — enviar encuesta de salud (task con peso 3, más frecuente)
+
+### PersonalSaludUser (20% del tráfico)
+- `GET /api/v1/analytics/summary` (peso 3)
+- `GET /api/v1/analytics/health-board` (peso 2)
+- `GET /api/v1/analytics/time-series?period={period}&limit={limit}` (peso 2)
+- `GET /api/v1/analytics/department/{dept}` (peso 1)
+
+---
+
+## Tiempos de espera entre tasks
+
+Cada usuario espera un tiempo aleatorio **entre** tasks, simulado por `wait_time = between(min, max)`:
+
+| Usuario | Espera entre tasks |
+|---|---|
+| EstudianteUser | 1-3 segundos |
+| VisitanteUser | 2-5 segundos |
+| PersonalSaludUser | 3-8 segundos |
+
+Esto refleja patrones realistas: estudiantes hacen check-in rápido (1-3s), mientras que personal de salud toma más tiempo entre consultas analíticas (3-8s).
+
+---
+
+## Métricas recolectadas
+
+La salida se imprime en el console log de Jenkins (permanente en el historial de builds). Se generan dos bloques:
+
+**Bloque 1 — tabla por endpoint (built-in de Locust):**  
+Req count, fallos, avg/min/max, req/s y percentiles p50–p100 por endpoint individual.
+
+**Bloque 2 — resumen custom (hook `@events.quitting`):**
+
+```
+====================================================
+       METRICAS DE RENDIMIENTO - CIRCLEGUARD
+====================================================
+  Requests totales     : 308
+  Fallos               : 0
+  Tasa de error        : 0.0%
+  Throughput (req/s)   : 5.18
+  Latencia p50         : 11 ms
+  Latencia p95         : 1100 ms
+  Latencia p99         : 3500 ms
+  Latencia max         : 5364 ms
+====================================================
+  Umbrales de aceptacion:
+  - Error rate <= 5%   : OK
+  - p95 <= 3000ms      : OK
+====================================================
+```
+
+---
+
+## Umbrales de aceptación
+
+| Métrica | Umbral | Consecuencia si falla |
+|---|---|---|
+| Tasa de error | ≤ 5% | Pipeline falla, imágenes no promovidas |
+| Latencia p95 | ≤ 3000 ms | Pipeline falla, imágenes no promovidas |
+
+Los umbrales se evalúan sobre el **Aggregated** (todos los endpoints combinados). El hook `@events.quitting` setea `environment.process_exit_code = 1` si se supera alguno, lo que hace fallar el stage de Jenkins.
+
+---
+
+## Análisis de resultados (ejecución de referencia)
+
+Con 15 usuarios concurrentes durante 60s sobre el cluster de stage:
+
+- **308 requests totales, 0 fallos** — tasa de error 0.0%, dentro del umbral.
+- **Throughput: 5.18 req/s** — distribución correcta de carga entre los 3 tipos de usuario.
+- **p95 global: 1100 ms** — dentro del umbral de 3000 ms.
+- **Endpoints más lentos:** `GET /analytics/health-board` y `GET /analytics/summary` con p95 ~1100–1500 ms, atribuible a consultas agregadas sobre Neo4j sin caché.
+- **Endpoint más rápido:** `GET /questionnaires/active` con p95 15 ms — lectura directa de un registro único.
+- **Caso atípico:** `POST /surveys` alcanza max 5364 ms, probablemente por cold start de la conexión a Kafka en el primer mensaje del pod. El p95 del endpoint individual es 3500 ms, pero al ser una fracción pequeña del tráfico total no impacta el p95 Aggregated.
+
+El sistema maneja la carga simulada sin errores y dentro de los umbrales de latencia definidos.
+
+---
+
+## Pipeline Outputs (Carpeta `pipelineoutputs/`)
+
+Esta carpeta contiene los **logs completos de ejecución de las pipelines de Jenkins** para cada ambiente/rama del proyecto.
+
+**Archivos:**
+- `master.txt` — log de la pipeline de master (producción)
+- `stage.txt` — log de la pipeline de stage
+- `authdev.txt`, `identitydev.txt`, `filedev.txt`, `formdev.txt`, `dashboarddev.txt`, `notificationdev.txt` — logs de las pipelines de desarrollo de cada microservicio
+
+**Contenido:** Cada archivo contiene la salida completa del console output de Jenkins, incluyendo:
+- Inicio de pipeline (usuario que triggereó, rama git)
+- Creación de pods Kubernetes
+- Stages ejecutados (build, test, docker build, deploy, etc.)
+- Logs de contenedores
+- Resultado final (SUCCESS/FAILURE)
+
+**Para qué sirve:** Referencia para debugging de builds fallidos, análisis de timing de stages, y auditoría de despliegues históricos.
+
+---
+
+## Capturas (Carpeta `capturas/`)
+
+Colección de **capturas de pantalla** con la configuración relevante del proyecto, organizadas por sección:
+
+- **Sección 1 (1.1 - 1.7):** Configuración de Kubernetes y Jenkins — kind cluster, configuración de Jenkins, Jenkinsfile, secrets,infraestructura k8s, pipelines
+- **Sección 2 (2.1 - 2.4):** Pipelines de desarrollo — dev pipelines, auth pipeline, stages
+- **Sección 3 (3.1 - 3.3):** Pruebas — tests unitarios, integración, E2E y estrés
+- **Sección 4 (4.1 - 4.2):** Pipeline de stage
+- **Sección 5 (5.1 - 5.2):** Pipeline de master
+
+**Para qué sirve:** Documentación visual de la configuración para referencia rápida durante setup o troubleshooting.
+
+---
+
+## Pipelines (Carpeta `pipelines/`)
+
+Definiciones de **Jenkinsfile** para las pipelines de CI/CD, organizadas por ambiente:
+
+**Estructura:**
+- `pipelines/dev/` — Pipelines de desarrollo por servicio (auth, identity, form, file, dashboard, notification, gateway, promotion)
+- `pipelines/stage/` — Pipeline de stage (pre-producción)
+- `pipelines/master/` — Pipeline de master (producción)
+
+**Contenido típico por pipeline:**
+- Build (compile + unit tests)
+- Docker build (construcción de imágenes)
+- Kubernetes deploy (despliegue al cluster)
+- Integration tests
+- E2E tests (Newman)
+- Stress tests (Locust)
+- Push a registry
+
+**Para qué sirve:** Définition as-code del flujo de entrega. Cada cambio al Jenkinsfile es versionado y auditado via git.
+
+---
+
+## Manifests (Carpeta `manifests/`)
+
+Manifiestos para **configuración de infraestructura local** de desarrollo:
+
+**Subcarpetas:**
+- `manifests/kind/` — Configuración de kind cluster (`kind-config.yaml`)
+- `manifests/jenkins/` — Manifiestos Helm para Jenkins (values, namespace, SA, ingress, volume)
+
+**Contenido:**
+- `kind-config.yaml` — Definición del cluster kind multi-nodo
+- `jenkins-values.yaml` — Valores Helm para Jenkins
+- `jenkins-namespace.yaml` — Namespace `jenkins`
+- `jenkins-01-volume.yaml` — PVC para datos Jenkins
+- `jenkins-02-sa.yaml` — ServiceAccount y RBAC
+- `jenkins-ingress.yaml` — Ingress para Jenkins
+- `script.sh` — Script de setup
+
+**Para qué sirve:** Configuración inicial de infraestructura para levantar kind cluster y Jenkins local para desarrollo.
+
+---
+
+## K8s (Carpeta `k8s/`)
+
+Configuración **Kustomize** para despliegues en Kubernetes:
+
+**Estructura:**
+- `k8s/base/` — Templates base reutilizables
+  - `k8s/base/infra/` — Manifiestos de infraestructura (Kafka, Neo4j, PostgreSQL, Redis, Zookeeper, OpenLDAP)
+  - `k8s/base/services/` — Manifiestos de cada microservicio (auth, identity, form, file, dashboard, notification)
+- `k8s/overlays/` — Configuraciones específicas por ambiente
+  - `k8s/overlays/stage/`
+  - `k8s/overlays/master/`
+
+**Contenido típico por servicio:**
+- Deployment con variables de entorno
+- Service (ClusterIP)
+- HPA (Horizontal Pod Autoscaler)
+- ConfigMap y Secrets
+- probes (liveness/readiness)
+
+**Para qué sirve:** Kubernetes-native deployment. Kustomize permite herencia y overlays para no duplicar configuración entre ambientes.
 

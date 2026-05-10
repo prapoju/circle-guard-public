@@ -1,0 +1,1185 @@
+Started by user Jenkins Admin
+Obtained pipelines/dev/circleguard-notification-service from git https://github.com/prapoju/circle-guard-public.git
+[Pipeline] Start of Pipeline
+[Pipeline] podTemplate
+[Pipeline] {
+[Pipeline] node
+Created Pod: kubernetes jenkins/notification-dev-2-ghcmz-1p8vd-xhnt6
+[PodInfo] jenkins/notification-dev-2-ghcmz-1p8vd-xhnt6
+	Container [docker] waiting [ContainerCreating] No message
+	Container [jdk21] waiting [ContainerCreating] No message
+	Container [jnlp] waiting [ContainerCreating] No message
+	Pod [Pending][ContainersNotReady] containers with unready status: [jdk21 docker jnlp]
+Agent notification-dev-2-ghcmz-1p8vd-xhnt6 is provisioned from template notification-dev_2-ghcmz-1p8vd
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    kubernetes.jenkins.io/last-refresh: "1778383398692"
+    buildUrl: "http://jenkins.jenkins.svc.cluster.local:8080/job/notification-dev/2/"
+    runUrl: "job/notification-dev/2/"
+  labels:
+    jenkins/jenkins-jenkins-agent: "true"
+    jenkins/label-digest: "5d40a695a147f38563c85823f49ea2933b87678a"
+    jenkins/label: "notification-dev_2-ghcmz"
+    kubernetes.jenkins.io/controller: "http___jenkins_jenkins_svc_cluster_local_8080x"
+  name: "notification-dev-2-ghcmz-1p8vd-xhnt6"
+  namespace: "jenkins"
+spec:
+  containers:
+  - args:
+    - "infinity"
+    command:
+    - "sleep"
+    image: "eclipse-temurin:21-jdk"
+    name: "jdk21"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - args:
+    - "--host=tcp://0.0.0.0:2375"
+    - "--host=unix:///var/run/docker.sock"
+    command:
+    - "dockerd-entrypoint.sh"
+    env:
+    - name: "DOCKER_TLS_CERTDIR"
+      value: ""
+    image: "docker:24-dind"
+    name: "docker"
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - env:
+    - name: "JENKINS_SECRET"
+      value: "********"
+    - name: "JENKINS_TUNNEL"
+      value: "jenkins-agent.jenkins.svc.cluster.local:50000"
+    - name: "JENKINS_AGENT_NAME"
+      value: "notification-dev-2-ghcmz-1p8vd-xhnt6"
+    - name: "REMOTING_OPTS"
+      value: "-noReconnectAfter 1d"
+    - name: "JENKINS_NAME"
+      value: "notification-dev-2-ghcmz-1p8vd-xhnt6"
+    - name: "JENKINS_AGENT_WORKDIR"
+      value: "/home/jenkins/agent"
+    - name: "JENKINS_URL"
+      value: "http://jenkins.jenkins.svc.cluster.local:8080/"
+    image: "jenkins/inbound-agent:3355.v388858a_47b_33-3-jdk21"
+    name: "jnlp"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  nodeSelector:
+    kubernetes.io/os: "linux"
+  restartPolicy: "Never"
+  volumes:
+  - emptyDir:
+      medium: ""
+    name: "workspace-volume"
+
+Running on notification-dev-2-ghcmz-1p8vd-xhnt6 in /home/jenkins/agent/workspace/notification-dev
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/prapoju/circle-guard-public.git
+ > git init /home/jenkins/agent/workspace/notification-dev # timeout=10
+Fetching upstream changes from https://github.com/prapoju/circle-guard-public.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/prapoju/circle-guard-public.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/prapoju/circle-guard-public.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+Checking out Revision d359bbdda3894a0d9ab76e692ff6ba89b5b79fa2 (refs/remotes/origin/master)
+Commit message: "test: mock in attachment controller test"
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f d359bbdda3894a0d9ab76e692ff6ba89b5b79fa2 # timeout=10
+ > git rev-list --no-walk d359bbdda3894a0d9ab76e692ff6ba89b5b79fa2 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] container
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Warning: JENKINS-30600: special launcher org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1@730bad18; decorates RemoteLauncher[hudson.remoting.Channel@7522f9e:JNLP4-connect connection from 10.244.4.18/10.244.4.18:55184] will be ignored (a typical symptom is the Git executable not being run inside a designated container)
+Fetching changes from the remote Git repository
+Checking out Revision d359bbdda3894a0d9ab76e692ff6ba89b5b79fa2 (refs/remotes/origin/master)
+Commit message: "test: mock in attachment controller test"
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Compile)
+[Pipeline] sh
+ > git rev-parse --resolve-git-dir /home/jenkins/agent/workspace/notification-dev/.git # timeout=10
+ > git config remote.origin.url https://github.com/prapoju/circle-guard-public.git # timeout=10
+Fetching upstream changes from https://github.com/prapoju/circle-guard-public.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/prapoju/circle-guard-public.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f d359bbdda3894a0d9ab76e692ff6ba89b5b79fa2 # timeout=10
++ chmod +x gradlew
++ ./gradlew --no-daemon :services:circleguard-notification-service:compileJava
+openjdk version "21.0.11" 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)
+Downloading https://services.gradle.org/distributions/gradle-8.14-bin.zip
+...................................................................................................................................
+Unzipping /root/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14-bin.zip to /root/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9
+Set executable permissions for: /root/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14/bin/gradle
+
+Welcome to Gradle 8.14!
+
+Here are the highlights of this release:
+ - Java 24 support
+ - GraalVM Native Image toolchain selection
+ - Enhancements to test reporting
+ - Build Authoring improvements
+
+For more details see https://docs.gradle.org/8.14/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :services:circleguard-notification-service:checkKotlinGradlePluginConfigurationErrors
+> Task :services:circleguard-notification-service:compileKotlin NO-SOURCE
+> Task :services:circleguard-notification-service:compileJava
+
+[Incubating] Problems report is available at: file:///home/jenkins/agent/workspace/notification-dev/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 37s
+2 actionable tasks: 2 executed
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit Tests)
+[Pipeline] sh
++ ./gradlew --no-daemon :services:circleguard-notification-service:test
+openjdk version "21.0.11" 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :services:circleguard-notification-service:checkKotlinGradlePluginConfigurationErrors
+> Task :services:circleguard-notification-service:compileKotlin NO-SOURCE
+> Task :services:circleguard-notification-service:compileJava UP-TO-DATE
+> Task :services:circleguard-notification-service:processResources
+> Task :services:circleguard-notification-service:classes
+> Task :services:circleguard-notification-service:compileTestKotlin NO-SOURCE
+> Task :services:circleguard-notification-service:compileTestJava
+> Task :services:circleguard-notification-service:processTestResources NO-SOURCE
+> Task :services:circleguard-notification-service:testClasses
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-05-10T03:25:39.790Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.790Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.790Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.790Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:39.790Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.790Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.790Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:39.790Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.790Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:39.792Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.792Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.792Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.792Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.792Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.792Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:39.793Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Node -1 disconnected.
+2026-05-10T03:25:39.793Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:39.793Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:39.795Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:39.796Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:39.795Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:39.796Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:39.796Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:39.796Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:39.796Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:39.796Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:39.796Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:39.801Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-3 unregistered
+2026-05-10T03:25:39.801Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-priority-group-1 unregistered
+2026-05-10T03:25:39.801Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-2 unregistered
+2026-05-10T03:25:39.801Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-priority-group: Consumer stopped
+2026-05-10T03:25:39.801Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+2026-05-10T03:25:39.801Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+2026-05-10T03:25:39.891Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Node -1 disconnected.
+2026-05-10T03:25:39.892Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:39.892Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:40.058Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:40.058Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:40.058Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:40.060Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:40.060Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:40.060Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:40.093Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:40.093Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:40.093Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:40.143Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Node -1 disconnected.
+2026-05-10T03:25:40.143Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:40.143Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:40.647Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Node -1 disconnected.
+2026-05-10T03:25:40.647Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:40.647Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:40.654Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:40.654Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:40.654Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:40.723Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:40.723Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:40.723Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:40.758Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Node -1 disconnected.
+2026-05-10T03:25:40.759Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:40.759Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:40.853Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:40.853Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:40.853Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.098Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Node -1 disconnected.
+2026-05-10T03:25:41.099Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:41.099Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.168Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:41.168Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:41.168Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.213Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:41.214Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:41.214Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.266Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:41.266Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:41.266Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.558Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:41.559Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:41.559Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.601Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Node -1 disconnected.
+2026-05-10T03:25:41.601Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:41.601Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.678Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:41.678Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:41.678Z  WARN 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.763Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Node -1 disconnected.
+2026-05-10T03:25:41.763Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:41.763Z  WARN 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.808Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Node -1 disconnected.
+2026-05-10T03:25:41.808Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Broker may not be available.
+2026-05-10T03:25:41.808Z  WARN 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Bootstrap broker localhost:9092 (id: -1 rack: null) disconnected
+2026-05-10T03:25:41.834Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.834Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.834Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.834Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.834Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.834Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-6, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-4, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-5, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.835Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:41.836Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:41.836Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:41.836Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:41.836Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:41.836Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:41.836Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:41.836Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:41.836Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:41.838Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-6 unregistered
+2026-05-10T03:25:41.838Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+2026-05-10T03:25:41.839Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-5 unregistered
+2026-05-10T03:25:41.839Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+2026-05-10T03:25:41.839Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-priority-group-4 unregistered
+2026-05-10T03:25:41.839Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-priority-group: Consumer stopped
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-9, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-7, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.841Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-8, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.842Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:41.842Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:41.842Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:41.842Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:41.842Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:41.842Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:41.842Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:41.842Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:41.842Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:41.845Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-priority-group-7 unregistered
+2026-05-10T03:25:41.845Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-priority-group: Consumer stopped
+2026-05-10T03:25:41.845Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-8 unregistered
+2026-05-10T03:25:41.846Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+2026-05-10T03:25:41.846Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-9 unregistered
+2026-05-10T03:25:41.846Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+2026-05-10T03:25:41.849Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.849Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.849Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.849Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.849Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:41.849Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.849Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.849Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:41.849Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-12, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-11, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-10, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:41.850Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:41.851Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:41.851Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:25:41.851Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:25:41.851Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:25:41.853Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-priority-group-10 unregistered
+2026-05-10T03:25:41.854Z  INFO 784 --- [circleguard-notification-service] [ntainer#2-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-priority-group: Consumer stopped
+2026-05-10T03:25:41.855Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-11 unregistered
+2026-05-10T03:25:41.855Z  INFO 784 --- [circleguard-notification-service] [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+2026-05-10T03:25:41.855Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-12 unregistered
+2026-05-10T03:25:41.855Z  INFO 784 --- [circleguard-notification-service] [ntainer#1-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+> Task :services:circleguard-notification-service:test
+
+[Incubating] Problems report is available at: file:///home/jenkins/agent/workspace/notification-dev/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 36s
+5 actionable tasks: 4 executed, 1 up-to-date
+Post stage
+[Pipeline] echo
+Unit tests completed
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Integration Tests)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
++ docker compose -f services/circleguard-notification-service/docker-compose.integration.yml up -d
+ zookeeper Pulling 
+ kafka Pulling 
+ fe36fc382320 Pulling fs layer 
+ 4250354b4fb7 Pulling fs layer 
+ c4c5f447179d Pulling fs layer 
+ 17fe3a92262f Pulling fs layer 
+ 5420596c14ab Pulling fs layer 
+ 0e55377ebe37 Pulling fs layer 
+ da7039bb2113 Pulling fs layer 
+ d389b3791c2e Pulling fs layer 
+ c24709eccb2a Pulling fs layer 
+ 2f1cd7af357c Pulling fs layer 
+ 03b1128dd5e0 Pulling fs layer 
+ 17fe3a92262f Waiting 
+ 0e55377ebe37 Waiting 
+ c24709eccb2a Waiting 
+ 5420596c14ab Waiting 
+ da7039bb2113 Waiting 
+ 2f1cd7af357c Waiting 
+ d389b3791c2e Waiting 
+ 03b1128dd5e0 Waiting 
+ fe36fc382320 Pulling fs layer 
+ 4250354b4fb7 Pulling fs layer 
+ c4c5f447179d Pulling fs layer 
+ 17fe3a92262f Pulling fs layer 
+ 5420596c14ab Pulling fs layer 
+ 0e55377ebe37 Pulling fs layer 
+ da7039bb2113 Pulling fs layer 
+ d389b3791c2e Pulling fs layer 
+ c24709eccb2a Pulling fs layer 
+ ad79ffd84e00 Pulling fs layer 
+ 218229bf30d9 Pulling fs layer 
+ d389b3791c2e Waiting 
+ 17fe3a92262f Waiting 
+ 0e55377ebe37 Waiting 
+ da7039bb2113 Waiting 
+ 5420596c14ab Waiting 
+ c24709eccb2a Waiting 
+ 218229bf30d9 Waiting 
+ ad79ffd84e00 Waiting 
+ c4c5f447179d Downloading [>                                                  ]  80.46kB/7.734MB
+ c4c5f447179d Downloading [>                                                  ]  80.46kB/7.734MB
+ fe36fc382320 Downloading [>                                                  ]  371.9kB/37.02MB
+ fe36fc382320 Downloading [>                                                  ]  371.9kB/37.02MB
+ 4250354b4fb7 Downloading [>                                                  ]  532.5kB/254.1MB
+ 4250354b4fb7 Downloading [>                                                  ]  532.5kB/254.1MB
+ c4c5f447179d Downloading [====>                                              ]  654.2kB/7.734MB
+ c4c5f447179d Downloading [====>                                              ]  654.2kB/7.734MB
+ fe36fc382320 Downloading [==>                                                ]  1.502MB/37.02MB
+ fe36fc382320 Downloading [==>                                                ]  1.502MB/37.02MB
+ 4250354b4fb7 Downloading [>                                                  ]  2.146MB/254.1MB
+ 4250354b4fb7 Downloading [>                                                  ]  2.146MB/254.1MB
+ c4c5f447179d Downloading [=============>                                     ]   2.13MB/7.734MB
+ c4c5f447179d Downloading [=============>                                     ]   2.13MB/7.734MB
+ fe36fc382320 Downloading [=====>                                             ]  4.145MB/37.02MB
+ fe36fc382320 Downloading [=====>                                             ]  4.145MB/37.02MB
+ 4250354b4fb7 Downloading [>                                                  ]  4.821MB/254.1MB
+ 4250354b4fb7 Downloading [>                                                  ]  4.821MB/254.1MB
+ c4c5f447179d Downloading [============================>                      ]  4.439MB/7.734MB
+ c4c5f447179d Downloading [============================>                      ]  4.439MB/7.734MB
+ c4c5f447179d Downloading [====================================>              ]  5.681MB/7.734MB
+ c4c5f447179d Downloading [====================================>              ]  5.681MB/7.734MB
+ fe36fc382320 Downloading [========>                                          ]   6.41MB/37.02MB
+ fe36fc382320 Downloading [========>                                          ]   6.41MB/37.02MB
+ 4250354b4fb7 Downloading [=>                                                 ]  6.977MB/254.1MB
+ 4250354b4fb7 Downloading [=>                                                 ]  6.977MB/254.1MB
+ c4c5f447179d Verifying Checksum 
+ c4c5f447179d Download complete 
+ c4c5f447179d Download complete 
+ fe36fc382320 Downloading [=============>                                     ]   10.2MB/37.02MB
+ fe36fc382320 Downloading [=============>                                     ]   10.2MB/37.02MB
+ 4250354b4fb7 Downloading [==>                                                ]  10.71MB/254.1MB
+ 4250354b4fb7 Downloading [==>                                                ]  10.71MB/254.1MB
+ fe36fc382320 Downloading [=======================>                           ]  17.74MB/37.02MB
+ fe36fc382320 Downloading [=======================>                           ]  17.74MB/37.02MB
+ 4250354b4fb7 Downloading [==>                                                ]     15MB/254.1MB
+ 4250354b4fb7 Downloading [==>                                                ]     15MB/254.1MB
+ fe36fc382320 Downloading [==============================>                    ]  22.27MB/37.02MB
+ fe36fc382320 Downloading [==============================>                    ]  22.27MB/37.02MB
+ 4250354b4fb7 Downloading [===>                                               ]  18.75MB/254.1MB
+ 4250354b4fb7 Downloading [===>                                               ]  18.75MB/254.1MB
+ fe36fc382320 Downloading [====================================>              ]  27.17MB/37.02MB
+ fe36fc382320 Downloading [====================================>              ]  27.17MB/37.02MB
+ 4250354b4fb7 Downloading [====>                                              ]  22.48MB/254.1MB
+ 4250354b4fb7 Downloading [====>                                              ]  22.48MB/254.1MB
+ fe36fc382320 Downloading [===========================================>       ]   32.1MB/37.02MB
+ fe36fc382320 Downloading [===========================================>       ]   32.1MB/37.02MB
+ 4250354b4fb7 Downloading [=====>                                             ]  26.75MB/254.1MB
+ 4250354b4fb7 Downloading [=====>                                             ]  26.75MB/254.1MB
+ fe36fc382320 Downloading [================================================>  ]  36.26MB/37.02MB
+ fe36fc382320 Downloading [================================================>  ]  36.26MB/37.02MB
+ fe36fc382320 Download complete 
+ fe36fc382320 Download complete 
+ 4250354b4fb7 Downloading [======>                                            ]  31.02MB/254.1MB
+ 4250354b4fb7 Downloading [======>                                            ]  31.02MB/254.1MB
+ fe36fc382320 Extracting [>                                                  ]  393.2kB/37.02MB
+ fe36fc382320 Extracting [>                                                  ]  393.2kB/37.02MB
+ 17fe3a92262f Downloading [>                                                  ]     371B/19.96kB
+ 17fe3a92262f Downloading [>                                                  ]     371B/19.96kB
+ 17fe3a92262f Downloading [==================================================>]  19.96kB/19.96kB
+ 17fe3a92262f Verifying Checksum 
+ 17fe3a92262f Download complete 
+ 17fe3a92262f Verifying Checksum 
+ 17fe3a92262f Download complete 
+ 4250354b4fb7 Downloading [=======>                                           ]  36.36MB/254.1MB
+ 4250354b4fb7 Downloading [=======>                                           ]  36.36MB/254.1MB
+ fe36fc382320 Extracting [=======>                                           ]  5.505MB/37.02MB
+ fe36fc382320 Extracting [=======>                                           ]  5.505MB/37.02MB
+ 4250354b4fb7 Downloading [========>                                          ]  41.18MB/254.1MB
+ 4250354b4fb7 Downloading [========>                                          ]  41.18MB/254.1MB
+ fe36fc382320 Extracting [==========>                                        ]  7.864MB/37.02MB
+ fe36fc382320 Extracting [==========>                                        ]  7.864MB/37.02MB
+ 4250354b4fb7 Downloading [=========>                                         ]  46.56MB/254.1MB
+ 4250354b4fb7 Downloading [=========>                                         ]  46.56MB/254.1MB
+ fe36fc382320 Extracting [===============>                                   ]   11.4MB/37.02MB
+ fe36fc382320 Extracting [===============>                                   ]   11.4MB/37.02MB
+ 4250354b4fb7 Downloading [==========>                                        ]  52.44MB/254.1MB
+ 4250354b4fb7 Downloading [==========>                                        ]  52.44MB/254.1MB
+ fe36fc382320 Extracting [========================>                          ]  18.09MB/37.02MB
+ fe36fc382320 Extracting [========================>                          ]  18.09MB/37.02MB
+ 0e55377ebe37 Downloading [=================>                                 ]     393B/1.104kB
+ 0e55377ebe37 Downloading [==================================================>]  1.104kB/1.104kB
+ 0e55377ebe37 Verifying Checksum 
+ 0e55377ebe37 Download complete 
+ 0e55377ebe37 Downloading [=================>                                 ]     393B/1.104kB
+ 0e55377ebe37 Downloading [==================================================>]  1.104kB/1.104kB
+ 0e55377ebe37 Verifying Checksum 
+ 0e55377ebe37 Download complete 
+ 5420596c14ab Downloading [>                                                  ]  404.7kB/39.51MB
+ 5420596c14ab Downloading [>                                                  ]  404.7kB/39.51MB
+ 4250354b4fb7 Downloading [===========>                                       ]  58.88MB/254.1MB
+ 4250354b4fb7 Downloading [===========>                                       ]  58.88MB/254.1MB
+ fe36fc382320 Extracting [=================================>                 ]  25.17MB/37.02MB
+ fe36fc382320 Extracting [=================================>                 ]  25.17MB/37.02MB
+ 5420596c14ab Downloading [=>                                                 ]  1.224MB/39.51MB
+ 5420596c14ab Downloading [=>                                                 ]  1.224MB/39.51MB
+ 4250354b4fb7 Downloading [============>                                      ]  65.89MB/254.1MB
+ 4250354b4fb7 Downloading [============>                                      ]  65.89MB/254.1MB
+ fe36fc382320 Extracting [==========================================>        ]  31.46MB/37.02MB
+ fe36fc382320 Extracting [==========================================>        ]  31.46MB/37.02MB
+ 5420596c14ab Downloading [===>                                               ]   2.85MB/39.51MB
+ 5420596c14ab Downloading [===>                                               ]   2.85MB/39.51MB
+ 4250354b4fb7 Downloading [==============>                                    ]  72.35MB/254.1MB
+ 4250354b4fb7 Downloading [==============>                                    ]  72.35MB/254.1MB
+ fe36fc382320 Extracting [=============================================>     ]  33.82MB/37.02MB
+ fe36fc382320 Extracting [=============================================>     ]  33.82MB/37.02MB
+ 5420596c14ab Downloading [=====>                                             ]  4.058MB/39.51MB
+ 5420596c14ab Downloading [=====>                                             ]  4.058MB/39.51MB
+ 4250354b4fb7 Downloading [==============>                                    ]  74.51MB/254.1MB
+ 4250354b4fb7 Downloading [==============>                                    ]  74.51MB/254.1MB
+ fe36fc382320 Extracting [================================================>  ]  35.78MB/37.02MB
+ fe36fc382320 Extracting [================================================>  ]  35.78MB/37.02MB
+ fe36fc382320 Extracting [==================================================>]  37.02MB/37.02MB
+ fe36fc382320 Extracting [==================================================>]  37.02MB/37.02MB
+ 5420596c14ab Downloading [=========>                                         ]  7.711MB/39.51MB
+ 5420596c14ab Downloading [=========>                                         ]  7.711MB/39.51MB
+ 4250354b4fb7 Downloading [================>                                  ]  83.63MB/254.1MB
+ 4250354b4fb7 Downloading [================>                                  ]  83.63MB/254.1MB
+ fe36fc382320 Pull complete 
+ fe36fc382320 Pull complete 
+ 4250354b4fb7 Downloading [=================>                                 ]  89.55MB/254.1MB
+ 4250354b4fb7 Downloading [=================>                                 ]  89.55MB/254.1MB
+ 5420596c14ab Downloading [============>                                      ]   9.76MB/39.51MB
+ 5420596c14ab Downloading [============>                                      ]   9.76MB/39.51MB
+ da7039bb2113 Downloading [======================>                            ]     394B/880B
+ da7039bb2113 Downloading [==================================================>]     880B/880B
+ da7039bb2113 Verifying Checksum 
+ da7039bb2113 Download complete 
+ da7039bb2113 Downloading [======================>                            ]     394B/880B
+ da7039bb2113 Downloading [==================================================>]     880B/880B
+ da7039bb2113 Verifying Checksum 
+ da7039bb2113 Download complete 
+ 5420596c14ab Downloading [==============>                                    ]  11.78MB/39.51MB
+ 5420596c14ab Downloading [==============>                                    ]  11.78MB/39.51MB
+ 4250354b4fb7 Downloading [==================>                                ]  95.45MB/254.1MB
+ 4250354b4fb7 Downloading [==================>                                ]  95.45MB/254.1MB
+ 5420596c14ab Downloading [=================>                                 ]  14.21MB/39.51MB
+ 5420596c14ab Downloading [=================>                                 ]  14.21MB/39.51MB
+ 4250354b4fb7 Downloading [===================>                               ]  101.3MB/254.1MB
+ 4250354b4fb7 Downloading [===================>                               ]  101.3MB/254.1MB
+ 5420596c14ab Downloading [=====================>                             ]  17.08MB/39.51MB
+ 5420596c14ab Downloading [=====================>                             ]  17.08MB/39.51MB
+ 4250354b4fb7 Downloading [=====================>                             ]  107.1MB/254.1MB
+ 4250354b4fb7 Downloading [=====================>                             ]  107.1MB/254.1MB
+ 5420596c14ab Downloading [========================>                          ]  19.53MB/39.51MB
+ 5420596c14ab Downloading [========================>                          ]  19.53MB/39.51MB
+ 4250354b4fb7 Downloading [======================>                            ]    113MB/254.1MB
+ 4250354b4fb7 Downloading [======================>                            ]    113MB/254.1MB
+ 5420596c14ab Downloading [===========================>                       ]  21.95MB/39.51MB
+ 5420596c14ab Downloading [===========================>                       ]  21.95MB/39.51MB
+ 4250354b4fb7 Downloading [=======================>                           ]  118.4MB/254.1MB
+ 4250354b4fb7 Downloading [=======================>                           ]  118.4MB/254.1MB
+ 5420596c14ab Downloading [============================>                      ]  22.35MB/39.51MB
+ 5420596c14ab Downloading [============================>                      ]  22.35MB/39.51MB
+ 4250354b4fb7 Downloading [=======================>                           ]  119.5MB/254.1MB
+ 4250354b4fb7 Downloading [=======================>                           ]  119.5MB/254.1MB
+ 5420596c14ab Downloading [==================================>                ]  27.65MB/39.51MB
+ 5420596c14ab Downloading [==================================>                ]  27.65MB/39.51MB
+ 4250354b4fb7 Downloading [=========================>                         ]  129.2MB/254.1MB
+ 4250354b4fb7 Downloading [=========================>                         ]  129.2MB/254.1MB
+ 5420596c14ab Downloading [======================================>            ]  30.51MB/39.51MB
+ 5420596c14ab Downloading [======================================>            ]  30.51MB/39.51MB
+ 4250354b4fb7 Downloading [==========================>                        ]  135.1MB/254.1MB
+ 4250354b4fb7 Downloading [==========================>                        ]  135.1MB/254.1MB
+ d389b3791c2e Downloading [==================================================>]     131B/131B
+ d389b3791c2e Download complete 
+ d389b3791c2e Downloading [==================================================>]     131B/131B
+ d389b3791c2e Download complete 
+ 5420596c14ab Downloading [==========================================>        ]  33.34MB/39.51MB
+ 5420596c14ab Downloading [==========================================>        ]  33.34MB/39.51MB
+ 4250354b4fb7 Downloading [===========================>                       ]  140.4MB/254.1MB
+ 4250354b4fb7 Downloading [===========================>                       ]  140.4MB/254.1MB
+ 5420596c14ab Downloading [==============================================>    ]   36.6MB/39.51MB
+ 5420596c14ab Downloading [==============================================>    ]   36.6MB/39.51MB
+ 5420596c14ab Verifying Checksum 
+ 5420596c14ab Download complete 
+ 5420596c14ab Verifying Checksum 
+ 5420596c14ab Download complete 
+ 4250354b4fb7 Downloading [============================>                      ]  145.3MB/254.1MB
+ 4250354b4fb7 Downloading [============================>                      ]  145.3MB/254.1MB
+ 4250354b4fb7 Downloading [=============================>                     ]  151.7MB/254.1MB
+ 4250354b4fb7 Downloading [=============================>                     ]  151.7MB/254.1MB
+ c24709eccb2a Download complete 
+ c24709eccb2a Downloading [==================================================>]     172B/172B
+ c24709eccb2a Download complete 
+ 4250354b4fb7 Downloading [===============================>                   ]  159.2MB/254.1MB
+ 4250354b4fb7 Downloading [===============================>                   ]  159.2MB/254.1MB
+ 4250354b4fb7 Downloading [================================>                  ]  166.7MB/254.1MB
+ 4250354b4fb7 Downloading [================================>                  ]  166.7MB/254.1MB
+ 4250354b4fb7 Downloading [==================================>                ]  174.8MB/254.1MB
+ 4250354b4fb7 Downloading [==================================>                ]  174.8MB/254.1MB
+ 4250354b4fb7 Downloading [===================================>               ]  182.3MB/254.1MB
+ 4250354b4fb7 Downloading [===================================>               ]  182.3MB/254.1MB
+ 2f1cd7af357c Downloading [>                                                  ]  535.7kB/114.9MB
+ 4250354b4fb7 Downloading [=====================================>             ]  189.2MB/254.1MB
+ 4250354b4fb7 Downloading [=====================================>             ]  189.2MB/254.1MB
+ 03b1128dd5e0 Downloading [=====>                                             ]     394B/3.449kB
+ 03b1128dd5e0 Downloading [==================================================>]  3.449kB/3.449kB
+ 03b1128dd5e0 Verifying Checksum 
+ 03b1128dd5e0 Download complete 
+ 2f1cd7af357c Downloading [>                                                  ]  1.615MB/114.9MB
+ 4250354b4fb7 Downloading [======================================>            ]  195.6MB/254.1MB
+ 4250354b4fb7 Downloading [======================================>            ]  195.6MB/254.1MB
+ 2f1cd7af357c Downloading [=>                                                 ]  3.237MB/114.9MB
+ 2f1cd7af357c Downloading [==>                                                ]  5.382MB/114.9MB
+ 4250354b4fb7 Downloading [=======================================>           ]  203.1MB/254.1MB
+ 4250354b4fb7 Downloading [=======================================>           ]  203.1MB/254.1MB
+ 2f1cd7af357c Downloading [==>                                                ]  5.907MB/114.9MB
+ 4250354b4fb7 Downloading [=========================================>         ]  213.3MB/254.1MB
+ 4250354b4fb7 Downloading [=========================================>         ]  213.3MB/254.1MB
+ 2f1cd7af357c Downloading [===>                                               ]  9.116MB/114.9MB
+ 4250354b4fb7 Downloading [===========================================>       ]  219.2MB/254.1MB
+ 4250354b4fb7 Downloading [===========================================>       ]  219.2MB/254.1MB
+ 2f1cd7af357c Downloading [====>                                              ]  11.26MB/114.9MB
+ 4250354b4fb7 Downloading [===========================================>       ]  220.8MB/254.1MB
+ 4250354b4fb7 Downloading [===========================================>       ]  220.8MB/254.1MB
+ 2f1cd7af357c Downloading [=====>                                             ]  12.86MB/114.9MB
+ 4250354b4fb7 Downloading [=============================================>     ]  232.1MB/254.1MB
+ 4250354b4fb7 Downloading [=============================================>     ]  232.1MB/254.1MB
+ 2f1cd7af357c Downloading [======>                                            ]  15.57MB/114.9MB
+ 4250354b4fb7 Downloading [==============================================>    ]  235.8MB/254.1MB
+ 4250354b4fb7 Downloading [==============================================>    ]  235.8MB/254.1MB
+ 2f1cd7af357c Downloading [=======>                                           ]  17.71MB/114.9MB
+ 4250354b4fb7 Downloading [================================================>  ]  246.5MB/254.1MB
+ 4250354b4fb7 Downloading [================================================>  ]  246.5MB/254.1MB
+ 4250354b4fb7 Downloading [================================================>  ]  248.2MB/254.1MB
+ 4250354b4fb7 Downloading [================================================>  ]  248.2MB/254.1MB
+ 2f1cd7af357c Downloading [========>                                          ]  19.33MB/114.9MB
+ 4250354b4fb7 Verifying Checksum 
+ 4250354b4fb7 Download complete 
+ 4250354b4fb7 Download complete 
+ ad79ffd84e00 Downloading [>                                                  ]  535.7kB/114.9MB
+ 4250354b4fb7 Extracting [>                                                  ]  557.1kB/254.1MB
+ 4250354b4fb7 Extracting [>                                                  ]  557.1kB/254.1MB
+ 2f1cd7af357c Downloading [==========>                                        ]  24.17MB/114.9MB
+ ad79ffd84e00 Downloading [=>                                                 ]  2.662MB/114.9MB
+ 4250354b4fb7 Extracting [==>                                                ]   11.7MB/254.1MB
+ 4250354b4fb7 Extracting [==>                                                ]   11.7MB/254.1MB
+ 2f1cd7af357c Downloading [===========>                                       ]  26.84MB/114.9MB
+ ad79ffd84e00 Downloading [===>                                               ]  7.463MB/114.9MB
+ 4250354b4fb7 Extracting [====>                                              ]  25.07MB/254.1MB
+ 4250354b4fb7 Extracting [====>                                              ]  25.07MB/254.1MB
+ 2f1cd7af357c Downloading [============>                                      ]  29.54MB/114.9MB
+ ad79ffd84e00 Downloading [=====>                                             ]  12.82MB/114.9MB
+ 2f1cd7af357c Downloading [=============>                                     ]  31.69MB/114.9MB
+ 4250354b4fb7 Extracting [=====>                                             ]  28.41MB/254.1MB
+ 4250354b4fb7 Extracting [=====>                                             ]  28.41MB/254.1MB
+ ad79ffd84e00 Downloading [======>                                            ]  15.51MB/114.9MB
+ 2f1cd7af357c Downloading [===============>                                   ]     36MB/114.9MB
+ 4250354b4fb7 Extracting [========>                                          ]  45.12MB/254.1MB
+ 4250354b4fb7 Extracting [========>                                          ]  45.12MB/254.1MB
+ ad79ffd84e00 Downloading [==========>                                        ]  24.59MB/114.9MB
+ 218229bf30d9 Downloading [====>                                              ]     360B/3.629kB
+ 218229bf30d9 Download complete 
+ 4250354b4fb7 Extracting [===========>                                       ]  60.16MB/254.1MB
+ 4250354b4fb7 Extracting [===========>                                       ]  60.16MB/254.1MB
+ ad79ffd84e00 Downloading [=============>                                     ]  29.94MB/114.9MB
+ 2f1cd7af357c Downloading [=================>                                 ]  39.22MB/114.9MB
+ 4250354b4fb7 Extracting [==============>                                    ]  72.97MB/254.1MB
+ 4250354b4fb7 Extracting [==============>                                    ]  72.97MB/254.1MB
+ ad79ffd84e00 Downloading [===============>                                   ]  35.84MB/114.9MB
+ 2f1cd7af357c Downloading [==================>                                ]  41.89MB/114.9MB
+ 4250354b4fb7 Extracting [=================>                                 ]  88.57MB/254.1MB
+ 4250354b4fb7 Extracting [=================>                                 ]  88.57MB/254.1MB
+ ad79ffd84e00 Downloading [==================>                                ]  41.68MB/114.9MB
+ 2f1cd7af357c Downloading [===================>                               ]  44.59MB/114.9MB
+ 4250354b4fb7 Extracting [====================>                              ]  104.2MB/254.1MB
+ 4250354b4fb7 Extracting [====================>                              ]  104.2MB/254.1MB
+ ad79ffd84e00 Downloading [====================>                              ]  47.02MB/114.9MB
+ 2f1cd7af357c Downloading [====================>                              ]  47.27MB/114.9MB
+ 4250354b4fb7 Extracting [=====================>                             ]  110.9MB/254.1MB
+ 4250354b4fb7 Extracting [=====================>                             ]  110.9MB/254.1MB
+ ad79ffd84e00 Downloading [======================>                            ]  52.36MB/114.9MB
+ 2f1cd7af357c Downloading [=====================>                             ]   50.5MB/114.9MB
+ 4250354b4fb7 Extracting [=======================>                           ]    117MB/254.1MB
+ 4250354b4fb7 Extracting [=======================>                           ]    117MB/254.1MB
+ ad79ffd84e00 Downloading [========================>                          ]  57.17MB/114.9MB
+ 2f1cd7af357c Downloading [=======================>                           ]  53.17MB/114.9MB
+ 4250354b4fb7 Extracting [========================>                          ]  122.6MB/254.1MB
+ 4250354b4fb7 Extracting [========================>                          ]  122.6MB/254.1MB
+ ad79ffd84e00 Downloading [===========================>                       ]  62.51MB/114.9MB
+ 2f1cd7af357c Downloading [========================>                          ]  56.42MB/114.9MB
+ 4250354b4fb7 Extracting [=========================>                         ]  128.7MB/254.1MB
+ 4250354b4fb7 Extracting [=========================>                         ]  128.7MB/254.1MB
+ ad79ffd84e00 Downloading [=============================>                     ]  67.85MB/114.9MB
+ 2f1cd7af357c Downloading [=========================>                         ]  59.07MB/114.9MB
+ 4250354b4fb7 Extracting [==========================>                        ]  135.4MB/254.1MB
+ 4250354b4fb7 Extracting [==========================>                        ]  135.4MB/254.1MB
+ ad79ffd84e00 Downloading [===============================>                   ]  73.17MB/114.9MB
+ 2f1cd7af357c Downloading [==========================>                        ]  61.77MB/114.9MB
+ 4250354b4fb7 Extracting [===========================>                       ]  141.5MB/254.1MB
+ 4250354b4fb7 Extracting [===========================>                       ]  141.5MB/254.1MB
+ ad79ffd84e00 Downloading [==================================>                ]  79.04MB/114.9MB
+ 2f1cd7af357c Downloading [===========================>                       ]  62.85MB/114.9MB
+ 4250354b4fb7 Extracting [=============================>                     ]  147.6MB/254.1MB
+ 4250354b4fb7 Extracting [=============================>                     ]  147.6MB/254.1MB
+ ad79ffd84e00 Downloading [====================================>              ]  84.36MB/114.9MB
+ 4250354b4fb7 Extracting [==============================>                    ]  153.2MB/254.1MB
+ 4250354b4fb7 Extracting [==============================>                    ]  153.2MB/254.1MB
+ 2f1cd7af357c Downloading [=============================>                     ]  67.68MB/114.9MB
+ ad79ffd84e00 Downloading [=======================================>           ]  90.25MB/114.9MB
+ 2f1cd7af357c Downloading [==============================>                    ]  70.37MB/114.9MB
+ 4250354b4fb7 Extracting [===============================>                   ]  158.8MB/254.1MB
+ 4250354b4fb7 Extracting [===============================>                   ]  158.8MB/254.1MB
+ ad79ffd84e00 Downloading [=========================================>         ]  96.13MB/114.9MB
+ 4250354b4fb7 Extracting [================================>                  ]  164.9MB/254.1MB
+ 4250354b4fb7 Extracting [================================>                  ]  164.9MB/254.1MB
+ 2f1cd7af357c Downloading [================================>                  ]   73.6MB/114.9MB
+ ad79ffd84e00 Downloading [============================================>      ]  101.5MB/114.9MB
+ 2f1cd7af357c Downloading [================================>                  ]  75.74MB/114.9MB
+ ad79ffd84e00 Downloading [==============================================>    ]  107.4MB/114.9MB
+ 4250354b4fb7 Extracting [=================================>                 ]  168.8MB/254.1MB
+ 4250354b4fb7 Extracting [=================================>                 ]  168.8MB/254.1MB
+ 2f1cd7af357c Downloading [==================================>                ]  78.44MB/114.9MB
+ ad79ffd84e00 Downloading [=================================================> ]  113.2MB/114.9MB
+ ad79ffd84e00 Verifying Checksum 
+ ad79ffd84e00 Download complete 
+ 4250354b4fb7 Extracting [=================================>                 ]  169.3MB/254.1MB
+ 4250354b4fb7 Extracting [=================================>                 ]  169.3MB/254.1MB
+ 2f1cd7af357c Downloading [===================================>               ]  82.21MB/114.9MB
+ 4250354b4fb7 Extracting [=================================>                 ]  170.5MB/254.1MB
+ 4250354b4fb7 Extracting [=================================>                 ]  170.5MB/254.1MB
+ 2f1cd7af357c Downloading [=====================================>             ]  85.99MB/114.9MB
+ 4250354b4fb7 Extracting [=================================>                 ]  171.6MB/254.1MB
+ 4250354b4fb7 Extracting [=================================>                 ]  171.6MB/254.1MB
+ 2f1cd7af357c Downloading [=======================================>           ]  89.76MB/114.9MB
+ 4250354b4fb7 Extracting [=================================>                 ]  172.7MB/254.1MB
+ 4250354b4fb7 Extracting [=================================>                 ]  172.7MB/254.1MB
+ 2f1cd7af357c Downloading [========================================>          ]  94.05MB/114.9MB
+ 4250354b4fb7 Extracting [==================================>                ]  173.8MB/254.1MB
+ 4250354b4fb7 Extracting [==================================>                ]  173.8MB/254.1MB
+ 2f1cd7af357c Downloading [==========================================>        ]  98.35MB/114.9MB
+ 2f1cd7af357c Downloading [============================================>      ]  103.2MB/114.9MB
+ 4250354b4fb7 Extracting [==================================>                ]  175.5MB/254.1MB
+ 4250354b4fb7 Extracting [==================================>                ]  175.5MB/254.1MB
+ 2f1cd7af357c Downloading [===============================================>   ]  109.1MB/114.9MB
+ 4250354b4fb7 Extracting [===================================>               ]    181MB/254.1MB
+ 4250354b4fb7 Extracting [===================================>               ]    181MB/254.1MB
+ 2f1cd7af357c Verifying Checksum 
+ 2f1cd7af357c Download complete 
+ 4250354b4fb7 Extracting [====================================>              ]  186.6MB/254.1MB
+ 4250354b4fb7 Extracting [====================================>              ]  186.6MB/254.1MB
+ 4250354b4fb7 Extracting [=====================================>             ]  188.8MB/254.1MB
+ 4250354b4fb7 Extracting [=====================================>             ]  188.8MB/254.1MB
+ 4250354b4fb7 Extracting [=====================================>             ]    190MB/254.1MB
+ 4250354b4fb7 Extracting [=====================================>             ]    190MB/254.1MB
+ 4250354b4fb7 Extracting [=====================================>             ]  192.7MB/254.1MB
+ 4250354b4fb7 Extracting [=====================================>             ]  192.7MB/254.1MB
+ 4250354b4fb7 Extracting [======================================>            ]  194.4MB/254.1MB
+ 4250354b4fb7 Extracting [======================================>            ]  194.4MB/254.1MB
+ 4250354b4fb7 Extracting [======================================>            ]  196.6MB/254.1MB
+ 4250354b4fb7 Extracting [======================================>            ]  196.6MB/254.1MB
+ 4250354b4fb7 Extracting [=======================================>           ]  198.3MB/254.1MB
+ 4250354b4fb7 Extracting [=======================================>           ]  198.3MB/254.1MB
+ 4250354b4fb7 Extracting [=======================================>           ]    200MB/254.1MB
+ 4250354b4fb7 Extracting [=======================================>           ]    200MB/254.1MB
+ 4250354b4fb7 Extracting [=======================================>           ]  201.1MB/254.1MB
+ 4250354b4fb7 Extracting [=======================================>           ]  201.1MB/254.1MB
+ 4250354b4fb7 Extracting [========================================>          ]  203.9MB/254.1MB
+ 4250354b4fb7 Extracting [========================================>          ]  203.9MB/254.1MB
+ 4250354b4fb7 Extracting [========================================>          ]  205.6MB/254.1MB
+ 4250354b4fb7 Extracting [========================================>          ]  205.6MB/254.1MB
+ 4250354b4fb7 Extracting [========================================>          ]  207.2MB/254.1MB
+ 4250354b4fb7 Extracting [========================================>          ]  207.2MB/254.1MB
+ 4250354b4fb7 Extracting [=========================================>         ]  208.9MB/254.1MB
+ 4250354b4fb7 Extracting [=========================================>         ]  208.9MB/254.1MB
+ 4250354b4fb7 Extracting [=========================================>         ]  211.7MB/254.1MB
+ 4250354b4fb7 Extracting [=========================================>         ]  211.7MB/254.1MB
+ 4250354b4fb7 Extracting [==========================================>        ]  213.9MB/254.1MB
+ 4250354b4fb7 Extracting [==========================================>        ]  213.9MB/254.1MB
+ 4250354b4fb7 Extracting [==========================================>        ]  215.6MB/254.1MB
+ 4250354b4fb7 Extracting [==========================================>        ]  215.6MB/254.1MB
+ 4250354b4fb7 Extracting [==========================================>        ]  218.4MB/254.1MB
+ 4250354b4fb7 Extracting [==========================================>        ]  218.4MB/254.1MB
+ 4250354b4fb7 Extracting [===========================================>       ]    220MB/254.1MB
+ 4250354b4fb7 Extracting [===========================================>       ]    220MB/254.1MB
+ 4250354b4fb7 Extracting [===========================================>       ]  221.7MB/254.1MB
+ 4250354b4fb7 Extracting [===========================================>       ]  221.7MB/254.1MB
+ 4250354b4fb7 Extracting [===========================================>       ]  223.4MB/254.1MB
+ 4250354b4fb7 Extracting [===========================================>       ]  223.4MB/254.1MB
+ 4250354b4fb7 Extracting [============================================>      ]  227.8MB/254.1MB
+ 4250354b4fb7 Extracting [============================================>      ]  227.8MB/254.1MB
+ 4250354b4fb7 Extracting [=============================================>     ]  230.6MB/254.1MB
+ 4250354b4fb7 Extracting [=============================================>     ]  230.6MB/254.1MB
+ 4250354b4fb7 Extracting [=============================================>     ]  233.4MB/254.1MB
+ 4250354b4fb7 Extracting [=============================================>     ]  233.4MB/254.1MB
+ 4250354b4fb7 Extracting [==============================================>    ]  238.4MB/254.1MB
+ 4250354b4fb7 Extracting [==============================================>    ]  238.4MB/254.1MB
+ 4250354b4fb7 Extracting [===============================================>   ]  241.8MB/254.1MB
+ 4250354b4fb7 Extracting [===============================================>   ]  241.8MB/254.1MB
+ 4250354b4fb7 Extracting [=================================================> ]  250.1MB/254.1MB
+ 4250354b4fb7 Extracting [=================================================> ]  250.1MB/254.1MB
+ 4250354b4fb7 Extracting [==================================================>]  254.1MB/254.1MB
+ 4250354b4fb7 Extracting [==================================================>]  254.1MB/254.1MB
+ 4250354b4fb7 Pull complete 
+ 4250354b4fb7 Pull complete 
+ c4c5f447179d Extracting [>                                                  ]   98.3kB/7.734MB
+ c4c5f447179d Extracting [>                                                  ]   98.3kB/7.734MB
+ c4c5f447179d Extracting [==================================================>]  7.734MB/7.734MB
+ c4c5f447179d Extracting [==================================================>]  7.734MB/7.734MB
+ c4c5f447179d Pull complete 
+ c4c5f447179d Pull complete 
+ 17fe3a92262f Extracting [==================================================>]  19.96kB/19.96kB
+ 17fe3a92262f Extracting [==================================================>]  19.96kB/19.96kB
+ 17fe3a92262f Extracting [==================================================>]  19.96kB/19.96kB
+ 17fe3a92262f Extracting [==================================================>]  19.96kB/19.96kB
+ 17fe3a92262f Pull complete 
+ 17fe3a92262f Pull complete 
+ 5420596c14ab Extracting [>                                                  ]    426kB/39.51MB
+ 5420596c14ab Extracting [>                                                  ]    426kB/39.51MB
+ 5420596c14ab Extracting [=====================>                             ]  16.61MB/39.51MB
+ 5420596c14ab Extracting [=====================>                             ]  16.61MB/39.51MB
+ 5420596c14ab Extracting [===========================================>       ]   34.5MB/39.51MB
+ 5420596c14ab Extracting [===========================================>       ]   34.5MB/39.51MB
+ 5420596c14ab Extracting [==================================================>]  39.51MB/39.51MB
+ 5420596c14ab Extracting [==================================================>]  39.51MB/39.51MB
+ 5420596c14ab Pull complete 
+ 5420596c14ab Pull complete 
+ 0e55377ebe37 Extracting [==================================================>]  1.104kB/1.104kB
+ 0e55377ebe37 Extracting [==================================================>]  1.104kB/1.104kB
+ 0e55377ebe37 Extracting [==================================================>]  1.104kB/1.104kB
+ 0e55377ebe37 Extracting [==================================================>]  1.104kB/1.104kB
+ 0e55377ebe37 Pull complete 
+ 0e55377ebe37 Pull complete 
+ da7039bb2113 Extracting [==================================================>]     880B/880B
+ da7039bb2113 Extracting [==================================================>]     880B/880B
+ da7039bb2113 Extracting [==================================================>]     880B/880B
+ da7039bb2113 Extracting [==================================================>]     880B/880B
+ da7039bb2113 Pull complete 
+ da7039bb2113 Pull complete 
+ d389b3791c2e Extracting [==================================================>]     131B/131B
+ d389b3791c2e Extracting [==================================================>]     131B/131B
+ d389b3791c2e Extracting [==================================================>]     131B/131B
+ d389b3791c2e Extracting [==================================================>]     131B/131B
+ d389b3791c2e Pull complete 
+ d389b3791c2e Pull complete 
+ c24709eccb2a Extracting [==================================================>]     172B/172B
+ c24709eccb2a Extracting [==================================================>]     172B/172B
+ c24709eccb2a Extracting [==================================================>]     172B/172B
+ c24709eccb2a Extracting [==================================================>]     172B/172B
+ c24709eccb2a Pull complete 
+ c24709eccb2a Pull complete 
+ 2f1cd7af357c Extracting [>                                                  ]  557.1kB/114.9MB
+ ad79ffd84e00 Extracting [>                                                  ]  557.1kB/114.9MB
+ 2f1cd7af357c Extracting [======>                                            ]  13.93MB/114.9MB
+ ad79ffd84e00 Extracting [======>                                            ]  13.93MB/114.9MB
+ 2f1cd7af357c Extracting [============>                                      ]  28.97MB/114.9MB
+ ad79ffd84e00 Extracting [============>                                      ]  28.97MB/114.9MB
+ 2f1cd7af357c Extracting [===================>                               ]  45.68MB/114.9MB
+ ad79ffd84e00 Extracting [===================>                               ]  45.68MB/114.9MB
+ 2f1cd7af357c Extracting [===========================>                       ]   63.5MB/114.9MB
+ ad79ffd84e00 Extracting [===========================>                       ]   63.5MB/114.9MB
+ 2f1cd7af357c Extracting [===================================>               ]  80.77MB/114.9MB
+ ad79ffd84e00 Extracting [===================================>               ]  80.77MB/114.9MB
+ ad79ffd84e00 Extracting [=========================================>         ]  95.26MB/114.9MB
+ 2f1cd7af357c Extracting [=========================================>         ]  95.26MB/114.9MB
+ 2f1cd7af357c Extracting [==============================================>    ]    107MB/114.9MB
+ ad79ffd84e00 Extracting [===============================================>   ]  108.6MB/114.9MB
+ ad79ffd84e00 Extracting [================================================>  ]  112.5MB/114.9MB
+ 2f1cd7af357c Extracting [================================================>  ]  111.4MB/114.9MB
+ ad79ffd84e00 Extracting [==================================================>]  114.9MB/114.9MB
+ ad79ffd84e00 Pull complete 
+ 2f1cd7af357c Extracting [==================================================>]  114.9MB/114.9MB
+ 218229bf30d9 Extracting [==================================================>]  3.629kB/3.629kB
+ 218229bf30d9 Extracting [==================================================>]  3.629kB/3.629kB
+ 2f1cd7af357c Pull complete 
+ 218229bf30d9 Pull complete 
+ 03b1128dd5e0 Extracting [==================================================>]  3.449kB/3.449kB
+ 03b1128dd5e0 Extracting [==================================================>]  3.449kB/3.449kB
+ 03b1128dd5e0 Pull complete 
+ kafka Pulled 
+ zookeeper Pulled 
+ Network circleguard-notification-service_default  Creating
+ Network circleguard-notification-service_default  Created
+ Container circleguard-zookeeper  Creating
+ Container circleguard-zookeeper  Created
+ Container circleguard-kafka  Creating
+ Container circleguard-kafka  Created
+ Container circleguard-zookeeper  Starting
+ Container circleguard-zookeeper  Started
+ Container circleguard-kafka  Starting
+ Container circleguard-kafka  Started
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] sh
++ sleep 30
+[Pipeline] sh
++ ./gradlew --no-daemon :services:circleguard-notification-service:integrationTest
+openjdk version "21.0.11" 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :services:circleguard-notification-service:checkKotlinGradlePluginConfigurationErrors
+> Task :services:circleguard-notification-service:compileKotlin NO-SOURCE
+> Task :services:circleguard-notification-service:compileJava UP-TO-DATE
+> Task :services:circleguard-notification-service:processResources UP-TO-DATE
+> Task :services:circleguard-notification-service:classes UP-TO-DATE
+> Task :services:circleguard-notification-service:compileTestKotlin NO-SOURCE
+> Task :services:circleguard-notification-service:compileTestJava UP-TO-DATE
+> Task :services:circleguard-notification-service:processTestResources NO-SOURCE
+> Task :services:circleguard-notification-service:testClasses UP-TO-DATE
+> Task :services:circleguard-notification-service:compileIntegrationTestKotlin NO-SOURCE
+> Task :services:circleguard-notification-service:compileIntegrationTestJava
+> Task :services:circleguard-notification-service:processIntegrationTestResources
+> Task :services:circleguard-notification-service:integrationTestClasses
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-05-10T03:26:57.176Z  INFO 1296 --- [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Revoke previously assigned partitions alert.priority-0
+2026-05-10T03:26:57.176Z  INFO 1296 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Member consumer-notification-group-2-dc01ed3e-8e70-4779-917a-44f645c33956 sending LeaveGroup request to coordinator localhost:9092 (id: 2147483646 rack: null) due to the consumer unsubscribed from all topics
+2026-05-10T03:26:57.176Z  INFO 1296 --- [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Member consumer-notification-group-3-5447375e-5c02-495f-b2e6-b14cdf238c92 sending LeaveGroup request to coordinator localhost:9092 (id: 2147483646 rack: null) due to the consumer unsubscribed from all topics
+2026-05-10T03:26:57.177Z  INFO 1296 --- [ntainer#2-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-priority-group: partitions revoked: [alert.priority-0]
+2026-05-10T03:26:57.178Z  INFO 1296 --- [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Member consumer-notification-priority-group-1-e61611b4-0e12-4116-80a1-047002dc33c3 sending LeaveGroup request to coordinator localhost:9092 (id: 2147483646 rack: null) due to the consumer unsubscribed from all topics
+2026-05-10T03:26:57.178Z  INFO 1296 --- [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.178Z  INFO 1296 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.178Z  INFO 1296 --- [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.178Z  INFO 1296 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.178Z  INFO 1296 --- [ntainer#1-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:26:57.178Z  INFO 1296 --- [ntainer#0-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:26:57.179Z  INFO 1296 --- [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.179Z  INFO 1296 --- [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.179Z  INFO 1296 --- [ntainer#2-0-C-1] fkaConsumerFactory$ExtendedKafkaConsumer : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Unsubscribed all topics or patterns and assigned partitions
+2026-05-10T03:26:57.181Z  INFO 1296 --- [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.181Z  INFO 1296 --- [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.181Z  INFO 1296 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.182Z  INFO 1296 --- [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-priority-group-1, groupId=notification-priority-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.182Z  INFO 1296 --- [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-3, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.182Z  INFO 1296 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-notification-group-2, groupId=notification-group] Request joining group due to: consumer pro-actively leaving the group
+2026-05-10T03:26:57.302Z  INFO 1296 --- [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:26:57.302Z  INFO 1296 --- [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:26:57.302Z  INFO 1296 --- [ntainer#2-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:26:57.304Z  INFO 1296 --- [ntainer#2-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-priority-group-1 unregistered
+2026-05-10T03:26:57.305Z  INFO 1296 --- [ntainer#2-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-priority-group: Consumer stopped
+2026-05-10T03:26:59.653Z  INFO 1296 --- [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:26:59.653Z  INFO 1296 --- [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:26:59.654Z  INFO 1296 --- [ntainer#1-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:26:59.655Z  INFO 1296 --- [ntainer#1-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-3 unregistered
+2026-05-10T03:26:59.656Z  INFO 1296 --- [ntainer#1-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+2026-05-10T03:26:59.656Z  INFO 1296 --- [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:26:59.656Z  INFO 1296 --- [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:26:59.656Z  INFO 1296 --- [ntainer#0-0-C-1] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:26:59.658Z  INFO 1296 --- [ntainer#0-0-C-1] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-notification-group-2 unregistered
+2026-05-10T03:26:59.658Z  INFO 1296 --- [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : notification-group: Consumer stopped
+2026-05-10T03:27:01.686Z  INFO 1296 --- [ionShutdownHook] o.a.k.clients.producer.KafkaProducer     : [Producer clientId=producer-1] Closing the Kafka producer with timeoutMillis = 30000 ms.
+2026-05-10T03:27:01.689Z  INFO 1296 --- [ionShutdownHook] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-05-10T03:27:01.689Z  INFO 1296 --- [ionShutdownHook] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-05-10T03:27:01.689Z  INFO 1296 --- [ionShutdownHook] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-05-10T03:27:01.689Z  INFO 1296 --- [ionShutdownHook] o.a.kafka.common.utils.AppInfoParser     : App info kafka.producer for producer-1 unregistered
+> Task :services:circleguard-notification-service:integrationTest
+
+[Incubating] Problems report is available at: file:///home/jenkins/agent/workspace/notification-dev/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 29s
+7 actionable tasks: 4 executed, 3 up-to-date
+Post stage
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
++ docker compose -f services/circleguard-notification-service/docker-compose.integration.yml down -v
+ Container circleguard-kafka  Stopping
+ Container circleguard-kafka  Stopped
+ Container circleguard-kafka  Removing
+ Container circleguard-kafka  Removed
+ Container circleguard-zookeeper  Stopping
+ Container circleguard-zookeeper  Stopped
+ Container circleguard-zookeeper  Removing
+ Container circleguard-zookeeper  Removed
+ Network circleguard-notification-service_default  Removing
+ Network circleguard-notification-service_default  Removed
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build & Push Image)
+[Pipeline] sh
++ ./gradlew --no-daemon :services:circleguard-notification-service:bootJar
+openjdk version "21.0.11" 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :services:circleguard-notification-service:checkKotlinGradlePluginConfigurationErrors
+> Task :services:circleguard-notification-service:compileKotlin NO-SOURCE
+> Task :services:circleguard-notification-service:compileJava UP-TO-DATE
+> Task :services:circleguard-notification-service:processResources UP-TO-DATE
+> Task :services:circleguard-notification-service:classes UP-TO-DATE
+> Task :services:circleguard-notification-service:resolveMainClassName
+> Task :services:circleguard-notification-service:bootJar
+
+[Incubating] Problems report is available at: file:///home/jenkins/agent/workspace/notification-dev/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 14s
+5 actionable tasks: 3 executed, 2 up-to-date
+[Pipeline] container
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $DOCKER_PASS
+[Pipeline] {
+[Pipeline] sh
++ docker login -u prapoju -p ****
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+[Pipeline] sh
++ docker build -t prapoju/circleguard-notification-service:dev services/circleguard-notification-service/
+#0 building with "default" instance using docker driver
+
+#1 [internal] load .dockerignore
+#1 transferring context: 2B done
+#1 DONE 0.1s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 323B done
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre-alpine
+#3 ...
+
+#4 [auth] library/eclipse-temurin:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre-alpine
+#3 DONE 1.3s
+
+#5 [1/3] FROM docker.io/library/eclipse-temurin:21-jre-alpine@sha256:704db3c40204a44f471191446ddd9cda5d60dab40f0e15c6507b815ed897238b
+#5 resolve docker.io/library/eclipse-temurin:21-jre-alpine@sha256:704db3c40204a44f471191446ddd9cda5d60dab40f0e15c6507b815ed897238b 0.0s done
+#5 sha256:704db3c40204a44f471191446ddd9cda5d60dab40f0e15c6507b815ed897238b 2.69kB / 2.69kB done
+#5 sha256:089ffb495d17108fd0a9f3f05a87d20e4b37ceea2db3fb55c07d4283b9bebe7d 1.94kB / 1.94kB done
+#5 sha256:e5c660cfae96c7c55c2f69892a274e310e98089a8f7797596551d2182b16913a 4.12kB / 4.12kB done
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 0B / 3.86MB 0.1s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 0B / 16.86MB 0.1s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 0B / 53.30MB 0.1s
+#5 ...
+
+#6 [internal] load build context
+#6 transferring context: 62.77MB 0.3s done
+#6 DONE 0.3s
+
+#5 [1/3] FROM docker.io/library/eclipse-temurin:21-jre-alpine@sha256:704db3c40204a44f471191446ddd9cda5d60dab40f0e15c6507b815ed897238b
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 13.63MB / 53.30MB 0.6s
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 1.05MB / 3.86MB 0.8s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 23.07MB / 53.30MB 0.8s
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 3.15MB / 3.86MB 1.0s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 33.55MB / 53.30MB 1.0s
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 3.86MB / 3.86MB 1.1s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 1.05MB / 16.86MB 1.1s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 38.80MB / 53.30MB 1.1s
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 3.86MB / 3.86MB 1.1s done
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 41.94MB / 53.30MB 1.2s
+#5 extracting sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 0.1s
+#5 sha256:42516208460b63f47d0044aef98b70571ce7765cc9108b0a3d14ae7fa16d7566 0B / 128B 1.2s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 2.10MB / 16.86MB 1.4s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 53.30MB / 53.30MB 1.4s done
+#5 extracting sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 0.1s done
+#5 sha256:2d1a277377d10ae29a58277bdefa13f3a1cfffb295a5b7bce5ad0b0d82661629 0B / 2.28kB 1.4s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 3.15MB / 16.86MB 1.6s
+#5 sha256:42516208460b63f47d0044aef98b70571ce7765cc9108b0a3d14ae7fa16d7566 128B / 128B 1.4s done
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 4.19MB / 16.86MB 1.7s
+#5 sha256:2d1a277377d10ae29a58277bdefa13f3a1cfffb295a5b7bce5ad0b0d82661629 2.28kB / 2.28kB 1.6s done
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 6.29MB / 16.86MB 1.9s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 8.39MB / 16.86MB 2.1s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 11.53MB / 16.86MB 2.3s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 16.78MB / 16.86MB 2.5s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 16.86MB / 16.86MB 2.5s done
+#5 extracting sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 0.1s
+#5 extracting sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 0.4s done
+#5 extracting sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec
+#5 extracting sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 1.2s done
+#5 extracting sha256:42516208460b63f47d0044aef98b70571ce7765cc9108b0a3d14ae7fa16d7566 done
+#5 extracting sha256:2d1a277377d10ae29a58277bdefa13f3a1cfffb295a5b7bce5ad0b0d82661629
+#5 extracting sha256:2d1a277377d10ae29a58277bdefa13f3a1cfffb295a5b7bce5ad0b0d82661629 done
+#5 DONE 4.8s
+
+#7 [2/3] WORKDIR /app
+#7 DONE 0.4s
+
+#8 [3/3] COPY build/libs/circleguard-notification-service-*.jar app.jar
+#8 DONE 0.2s
+
+#9 exporting to image
+#9 exporting layers
+#9 exporting layers 0.3s done
+#9 writing image sha256:1e5104bb9f359000b8f82efe67eaa8cb2088c8d37bc32d0f27efbf5af161b70c done
+#9 naming to docker.io/prapoju/circleguard-notification-service:dev done
+#9 DONE 0.3s
+[Pipeline] sh
++ docker push prapoju/circleguard-notification-service:dev
+The push refers to repository [docker.io/prapoju/circleguard-notification-service]
+aa0e4dda3629: Preparing
+22bcc0c9d9a0: Preparing
+5265264d380d: Preparing
+4d88768ec38e: Preparing
+9ad256544b54: Preparing
+f04f9db94d3e: Preparing
+29df493baa13: Preparing
+f04f9db94d3e: Waiting
+29df493baa13: Waiting
+9ad256544b54: Mounted from library/eclipse-temurin
+5265264d380d: Mounted from library/eclipse-temurin
+4d88768ec38e: Mounted from library/eclipse-temurin
+f04f9db94d3e: Mounted from library/eclipse-temurin
+22bcc0c9d9a0: Pushed
+29df493baa13: Mounted from library/eclipse-temurin
+aa0e4dda3629: Pushed
+dev: digest: sha256:f45b647954eb6c603fde558558038941c5255f03fc2b14c081db5a20324b732c size: 1785
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+circleguard-notification-service pipeline completed successfully!
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // podTemplate
+[Pipeline] End of Pipeline
+Finished: SUCCESS

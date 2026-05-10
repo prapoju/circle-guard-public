@@ -1,0 +1,1198 @@
+Started by user Jenkins Admin
+Obtained pipelines/stage/Jenkinsfile from git https://github.com/prapoju/circle-guard-public.git
+[Pipeline] Start of Pipeline
+[Pipeline] podTemplate
+[Pipeline] {
+[Pipeline] node
+Created Pod: kubernetes jenkins/stage-20-qwlmq-qd2k2-ztt5d
+[PodInfo] jenkins/stage-20-qwlmq-qd2k2-ztt5d
+	Container [docker] waiting [ContainerCreating] No message
+	Container [jdk21] waiting [ContainerCreating] No message
+	Container [jnlp] waiting [ContainerCreating] No message
+	Container [kubectl] waiting [ContainerCreating] No message
+	Container [locust] waiting [ContainerCreating] No message
+	Container [newman] waiting [ContainerCreating] No message
+	Pod [Pending][ContainersNotReady] containers with unready status: [jdk21 docker kubectl newman locust jnlp]
+Still waiting to schedule task
+‘stage-20-qwlmq-qd2k2-ztt5d’ is offline
+[PodInfo] jenkins/stage-20-qwlmq-qd2k2-ztt5d
+	Container [docker] waiting [ContainerCreating] No message
+	Container [jdk21] waiting [ContainerCreating] No message
+	Container [jnlp] waiting [ContainerCreating] No message
+	Container [kubectl] waiting [ContainerCreating] No message
+	Container [locust] waiting [ContainerCreating] No message
+	Container [newman] waiting [ContainerCreating] No message
+	Pod [Pending][ContainersNotReady] containers with unready status: [jdk21 docker kubectl newman locust jnlp]
+Agent stage-20-qwlmq-qd2k2-ztt5d is provisioned from template stage_20-qwlmq-qd2k2
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    kubernetes.jenkins.io/last-refresh: "1778393554719"
+    buildUrl: "http://jenkins.jenkins.svc.cluster.local:8080/job/stage/20/"
+    runUrl: "job/stage/20/"
+  labels:
+    jenkins/jenkins-jenkins-agent: "true"
+    jenkins/label-digest: "c5f015fbd7715db31d0b6990a4533fde0f0198c9"
+    jenkins/label: "stage_20-qwlmq"
+    kubernetes.jenkins.io/controller: "http___jenkins_jenkins_svc_cluster_local_8080x"
+  name: "stage-20-qwlmq-qd2k2-ztt5d"
+  namespace: "jenkins"
+spec:
+  containers:
+  - args:
+    - "infinity"
+    command:
+    - "sleep"
+    image: "eclipse-temurin:21-jdk"
+    name: "jdk21"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - args:
+    - "--host=tcp://0.0.0.0:2375"
+    - "--host=unix:///var/run/docker.sock"
+    command:
+    - "dockerd-entrypoint.sh"
+    env:
+    - name: "DOCKER_TLS_CERTDIR"
+      value: ""
+    image: "docker:24-dind"
+    name: "docker"
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - command:
+    - "cat"
+    image: "alpine/kubectl:1.36.0"
+    name: "kubectl"
+    tty: true
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - args:
+    - "infinity"
+    command:
+    - "sleep"
+    image: "postman/newman:latest"
+    name: "newman"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - args:
+    - "infinity"
+    command:
+    - "sleep"
+    image: "locustio/locust:2.29.0"
+    name: "locust"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - env:
+    - name: "JENKINS_SECRET"
+      value: "********"
+    - name: "JENKINS_TUNNEL"
+      value: "jenkins-agent.jenkins.svc.cluster.local:50000"
+    - name: "JENKINS_AGENT_NAME"
+      value: "stage-20-qwlmq-qd2k2-ztt5d"
+    - name: "REMOTING_OPTS"
+      value: "-noReconnectAfter 1d"
+    - name: "JENKINS_NAME"
+      value: "stage-20-qwlmq-qd2k2-ztt5d"
+    - name: "JENKINS_AGENT_WORKDIR"
+      value: "/home/jenkins/agent"
+    - name: "JENKINS_URL"
+      value: "http://jenkins.jenkins.svc.cluster.local:8080/"
+    image: "jenkins/inbound-agent:3355.v388858a_47b_33-3-jdk21"
+    name: "jnlp"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  nodeSelector:
+    kubernetes.io/os: "linux"
+  restartPolicy: "Never"
+  volumes:
+  - emptyDir:
+      medium: ""
+    name: "workspace-volume"
+
+Running on stage-20-qwlmq-qd2k2-ztt5d in /home/jenkins/agent/workspace/stage
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/prapoju/circle-guard-public.git
+ > git init /home/jenkins/agent/workspace/stage # timeout=10
+Fetching upstream changes from https://github.com/prapoju/circle-guard-public.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/prapoju/circle-guard-public.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+Checking out Revision a23d9bc432d120baa37d3b5813e8124216318acb (refs/remotes/origin/master)
+ > git config remote.origin.url https://github.com/prapoju/circle-guard-public.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f a23d9bc432d120baa37d3b5813e8124216318acb # timeout=10
+Commit message: "test: locus tests"
+ > git rev-list --no-walk 87cbb6ae7faadde769641c6435720e4e6fe7d3e3 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] container
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Warning: JENKINS-30600: special launcher org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1@2f4def53; decorates RemoteLauncher[hudson.remoting.Channel@251693f6:JNLP4-connect connection from 10.244.4.65/10.244.4.65:34376] will be ignored (a typical symptom is the Git executable not being run inside a designated container)
+Fetching changes from the remote Git repository
+Checking out Revision a23d9bc432d120baa37d3b5813e8124216318acb (refs/remotes/origin/master)
+Commit message: "test: locus tests"
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Pull Dev Images)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
+ > git rev-parse --resolve-git-dir /home/jenkins/agent/workspace/stage/.git # timeout=10
+ > git config remote.origin.url https://github.com/prapoju/circle-guard-public.git # timeout=10
+Fetching upstream changes from https://github.com/prapoju/circle-guard-public.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/prapoju/circle-guard-public.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f a23d9bc432d120baa37d3b5813e8124216318acb # timeout=10
++ docker info
+Client:
+ Version:    24.0.9
+ Context:    default
+ Debug Mode: false
+ Plugins:
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.16.2
+    Path:     /usr/local/libexec/docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v2.29.1
+    Path:     /usr/local/libexec/docker/cli-plugins/docker-compose
+
+Server:
+ Containers: 0
+  Running: 0
+  Paused: 0
+  Stopped: 0
+ Images: 0
+ Server Version: 24.0.9
+ Storage Driver: overlay2
+  Backing Filesystem: btrfs
+  Supports d_type: true
+  Using metacopy: false
+  Native Overlay Diff: true
+  userxattr: false
+ Logging Driver: json-file
+ Cgroup Driver: cgroupfs
+ Cgroup Version: 2
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog
+ Swarm: inactive
+ Runtimes: io.containerd.runc.v2 runc
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: 7c3aca7a610df76212171d200ca3811ff6096eb8
+ runc version: v1.1.12-0-g51d5e94
+ init version: de40ad0
+ Security Options:
+  seccomp
+   Profile: builtin
+  cgroupns
+ Kernel Version: 6.17.1-300.fc43.x86_64
+ Operating System: Alpine Linux v3.20 (containerized)
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 16
+ Total Memory: 9.544GiB
+ Name: stage-20-qwlmq-qd2k2-ztt5d
+ ID: 1b7c03ac-d25c-4af0-9f26-18597454587e
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ Experimental: false
+ Insecure Registries:
+  127.0.0.0/8
+ Live Restore Enabled: false
+ Product License: Community Engine
+
+WARNING: API is accessible on http://0.0.0.0:2375 without encryption.
+         Access to the remote API is equivalent to root access on the host. Refer
+         to the 'Docker daemon attack surface' section in the documentation for
+         more information: https://docs.docker.com/go/attack-surface/
+[Pipeline] withCredentials
+Masking supported pattern matches of $DOCKER_PASS
+[Pipeline] {
+[Pipeline] sh
++ docker login -u prapoju -p ****
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+[Pipeline] sh
++ docker pull prapoju/circleguard-auth-service:dev
+dev: Pulling from prapoju/circleguard-auth-service
+6a0ac1617861: Pulling fs layer
+5ef4bf1bda35: Pulling fs layer
+6e338134b21e: Pulling fs layer
+42516208460b: Pulling fs layer
+2d1a277377d1: Pulling fs layer
+7474855904a2: Pulling fs layer
+3ddbefd74b12: Pulling fs layer
+42516208460b: Waiting
+2d1a277377d1: Waiting
+3ddbefd74b12: Waiting
+7474855904a2: Waiting
+6a0ac1617861: Verifying Checksum
+6a0ac1617861: Download complete
+6a0ac1617861: Pull complete
+5ef4bf1bda35: Verifying Checksum
+5ef4bf1bda35: Download complete
+42516208460b: Verifying Checksum
+42516208460b: Download complete
+2d1a277377d1: Download complete
+7474855904a2: Download complete
+6e338134b21e: Verifying Checksum
+6e338134b21e: Download complete
+5ef4bf1bda35: Pull complete
+6e338134b21e: Pull complete
+42516208460b: Pull complete
+2d1a277377d1: Pull complete
+7474855904a2: Pull complete
+3ddbefd74b12: Verifying Checksum
+3ddbefd74b12: Download complete
+3ddbefd74b12: Pull complete
+Digest: sha256:45da93a4f4784f21837276dda3b48f29c3b0c7ced5dbb01dcbbfa6e21d902364
+Status: Downloaded newer image for prapoju/circleguard-auth-service:dev
+docker.io/prapoju/circleguard-auth-service:dev
+[Pipeline] sh
++ docker pull prapoju/circleguard-identity-service:dev
+dev: Pulling from prapoju/circleguard-identity-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+091ee78d05cb: Pulling fs layer
+02ac8905a747: Pulling fs layer
+091ee78d05cb: Download complete
+091ee78d05cb: Pull complete
+02ac8905a747: Verifying Checksum
+02ac8905a747: Download complete
+02ac8905a747: Pull complete
+Digest: sha256:3921d7faa8c3a6aa6a223a94527ec3d40a60a729b0929d3d6904fcc7f3f90b20
+Status: Downloaded newer image for prapoju/circleguard-identity-service:dev
+docker.io/prapoju/circleguard-identity-service:dev
+[Pipeline] sh
++ docker pull prapoju/circleguard-form-service:dev
+dev: Pulling from prapoju/circleguard-form-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+fafa7463a02a: Pulling fs layer
+1445bf391edd: Pulling fs layer
+fafa7463a02a: Download complete
+fafa7463a02a: Pull complete
+1445bf391edd: Verifying Checksum
+1445bf391edd: Download complete
+1445bf391edd: Pull complete
+Digest: sha256:1774188973524cb82007e5ba1a3ec428eefe7e7b722749aa1a2b8df4c6498fd1
+Status: Downloaded newer image for prapoju/circleguard-form-service:dev
+docker.io/prapoju/circleguard-form-service:dev
+[Pipeline] sh
++ docker pull prapoju/circleguard-file-service:dev
+dev: Pulling from prapoju/circleguard-file-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+9c4a91e266e8: Pulling fs layer
+008727198467: Pulling fs layer
+9c4a91e266e8: Verifying Checksum
+9c4a91e266e8: Download complete
+9c4a91e266e8: Pull complete
+008727198467: Verifying Checksum
+008727198467: Download complete
+008727198467: Pull complete
+Digest: sha256:0a5c48cce09ec6974fe056fdc598eb7461ba538b5f6020d65b06576923aea1c5
+Status: Downloaded newer image for prapoju/circleguard-file-service:dev
+docker.io/prapoju/circleguard-file-service:dev
+[Pipeline] sh
++ docker pull prapoju/circleguard-dashboard-service:dev
+dev: Pulling from prapoju/circleguard-dashboard-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+a75659d883e3: Pulling fs layer
+ffb74782c270: Pulling fs layer
+a75659d883e3: Verifying Checksum
+a75659d883e3: Download complete
+a75659d883e3: Pull complete
+ffb74782c270: Verifying Checksum
+ffb74782c270: Download complete
+ffb74782c270: Pull complete
+Digest: sha256:ea5f75149ab368baf2fa1e7e70d11cf5e6edd736b308850093cc4b06e2169075
+Status: Downloaded newer image for prapoju/circleguard-dashboard-service:dev
+docker.io/prapoju/circleguard-dashboard-service:dev
+[Pipeline] sh
++ docker pull prapoju/circleguard-notification-service:dev
+dev: Pulling from prapoju/circleguard-notification-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+676b22acf24c: Pulling fs layer
+8d2bc487c01f: Pulling fs layer
+676b22acf24c: Verifying Checksum
+676b22acf24c: Download complete
+676b22acf24c: Pull complete
+8d2bc487c01f: Verifying Checksum
+8d2bc487c01f: Download complete
+8d2bc487c01f: Pull complete
+Digest: sha256:f45b647954eb6c603fde558558038941c5255f03fc2b14c081db5a20324b732c
+Status: Downloaded newer image for prapoju/circleguard-notification-service:dev
+docker.io/prapoju/circleguard-notification-service:dev
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy to Stage)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
++ kubectl apply -k k8s/overlays/stage
+namespace/circleguard-stage unchanged
+configmap/postgres-init unchanged
+service/auth-service unchanged
+service/dashboard-service unchanged
+service/file-service unchanged
+service/form-service unchanged
+service/identity-service unchanged
+service/kafka unchanged
+service/neo4j unchanged
+service/notification-service unchanged
+service/openldap unchanged
+service/postgres unchanged
+service/redis unchanged
+service/zookeeper unchanged
+persistentvolumeclaim/neo4j-pvc unchanged
+persistentvolumeclaim/postgres-pvc unchanged
+deployment.apps/auth-service unchanged
+deployment.apps/dashboard-service unchanged
+deployment.apps/file-service unchanged
+deployment.apps/form-service unchanged
+deployment.apps/identity-service unchanged
+deployment.apps/notification-service unchanged
+deployment.apps/openldap unchanged
+deployment.apps/redis unchanged
+statefulset.apps/kafka unchanged
+statefulset.apps/neo4j unchanged
+statefulset.apps/postgres unchanged
+statefulset.apps/zookeeper unchanged
+[Pipeline] sh
++ kubectl rollout restart deployment -n circleguard-stage
+deployment.apps/auth-service restarted
+deployment.apps/dashboard-service restarted
+deployment.apps/file-service restarted
+deployment.apps/form-service restarted
+deployment.apps/identity-service restarted
+deployment.apps/notification-service restarted
+deployment.apps/openldap restarted
+deployment.apps/redis restarted
+[Pipeline] sh
++ kubectl rollout status deployment -n circleguard-stage '--timeout=120s'
+Waiting for deployment "auth-service" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "auth-service" rollout to finish: 1 old replicas are pending termination...
+deployment "auth-service" successfully rolled out
+deployment "dashboard-service" successfully rolled out
+deployment "file-service" successfully rolled out
+deployment "form-service" successfully rolled out
+deployment "identity-service" successfully rolled out
+deployment "notification-service" successfully rolled out
+deployment "openldap" successfully rolled out
+deployment "redis" successfully rolled out
+[Pipeline] sh
++ sleep 30
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (E2E Tests)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
++ newman run tests/e2e/circleguard.postman_collection.json -e tests/e2e/stage.postman_environment.json --reporters cli --bail
+newman
+
+CircleGuard E2E
+
+❏ Flujo 1 - Login
+↳ Login super_admin
+  POST http://auth-service.circleguard-stage.svc.cluster.local:8180/api/v1/auth/login [200 OK, 849B, 2s]
+  ✓  Status 200
+  ✓  Response tiene token
+
+❏ Flujo 2 - Registro de visitante
+↳ Registrar visitante
+  POST http://identity-service.circleguard-stage.svc.cluster.local:8083/api/v1/identities/visitor [200 OK, 477B, 15ms]
+  ✓  Status 200 o 201
+  ✓  Response tiene anonymousId
+
+❏ Flujo 3 - Cuestionario y encuesta
+↳ Crear cuestionario
+  POST http://form-service.circleguard-stage.svc.cluster.local:8086/api/v1/questionnaires [200 OK, 739B, 680ms]
+  ✓  Status 200 o 201
+  ✓  Response tiene id
+
+↳ Activar cuestionario
+  POST http://form-service.circleguard-stage.svc.cluster.local:8086/api/v1/questionnaires/2d0b99cb-adfd-4edd-be9f-e3b3db3a4637/activate [200 OK, 212B, 144ms]
+  ✓  Status 200 o 204
+
+↳ Obtener cuestionario activo
+  GET http://form-service.circleguard-stage.svc.cluster.local:8086/api/v1/questionnaires/active [200 OK, 732B, 30ms]
+  ✓  Status 200
+  ✓  Cuestionario activo es el que creamos
+
+↳ Enviar encuesta de salud
+  POST http://form-service.circleguard-stage.svc.cluster.local:8086/api/v1/surveys [200 OK, 504B, 648ms]
+  ✓  Status 200 o 201
+  ✓  Survey persistida con id y anonymousId correcto
+
+❏ Flujo 4 - Dashboard analytics
+↳ Summary
+  GET http://dashboard-service.circleguard-stage.svc.cluster.local:8080/api/v1/analytics/summary [200 OK, 328B, 1424ms]
+  ✓  Status 200
+  ✓  Response es JSON
+
+↳ Health board
+  GET http://dashboard-service.circleguard-stage.svc.cluster.local:8080/api/v1/analytics/health-board [200 OK, 328B, 1233ms]
+  ✓  Status 200
+  ✓  Response es JSON
+
+❏ Flujo 5 - Generar QR
+↳ Generar token QR
+  GET http://auth-service.circleguard-stage.svc.cluster.local:8180/api/v1/auth/qr/generate [200 OK, 603B, 27ms]
+  ✓  Status 200
+  ✓  Response tiene qrToken y expiresIn
+  ✓  qrToken es un JWT valido
+
+❏ Flujo 7 - Visitor Handoff
+↳ Registrar visitante para handoff
+  POST http://identity-service.circleguard-stage.svc.cluster.local:8083/api/v1/identities/visitor [200 OK, 477B, 9ms]
+  ✓  Status 200 o 201
+  ✓  Response tiene anonymousId
+
+↳ Generar token de handoff
+  POST http://auth-service.circleguard-stage.svc.cluster.local:8180/api/v1/auth/visitor/handoff [200 OK, 897B, 9ms]
+  ✓  Status 200
+  ✓  Response tiene token y handoffPayload
+
+❏ Flujo 8 - Validacion de certificado medico
+↳ Enviar encuesta con sintomas (PENDING)
+  POST http://form-service.circleguard-stage.svc.cluster.local:8086/api/v1/surveys [200 OK, 530B, 22ms]
+  ✓  Status 200 o 201
+  ✓  Survey guardada con id
+
+↳ Obtener certificados pendientes
+  GET http://form-service.circleguard-stage.svc.cluster.local:8086/api/v1/certificates/pending [200 OK, 255B, 27ms]
+  ✓  Status 200
+  ✓  Response es array
+
+↳ Validar certificado como APPROVED
+  POST http://form-service.circleguard-stage.svc.cluster.local:8086/api/v1/certificates/0f0b8ed7-f4a7-4eeb-a82c-1737f2b16bbd/validate?status=APPROVED&adminId=00000000-0000-0000-0000-000000000001 [200 OK, 212B, 26ms]
+  ✓  Status 200
+
+↳ Verificar que certificado ya no esta en pending
+  GET http://form-service.circleguard-stage.svc.cluster.local:8086/api/v1/certificates/pending [200 OK, 255B, 7ms]
+  ✓  Status 200
+  ✓  certSurveyId no aparece en pending (fue procesado)
+
+❏ Flujo 9 - Analytics completo
+↳ Stats por departamento
+  GET http://dashboard-service.circleguard-stage.svc.cluster.local:8080/api/v1/analytics/department/INGENIERIA [200 OK, 354B, 1075ms]
+  ✓  Status 200
+  ✓  Response es JSON
+
+↳ Time-series horario
+  GET http://dashboard-service.circleguard-stage.svc.cluster.local:8080/api/v1/analytics/time-series?period=hourly&limit=24 [200 OK, 7.33kB, 50ms]
+  ✓  Status 200
+  ✓  Response es array
+
+↳ Trends por ubicacion
+  GET http://dashboard-service.circleguard-stage.svc.cluster.local:8080/api/v1/analytics/trends/00000000-0000-0000-0000-000000000001 [200 OK, 255B, 9ms]
+  ✓  Status 200
+  ✓  Response es JSON
+
+┌─────────────────────────┬──────────────────┬──────────────────┐
+│                         │         executed │           failed │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│              iterations │                1 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│                requests │               18 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│            test-scripts │               18 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│      prerequest-scripts │                0 │                0 │
+├─────────────────────────┼──────────────────┼──────────────────┤
+│              assertions │               35 │                0 │
+├─────────────────────────┴──────────────────┴──────────────────┤
+│ total run duration: 7.8s                                      │
+├───────────────────────────────────────────────────────────────┤
+│ total data received: 10.09kB (approx)                         │
+├───────────────────────────────────────────────────────────────┤
+│ average response time: 415ms [min: 7ms, max: 2s, s.d.: 608ms] │
+└───────────────────────────────────────────────────────────────┘
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Stress Tests)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
++ locust -f tests/stress/locustfile.py --headless --users 15 --spawn-rate 3 --run-time 60s --loglevel WARNING
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                         0     0(0.00%) |      0       0       0      0 |    0.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/summary                                                             1     0(0.00%) |   1048    1048    1048   1048 |    0.00        0.00
+GET      GET /auth/qr/generate                                                              2     0(0.00%) |      8       7       8      7 |    0.00        0.00
+POST     POST /auth/login                                                                   4     0(0.00%) |    287     283     293    283 |    0.00        0.00
+POST     POST /identities/visitor                                                           2     0(0.00%) |     46      21      70     22 |    0.00        0.00
+POST     POST /surveys                                                                      2     0(0.00%) |     17      17      17     17 |    0.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        11     0(0.00%) |    212       7    1048     70 |    0.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/summary                                                             2     0(0.00%) |   1039    1030    1048   1030 |    0.00        0.00
+GET      GET /auth/qr/generate                                                              5     0(0.00%) |      8       7       9      9 |    1.00        0.00
+POST     POST /auth/login                                                                   9     0(0.00%) |    293     276     314    290 |    1.00        0.00
+POST     POST /identities/visitor                                                           4     0(0.00%) |     32      17      70     21 |    1.00        0.00
+POST     POST /surveys                                                                      4     0(0.00%) |     17      15      19     17 |    1.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        24     0(0.00%) |    206       7    1048     22 |    4.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/health-board                                                        1     0(0.00%) |   1076    1076    1076   1076 |    0.00        0.00
+GET      GET /analytics/summary                                                             2     0(0.00%) |   1039    1030    1048   1030 |    0.50        0.00
+GET      GET /auth/qr/generate                                                             13     0(0.00%) |      8       6      11      8 |    1.25        0.00
+POST     POST /auth/login                                                                  10     0(0.00%) |    294     276     314    290 |    2.25        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    1.00        0.00
+POST     POST /surveys                                                                      7     0(0.00%) |     15      11      19     16 |    1.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        38     0(0.00%) |    170       6    1076     17 |    6.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/health-board                                                        1     0(0.00%) |   1076    1076    1076   1076 |    0.17        0.00
+GET      GET /analytics/summary                                                             2     0(0.00%) |   1039    1030    1048   1030 |    0.33        0.00
+GET      GET /auth/qr/generate                                                             13     0(0.00%) |      8       6      11      8 |    2.00        0.00
+GET      GET /questionnaires/active                                                         1     0(0.00%) |      8       8       8      8 |    0.00        0.00
+POST     POST /auth/login                                                                  11     0(0.00%) |    294     276     314    290 |    1.67        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.83        0.00
+POST     POST /surveys                                                                      8     0(0.00%) |    117      11     832     16 |    1.17        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        41     0(0.00%) |    185       6    1076     18 |    6.17        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        1     0(0.00%) |   1076    1076    1076   1076 |    0.14        0.00
+GET      GET /analytics/summary                                                             3     0(0.00%) |   1206    1030    1540   1030 |    0.29        0.00
+GET      GET /auth/qr/generate                                                             19     0(0.00%) |    763       6    2971      9 |    1.86        0.00
+GET      GET /questionnaires/active                                                         1     0(0.00%) |      8       8       8      8 |    0.00        0.00
+POST     POST /auth/login                                                                  12     0(0.00%) |    421     276    1817    290 |    1.57        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.71        0.00
+POST     POST /surveys                                                                      8     0(0.00%) |    117      11     832     16 |    1.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        50     0(0.00%) |    557       6    2971     22 |    5.57        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.10        0.00
+GET      GET /analytics/health-board                                                        1     0(0.00%) |   1076    1076    1076   1076 |    0.10        0.00
+GET      GET /analytics/summary                                                             3     0(0.00%) |   1206    1030    1540   1030 |    0.30        0.00
+GET      GET /auth/qr/generate                                                             27     0(0.00%) |    539       5    2971      8 |    1.90        0.00
+GET      GET /questionnaires/active                                                         1     0(0.00%) |      8       8       8      8 |    0.10        0.00
+POST     POST /auth/login                                                                  12     0(0.00%) |    421     276    1817    290 |    1.20        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.50        0.00
+POST     POST /surveys                                                                      9     0(0.00%) |    421      11    2849     17 |    0.80        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        59     0(0.00%) |    521       5    2971     20 |    5.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.10        0.00
+GET      GET /analytics/health-board                                                        1     0(0.00%) |   1076    1076    1076   1076 |    0.10        0.00
+GET      GET /analytics/summary                                                             4     0(0.00%) |   1171    1030    1540   1030 |    0.20        0.00
+GET      GET /auth/qr/generate                                                             34     0(0.00%) |    429       5    2971      7 |    2.40        0.00
+GET      GET /questionnaires/active                                                         1     0(0.00%) |      8       8       8      8 |    0.10        0.00
+POST     POST /auth/login                                                                  12     0(0.00%) |    421     276    1817    290 |    0.80        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.30        0.00
+POST     POST /surveys                                                                     13     0(0.00%) |   1612      11    5364     20 |    0.70        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        71     0(0.00%) |    691       5    5364     18 |    4.70        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.10        0.00
+GET      GET /analytics/health-board                                                        2     0(0.00%) |   1044    1011    1076   1011 |    0.10        0.00
+GET      GET /analytics/summary                                                             4     0(0.00%) |   1171    1030    1540   1030 |    0.10        0.00
+GET      GET /analytics/time-series                                                         1     0(0.00%) |      6       6       6      6 |    0.00        0.00
+GET      GET /auth/qr/generate                                                             40     0(0.00%) |    390       5    2971      8 |    2.90        0.00
+GET      GET /questionnaires/active                                                         2     0(0.00%) |      9       8      10      9 |    0.10        0.00
+POST     POST /auth/login                                                                  13     0(0.00%) |    408     257    1817    290 |    0.30        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.10        0.00
+POST     POST /surveys                                                                     15     0(0.00%) |   1402      11    5364     20 |    0.90        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        83     0(0.00%) |    619       5    5364     20 |    4.60        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.10        0.00
+GET      GET /analytics/health-board                                                        2     0(0.00%) |   1044    1011    1076   1011 |    0.10        0.00
+GET      GET /analytics/summary                                                             5     0(0.00%) |   1149    1030    1540   1100 |    0.20        0.00
+GET      GET /analytics/time-series                                                         1     0(0.00%) |      6       6       6      6 |    0.10        0.00
+GET      GET /auth/qr/generate                                                             45     0(0.00%) |    353       5    2971      8 |    2.60        0.00
+GET      GET /questionnaires/active                                                         3     0(0.00%) |      9       8      10      9 |    0.20        0.00
+POST     POST /auth/login                                                                  15     0(0.00%) |    394     257    1817    290 |    0.30        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     16     0(0.00%) |   1315      11    5364     18 |    0.60        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                        93     0(0.00%) |    574       5    5364     18 |    4.20        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.10        0.00
+GET      GET /analytics/health-board                                                        2     0(0.00%) |   1044    1011    1076   1011 |    0.10        0.00
+GET      GET /analytics/summary                                                             6     0(0.00%) |   1134    1030    1540   1100 |    0.20        0.00
+GET      GET /analytics/time-series                                                         2     0(0.00%) |    177       6     348      7 |    0.10        0.00
+GET      GET /auth/qr/generate                                                             50     0(0.00%) |    318       5    2971      7 |    3.10        0.00
+GET      GET /questionnaires/active                                                         5     0(0.00%) |      9       8      10      9 |    0.20        0.00
+POST     POST /auth/login                                                                  17     0(0.00%) |    378     257    1817    290 |    0.40        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     18     0(0.00%) |   1172      11    5364     18 |    0.80        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       106     0(0.00%) |    522       5    5364     17 |    5.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        2     0(0.00%) |   1044    1011    1076   1011 |    0.10        0.00
+GET      GET /analytics/summary                                                             6     0(0.00%) |   1134    1030    1540   1100 |    0.20        0.00
+GET      GET /analytics/time-series                                                         3     0(0.00%) |    121       6     348     11 |    0.10        0.00
+GET      GET /auth/qr/generate                                                             57     0(0.00%) |    280       5    2971      7 |    2.90        0.00
+GET      GET /questionnaires/active                                                         5     0(0.00%) |      9       8      10      9 |    0.30        0.00
+POST     POST /auth/login                                                                  17     0(0.00%) |    378     257    1817    290 |    0.50        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     21     0(0.00%) |   1007      11    5364     18 |    0.90        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       117     0(0.00%) |    474       5    5364     14 |    5.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        2     0(0.00%) |   1044    1011    1076   1011 |    0.10        0.00
+GET      GET /analytics/summary                                                             6     0(0.00%) |   1134    1030    1540   1100 |    0.30        0.00
+GET      GET /analytics/time-series                                                         3     0(0.00%) |    121       6     348     11 |    0.20        0.00
+GET      GET /auth/qr/generate                                                             61     0(0.00%) |    262       5    2971      7 |    2.90        0.00
+GET      GET /questionnaires/active                                                         5     0(0.00%) |      9       8      10      9 |    0.40        0.00
+POST     POST /auth/login                                                                  20     0(0.00%) |    362     257    1817    280 |    0.50        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     23     0(0.00%) |    932      11    5364     20 |    1.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       126     0(0.00%) |    449       5    5364     14 |    5.40        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        2     0(0.00%) |   1044    1011    1076   1011 |    0.10        0.00
+GET      GET /analytics/summary                                                             6     0(0.00%) |   1134    1030    1540   1100 |    0.30        0.00
+GET      GET /analytics/time-series                                                         3     0(0.00%) |    121       6     348     11 |    0.30        0.00
+GET      GET /auth/qr/generate                                                             67     0(0.00%) |    239       4    2971      7 |    2.70        0.00
+GET      GET /questionnaires/active                                                         5     0(0.00%) |      9       8      10      9 |    0.40        0.00
+POST     POST /auth/login                                                                  21     0(0.00%) |    366     257    1817    280 |    0.70        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     27     0(0.00%) |    796      11    5364     17 |    0.80        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       137     0(0.00%) |    417       4    5364     14 |    5.30        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        3     0(0.00%) |   1042    1011    1076   1011 |    0.00        0.00
+GET      GET /analytics/summary                                                             7     0(0.00%) |   1139    1030    1540   1100 |    0.20        0.00
+GET      GET /analytics/time-series                                                         3     0(0.00%) |    121       6     348     11 |    0.20        0.00
+GET      GET /auth/qr/generate                                                             72     0(0.00%) |    231       4    2971      7 |    2.70        0.00
+GET      GET /questionnaires/active                                                         6     0(0.00%) |     10       8      15      9 |    0.30        0.00
+POST     POST /auth/login                                                                  21     0(0.00%) |    366     257    1817    280 |    0.70        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     28     0(0.00%) |    768      11    5364     17 |    1.30        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       146     0(0.00%) |    411       4    5364     14 |    5.40        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        4     0(0.00%) |   1048    1011    1076   1011 |    0.00        0.00
+GET      GET /analytics/summary                                                             7     0(0.00%) |   1139    1030    1540   1100 |    0.30        0.00
+GET      GET /analytics/time-series                                                         3     0(0.00%) |    121       6     348     11 |    0.20        0.00
+GET      GET /auth/qr/generate                                                             77     0(0.00%) |    216       4    2971      7 |    2.50        0.00
+GET      GET /questionnaires/active                                                         7     0(0.00%) |     10       8      15      9 |    0.20        0.00
+POST     POST /auth/login                                                                  22     0(0.00%) |    361     257    1817    280 |    0.60        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     30     0(0.00%) |    718      11    5364     16 |    1.20        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       156     0(0.00%) |    393       4    5364     13 |    5.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        4     0(0.00%) |   1048    1011    1076   1011 |    0.10        0.00
+GET      GET /analytics/summary                                                             7     0(0.00%) |   1139    1030    1540   1100 |    0.20        0.00
+GET      GET /analytics/time-series                                                         4     0(0.00%) |     93       6     348      7 |    0.20        0.00
+GET      GET /auth/qr/generate                                                             83     0(0.00%) |    201       4    2971      7 |    2.90        0.00
+GET      GET /questionnaires/active                                                         7     0(0.00%) |     10       8      15      9 |    0.30        0.00
+POST     POST /auth/login                                                                  23     0(0.00%) |    357     256    1817    280 |    0.50        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     32     0(0.00%) |    673      11    5364     16 |    1.30        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       166     0(0.00%) |    372       4    5364     12 |    5.50        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        5     0(0.00%) |   1041    1011    1076   1011 |    0.20        0.00
+GET      GET /analytics/summary                                                             7     0(0.00%) |   1139    1030    1540   1100 |    0.10        0.00
+GET      GET /analytics/time-series                                                         4     0(0.00%) |     93       6     348      7 |    0.10        0.00
+GET      GET /auth/qr/generate                                                             90     0(0.00%) |    186       4    2971      7 |    2.70        0.00
+GET      GET /questionnaires/active                                                         8     0(0.00%) |      9       8      15      9 |    0.20        0.00
+POST     POST /auth/login                                                                  24     0(0.00%) |    353     256    1817    280 |    0.60        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     35     0(0.00%) |    617      11    5364     16 |    1.20        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       179     0(0.00%) |    352       4    5364     12 |    5.10        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        6     0(0.00%) |   1042    1011    1076   1011 |    0.30        0.00
+GET      GET /analytics/summary                                                             7     0(0.00%) |   1139    1030    1540   1100 |    0.10        0.00
+GET      GET /analytics/time-series                                                         4     0(0.00%) |     93       6     348      7 |    0.10        0.00
+GET      GET /auth/qr/generate                                                             92     0(0.00%) |    185       4    2971      7 |    2.60        0.00
+GET      GET /questionnaires/active                                                         9     0(0.00%) |      9       8      15      9 |    0.30        0.00
+POST     POST /auth/login                                                                  26     0(0.00%) |    345     252    1817    280 |    0.50        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     37     0(0.00%) |    584      11    5364     16 |    1.30        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       187     0(0.00%) |    347       4    5364     12 |    5.20        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        6     0(0.00%) |   1042    1011    1076   1011 |    0.30        0.00
+GET      GET /analytics/summary                                                             7     0(0.00%) |   1139    1030    1540   1100 |    0.10        0.00
+GET      GET /analytics/time-series                                                         5     0(0.00%) |     76       6     348     11 |    0.10        0.00
+GET      GET /auth/qr/generate                                                             97     0(0.00%) |    176       4    2971      7 |    2.70        0.00
+GET      GET /questionnaires/active                                                         9     0(0.00%) |      9       8      15      9 |    0.30        0.00
+POST     POST /auth/login                                                                  27     0(0.00%) |    342     252    1817    280 |    0.40        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     38     0(0.00%) |    569      11    5364     15 |    1.20        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       195     0(0.00%) |    335       4    5364     12 |    5.10        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        6     0(0.00%) |   1042    1011    1076   1011 |    0.40        0.00
+GET      GET /analytics/summary                                                             7     0(0.00%) |   1139    1030    1540   1100 |    0.00        0.00
+GET      GET /analytics/time-series                                                         5     0(0.00%) |     76       6     348     11 |    0.20        0.00
+GET      GET /auth/qr/generate                                                            103     0(0.00%) |    170       4    2971      7 |    2.80        0.00
+GET      GET /questionnaires/active                                                         9     0(0.00%) |      9       8      15      9 |    0.40        0.00
+POST     POST /auth/login                                                                  28     0(0.00%) |    347     252    1817    280 |    0.60        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     42     0(0.00%) |    559      11    5364     16 |    1.10        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       206     0(0.00%) |    330       4    5364     12 |    5.50        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        7     0(0.00%) |   1040    1011    1076   1011 |    0.30        0.00
+GET      GET /analytics/summary                                                             8     0(0.00%) |   1126    1030    1540   1100 |    0.00        0.00
+GET      GET /analytics/time-series                                                         5     0(0.00%) |     76       6     348     11 |    0.20        0.00
+GET      GET /auth/qr/generate                                                            108     0(0.00%) |    162       4    2971      7 |    2.40        0.00
+GET      GET /questionnaires/active                                                        10     0(0.00%) |      9       8      15      9 |    0.20        0.00
+POST     POST /auth/login                                                                  29     0(0.00%) |    345     252    1817    280 |    0.60        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     44     0(0.00%) |    534      11    5364     16 |    1.10        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       217     0(0.00%) |    324       4    5364     12 |    4.80        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        7     0(0.00%) |   1040    1011    1076   1011 |    0.30        0.00
+GET      GET /analytics/summary                                                             8     0(0.00%) |   1126    1030    1540   1100 |    0.10        0.00
+GET      GET /analytics/time-series                                                         5     0(0.00%) |     76       6     348     11 |    0.20        0.00
+GET      GET /auth/qr/generate                                                            114     0(0.00%) |    155       4    2971      7 |    2.50        0.00
+GET      GET /questionnaires/active                                                        10     0(0.00%) |      9       8      15      9 |    0.30        0.00
+POST     POST /auth/login                                                                  29     0(0.00%) |    345     252    1817    280 |    0.50        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     47     0(0.00%) |    501      11    5364     15 |    1.20        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       226     0(0.00%) |    312       4    5364     12 |    5.10        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        7     0(0.00%) |   1040    1011    1076   1011 |    0.20        0.00
+GET      GET /analytics/summary                                                            10     0(0.00%) |   1106    1023    1540   1023 |    0.10        0.00
+GET      GET /analytics/time-series                                                         5     0(0.00%) |     76       6     348     11 |    0.10        0.00
+GET      GET /auth/qr/generate                                                            118     0(0.00%) |    152       4    2971      7 |    2.40        0.00
+GET      GET /questionnaires/active                                                        11     0(0.00%) |      9       8      15      9 |    0.20        0.00
+POST     POST /auth/login                                                                  31     0(0.00%) |    346     252    1817    280 |    0.50        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     49     0(0.00%) |    483      11    5364     15 |    1.30        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       237     0(0.00%) |    311       4    5364     12 |    4.80        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        8     0(0.00%) |   1036    1011    1076   1011 |    0.10        0.00
+GET      GET /analytics/summary                                                            10     0(0.00%) |   1106    1023    1540   1023 |    0.20        0.00
+GET      GET /analytics/time-series                                                         5     0(0.00%) |     76       6     348     11 |    0.10        0.00
+GET      GET /auth/qr/generate                                                            123     0(0.00%) |    147       4    2971      7 |    2.50        0.00
+GET      GET /questionnaires/active                                                        13     0(0.00%) |      9       6      15      9 |    0.20        0.00
+POST     POST /auth/login                                                                  33     0(0.00%) |    342     252    1817    280 |    0.50        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     50     0(0.00%) |    475      11    5364     15 |    1.10        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       248     0(0.00%) |    305       4    5364     12 |    4.70        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        8     0(0.00%) |   1036    1011    1076   1011 |    0.20        0.00
+GET      GET /analytics/summary                                                            10     0(0.00%) |   1106    1023    1540   1023 |    0.30        0.00
+GET      GET /analytics/time-series                                                         5     0(0.00%) |     76       6     348     11 |    0.00        0.00
+GET      GET /auth/qr/generate                                                            131     0(0.00%) |    138       4    2971      7 |    2.50        0.00
+GET      GET /questionnaires/active                                                        14     0(0.00%) |      9       6      15      9 |    0.30        0.00
+POST     POST /auth/login                                                                  34     0(0.00%) |    340     252    1817    280 |    0.40        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     53     0(0.00%) |    449      11    5364     15 |    1.10        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       261     0(0.00%) |    291       4    5364     12 |    4.80        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        9     0(0.00%) |   1034    1011    1076   1011 |    0.20        0.00
+GET      GET /analytics/summary                                                            10     0(0.00%) |   1106    1023    1540   1023 |    0.30        0.00
+GET      GET /analytics/time-series                                                         6     0(0.00%) |     65       6     348      7 |    0.00        0.00
+GET      GET /auth/qr/generate                                                            137     0(0.00%) |    132       4    2971      7 |    2.50        0.00
+GET      GET /questionnaires/active                                                        14     0(0.00%) |      9       6      15      9 |    0.50        0.00
+POST     POST /auth/login                                                                  35     0(0.00%) |    338     252    1817    280 |    0.60        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     55     0(0.00%) |    433      11    5364     15 |    0.90        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       272     0(0.00%) |    284       4    5364     12 |    5.00        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        9     0(0.00%) |   1034    1011    1076   1011 |    0.10        0.00
+GET      GET /analytics/summary                                                            11     0(0.00%) |   1103    1023    1540   1100 |    0.20        0.00
+GET      GET /analytics/time-series                                                         6     0(0.00%) |     65       6     348      7 |    0.10        0.00
+GET      GET /auth/qr/generate                                                            142     0(0.00%) |    128       4    2971      7 |    2.70        0.00
+GET      GET /questionnaires/active                                                        15     0(0.00%) |      9       6      15      9 |    0.40        0.00
+POST     POST /auth/login                                                                  36     0(0.00%) |    336     252    1817    280 |    0.70        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     57     0(0.00%) |    418      11    5364     14 |    1.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       282     0(0.00%) |    279       4    5364     12 |    5.20        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                        9     0(0.00%) |   1034    1011    1076   1011 |    0.20        0.00
+GET      GET /analytics/summary                                                            11     0(0.00%) |   1103    1023    1540   1100 |    0.30        0.00
+GET      GET /analytics/time-series                                                         6     0(0.00%) |     65       6     348      7 |    0.10        0.00
+GET      GET /auth/qr/generate                                                            147     0(0.00%) |    124       4    2971      7 |    2.80        0.00
+GET      GET /questionnaires/active                                                        16     0(0.00%) |      9       6      15      9 |    0.50        0.00
+POST     POST /auth/login                                                                  37     0(0.00%) |    333     249    1817    280 |    0.60        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     58     0(0.00%) |    412      11    5364     14 |    1.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       290     0(0.00%) |    272       4    5364     11 |    5.50        0.00
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.00        0.00
+GET      GET /analytics/health-board                                                       10     0(0.00%) |   1035    1011    1076   1011 |    0.20        0.00
+GET      GET /analytics/summary                                                            11     0(0.00%) |   1103    1023    1540   1100 |    0.20        0.00
+GET      GET /analytics/time-series                                                         6     0(0.00%) |     65       6     348      7 |    0.10        0.00
+GET      GET /auth/qr/generate                                                            153     0(0.00%) |    119       4    2971      7 |    2.80        0.00
+GET      GET /questionnaires/active                                                        16     0(0.00%) |      9       6      15      9 |    0.40        0.00
+POST     POST /auth/login                                                                  37     0(0.00%) |    333     249    1817    280 |    0.60        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.00        0.00
+POST     POST /surveys                                                                     61     0(0.00%) |    392      11    5364     14 |    1.00        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       300     0(0.00%) |    267       4    5364     11 |    5.30        0.00
+
+
+
+====================================================
+       METRICAS DE RENDIMIENTO - CIRCLEGUARD
+====================================================
+  Requests totales     : 308
+  Fallos               : 0
+  Tasa de error        : 0.0%
+  Throughput (req/s)   : 5.18
+  Latencia p50         : 11 ms
+  Latencia p95         : 1100 ms
+  Latencia p99         : 3500 ms
+  Latencia max         : 5364 ms
+====================================================
+  Umbrales de aceptacion:
+  - Error rate <= 5%   : OK
+  - p95 <= 3000ms      : OK
+====================================================
+
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /analytics/department/{dept}                                                   1     0(0.00%) |   2500    2500    2500   2500 |    0.02        0.00
+GET      GET /analytics/health-board                                                       10     0(0.00%) |   1035    1011    1076   1011 |    0.17        0.00
+GET      GET /analytics/summary                                                            12     0(0.00%) |   1100    1023    1540   1100 |    0.20        0.00
+GET      GET /analytics/time-series                                                         6     0(0.00%) |     65       6     348      7 |    0.10        0.00
+GET      GET /auth/qr/generate                                                            157     0(0.00%) |    116       4    2971      6 |    2.64        0.00
+GET      GET /questionnaires/active                                                        16     0(0.00%) |      9       6      15      9 |    0.27        0.00
+POST     POST /auth/login                                                                  38     0(0.00%) |    331     249    1817    280 |    0.64        0.00
+POST     POST /identities/visitor                                                           5     0(0.00%) |     29      17      70     21 |    0.08        0.00
+POST     POST /surveys                                                                     63     0(0.00%) |    380      11    5364     14 |    1.06        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                       308     0(0.00%) |    265       4    5364     11 |    5.18        0.00
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /analytics/department/{dept}                                                     2500   2500   2500   2500   2500   2500   2500   2500   2500   2500   2500      1
+GET      GET /analytics/health-board                                                          1000   1000   1100   1100   1100   1100   1100   1100   1100   1100   1100     10
+GET      GET /analytics/summary                                                               1100   1100   1100   1100   1200   1500   1500   1500   1500   1500   1500     12
+GET      GET /analytics/time-series                                                             11     11     11     11    350    350    350    350    350    350    350      6
+GET      GET /auth/qr/generate                                                                   6      7      8      9     81    410   2400   2900   3000   3000   3000    157
+GET      GET /questionnaires/active                                                              9      9     10     10     11     15     15     15     15     15     15     16
+POST     POST /auth/login                                                                      280    290    300    310    390    500   1800   1800   1800   1800   1800     38
+POST     POST /identities/visitor                                                               21     22     22     70     70     70     70     70     70     70     70      5
+POST     POST /surveys                                                                          14     17     33    100    830   3500   4200   5400   5400   5400   5400     63
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                             11     19    260    280   1000   1100   2800   3500   5400   5400   5400    308
+
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Push Stage Images)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
++ docker tag prapoju/circleguard-auth-service:dev prapoju/circleguard-auth-service:stage
+[Pipeline] sh
++ docker push prapoju/circleguard-auth-service:stage
+The push refers to repository [docker.io/prapoju/circleguard-auth-service]
+805e883ebe85: Preparing
+e88aa37d856e: Preparing
+5265264d380d: Preparing
+4d88768ec38e: Preparing
+9ad256544b54: Preparing
+f04f9db94d3e: Preparing
+29df493baa13: Preparing
+f04f9db94d3e: Waiting
+29df493baa13: Waiting
+805e883ebe85: Layer already exists
+e88aa37d856e: Layer already exists
+4d88768ec38e: Layer already exists
+9ad256544b54: Layer already exists
+5265264d380d: Layer already exists
+29df493baa13: Layer already exists
+f04f9db94d3e: Layer already exists
+stage: digest: sha256:45da93a4f4784f21837276dda3b48f29c3b0c7ced5dbb01dcbbfa6e21d902364 size: 1785
+[Pipeline] sh
++ docker tag prapoju/circleguard-identity-service:dev prapoju/circleguard-identity-service:stage
+[Pipeline] sh
++ docker push prapoju/circleguard-identity-service:stage
+The push refers to repository [docker.io/prapoju/circleguard-identity-service]
+8d82f0159f6e: Preparing
+b2bf0d99672e: Preparing
+5265264d380d: Preparing
+4d88768ec38e: Preparing
+9ad256544b54: Preparing
+f04f9db94d3e: Preparing
+29df493baa13: Preparing
+f04f9db94d3e: Waiting
+29df493baa13: Waiting
+b2bf0d99672e: Layer already exists
+8d82f0159f6e: Layer already exists
+9ad256544b54: Layer already exists
+5265264d380d: Layer already exists
+4d88768ec38e: Layer already exists
+f04f9db94d3e: Layer already exists
+29df493baa13: Layer already exists
+stage: digest: sha256:3921d7faa8c3a6aa6a223a94527ec3d40a60a729b0929d3d6904fcc7f3f90b20 size: 1785
+[Pipeline] sh
++ docker tag prapoju/circleguard-form-service:dev prapoju/circleguard-form-service:stage
+[Pipeline] sh
++ docker push prapoju/circleguard-form-service:stage
+The push refers to repository [docker.io/prapoju/circleguard-form-service]
+5963883ba682: Preparing
+70915a35fe09: Preparing
+5265264d380d: Preparing
+4d88768ec38e: Preparing
+9ad256544b54: Preparing
+f04f9db94d3e: Preparing
+29df493baa13: Preparing
+29df493baa13: Waiting
+f04f9db94d3e: Waiting
+70915a35fe09: Layer already exists
+5265264d380d: Layer already exists
+9ad256544b54: Layer already exists
+5963883ba682: Layer already exists
+4d88768ec38e: Layer already exists
+f04f9db94d3e: Layer already exists
+29df493baa13: Layer already exists
+stage: digest: sha256:1774188973524cb82007e5ba1a3ec428eefe7e7b722749aa1a2b8df4c6498fd1 size: 1785
+[Pipeline] sh
++ docker tag prapoju/circleguard-file-service:dev prapoju/circleguard-file-service:stage
+[Pipeline] sh
++ docker push prapoju/circleguard-file-service:stage
+The push refers to repository [docker.io/prapoju/circleguard-file-service]
+f283a500bd38: Preparing
+dee5f2d3939c: Preparing
+5265264d380d: Preparing
+4d88768ec38e: Preparing
+9ad256544b54: Preparing
+f04f9db94d3e: Preparing
+29df493baa13: Preparing
+f04f9db94d3e: Waiting
+29df493baa13: Waiting
+5265264d380d: Layer already exists
+9ad256544b54: Layer already exists
+dee5f2d3939c: Layer already exists
+4d88768ec38e: Layer already exists
+f283a500bd38: Layer already exists
+29df493baa13: Layer already exists
+f04f9db94d3e: Layer already exists
+stage: digest: sha256:0a5c48cce09ec6974fe056fdc598eb7461ba538b5f6020d65b06576923aea1c5 size: 1785
+[Pipeline] sh
++ docker tag prapoju/circleguard-notification-service:dev prapoju/circleguard-notification-service:stage
+[Pipeline] sh
++ docker push prapoju/circleguard-notification-service:stage
+The push refers to repository [docker.io/prapoju/circleguard-notification-service]
+aa0e4dda3629: Preparing
+22bcc0c9d9a0: Preparing
+5265264d380d: Preparing
+4d88768ec38e: Preparing
+9ad256544b54: Preparing
+f04f9db94d3e: Preparing
+29df493baa13: Preparing
+f04f9db94d3e: Waiting
+29df493baa13: Waiting
+22bcc0c9d9a0: Layer already exists
+aa0e4dda3629: Layer already exists
+9ad256544b54: Layer already exists
+5265264d380d: Layer already exists
+4d88768ec38e: Layer already exists
+29df493baa13: Layer already exists
+f04f9db94d3e: Layer already exists
+stage: digest: sha256:f45b647954eb6c603fde558558038941c5255f03fc2b14c081db5a20324b732c size: 1785
+[Pipeline] sh
++ docker tag prapoju/circleguard-dashboard-service:dev prapoju/circleguard-dashboard-service:stage
+[Pipeline] sh
++ docker push prapoju/circleguard-dashboard-service:stage
+The push refers to repository [docker.io/prapoju/circleguard-dashboard-service]
+e25b954a8a8b: Preparing
+9638c0b8b1aa: Preparing
+5265264d380d: Preparing
+4d88768ec38e: Preparing
+9ad256544b54: Preparing
+f04f9db94d3e: Preparing
+29df493baa13: Preparing
+f04f9db94d3e: Waiting
+29df493baa13: Waiting
+4d88768ec38e: Layer already exists
+9638c0b8b1aa: Layer already exists
+e25b954a8a8b: Layer already exists
+5265264d380d: Layer already exists
+9ad256544b54: Layer already exists
+29df493baa13: Layer already exists
+f04f9db94d3e: Layer already exists
+stage: digest: sha256:ea5f75149ab368baf2fa1e7e70d11cf5e6edd736b308850093cc4b06e2169075 size: 1785
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+Stage pipeline completed successfully! All services promoted to :stage.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // podTemplate
+[Pipeline] End of Pipeline
+Finished: SUCCESS

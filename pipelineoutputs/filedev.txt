@@ -1,0 +1,412 @@
+Started by user Jenkins Admin
+Obtained pipelines/dev/circleguard-file-service from git https://github.com/prapoju/circle-guard-public.git
+[Pipeline] Start of Pipeline
+[Pipeline] podTemplate
+[Pipeline] {
+[Pipeline] node
+Created Pod: kubernetes jenkins/file-dev-1-mxmbk-jrn3q-pd4sc
+[PodInfo] jenkins/file-dev-1-mxmbk-jrn3q-pd4sc
+	Container [docker] waiting [ContainerCreating] No message
+	Container [jdk21] waiting [ContainerCreating] No message
+	Container [jnlp] waiting [ContainerCreating] No message
+	Pod [Pending][ContainersNotReady] containers with unready status: [jdk21 docker jnlp]
+Agent file-dev-1-mxmbk-jrn3q-pd4sc is provisioned from template file-dev_1-mxmbk-jrn3q
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    kubernetes.jenkins.io/last-refresh: "1778381167629"
+    buildUrl: "http://jenkins.jenkins.svc.cluster.local:8080/job/file-dev/1/"
+    runUrl: "job/file-dev/1/"
+  labels:
+    jenkins/jenkins-jenkins-agent: "true"
+    jenkins/label-digest: "5826bcd502c478ea56beda089851b002f6249d79"
+    jenkins/label: "file-dev_1-mxmbk"
+    kubernetes.jenkins.io/controller: "http___jenkins_jenkins_svc_cluster_local_8080x"
+  name: "file-dev-1-mxmbk-jrn3q-pd4sc"
+  namespace: "jenkins"
+spec:
+  containers:
+  - args:
+    - "infinity"
+    command:
+    - "sleep"
+    image: "eclipse-temurin:21-jdk"
+    name: "jdk21"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - args:
+    - "--host=tcp://0.0.0.0:2375"
+    - "--host=unix:///var/run/docker.sock"
+    command:
+    - "dockerd-entrypoint.sh"
+    env:
+    - name: "DOCKER_TLS_CERTDIR"
+      value: ""
+    image: "docker:24-dind"
+    name: "docker"
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - env:
+    - name: "JENKINS_SECRET"
+      value: "********"
+    - name: "JENKINS_TUNNEL"
+      value: "jenkins-agent.jenkins.svc.cluster.local:50000"
+    - name: "JENKINS_AGENT_NAME"
+      value: "file-dev-1-mxmbk-jrn3q-pd4sc"
+    - name: "REMOTING_OPTS"
+      value: "-noReconnectAfter 1d"
+    - name: "JENKINS_NAME"
+      value: "file-dev-1-mxmbk-jrn3q-pd4sc"
+    - name: "JENKINS_AGENT_WORKDIR"
+      value: "/home/jenkins/agent"
+    - name: "JENKINS_URL"
+      value: "http://jenkins.jenkins.svc.cluster.local:8080/"
+    image: "jenkins/inbound-agent:3355.v388858a_47b_33-3-jdk21"
+    name: "jnlp"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  nodeSelector:
+    kubernetes.io/os: "linux"
+  restartPolicy: "Never"
+  volumes:
+  - emptyDir:
+      medium: ""
+    name: "workspace-volume"
+
+Running on file-dev-1-mxmbk-jrn3q-pd4sc in /home/jenkins/agent/workspace/file-dev
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/prapoju/circle-guard-public.git
+ > git init /home/jenkins/agent/workspace/file-dev # timeout=10
+Fetching upstream changes from https://github.com/prapoju/circle-guard-public.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/prapoju/circle-guard-public.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/prapoju/circle-guard-public.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+Checking out Revision d359bbdda3894a0d9ab76e692ff6ba89b5b79fa2 (refs/remotes/origin/master)
+Commit message: "test: mock in attachment controller test"
+First time build. Skipping changelog.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] container
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Warning: JENKINS-30600: special launcher org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1@10dc745f; decorates RemoteLauncher[hudson.remoting.Channel@5a1b34f7:JNLP4-connect connection from 10.244.4.10/10.244.4.10:56902] will be ignored (a typical symptom is the Git executable not being run inside a designated container)
+Fetching changes from the remote Git repository
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f d359bbdda3894a0d9ab76e692ff6ba89b5b79fa2 # timeout=10
+Checking out Revision d359bbdda3894a0d9ab76e692ff6ba89b5b79fa2 (refs/remotes/origin/master)
+Commit message: "test: mock in attachment controller test"
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Compile)
+[Pipeline] sh
+ > git rev-parse --resolve-git-dir /home/jenkins/agent/workspace/file-dev/.git # timeout=10
+ > git config remote.origin.url https://github.com/prapoju/circle-guard-public.git # timeout=10
+Fetching upstream changes from https://github.com/prapoju/circle-guard-public.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/prapoju/circle-guard-public.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f d359bbdda3894a0d9ab76e692ff6ba89b5b79fa2 # timeout=10
++ chmod +x gradlew
++ ./gradlew --no-daemon :services:circleguard-file-service:compileJava
+openjdk version "21.0.11" 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)
+Downloading https://services.gradle.org/distributions/gradle-8.14-bin.zip
+...................................................................................................................................
+Unzipping /root/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14-bin.zip to /root/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9
+Set executable permissions for: /root/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14/bin/gradle
+
+Welcome to Gradle 8.14!
+
+Here are the highlights of this release:
+ - Java 24 support
+ - GraalVM Native Image toolchain selection
+ - Enhancements to test reporting
+ - Build Authoring improvements
+
+For more details see https://docs.gradle.org/8.14/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :services:circleguard-file-service:checkKotlinGradlePluginConfigurationErrors
+> Task :services:circleguard-file-service:compileKotlin NO-SOURCE
+> Task :services:circleguard-file-service:compileJava
+
+[Incubating] Problems report is available at: file:///home/jenkins/agent/workspace/file-dev/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 20s
+2 actionable tasks: 2 executed
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit Tests)
+[Pipeline] sh
++ ./gradlew --no-daemon :services:circleguard-file-service:test
+openjdk version "21.0.11" 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :services:circleguard-file-service:checkKotlinGradlePluginConfigurationErrors
+> Task :services:circleguard-file-service:compileKotlin NO-SOURCE
+> Task :services:circleguard-file-service:compileJava UP-TO-DATE
+> Task :services:circleguard-file-service:processResources
+> Task :services:circleguard-file-service:classes
+> Task :services:circleguard-file-service:compileTestKotlin NO-SOURCE
+> Task :services:circleguard-file-service:compileTestJava
+> Task :services:circleguard-file-service:processTestResources NO-SOURCE
+> Task :services:circleguard-file-service:testClasses
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :services:circleguard-file-service:test
+
+[Incubating] Problems report is available at: file:///home/jenkins/agent/workspace/file-dev/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 24s
+5 actionable tasks: 4 executed, 1 up-to-date
+Post stage
+[Pipeline] echo
+Unit tests completed
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Integration Tests)
+[Pipeline] sh
++ ./gradlew --no-daemon :services:circleguard-file-service:integrationTest
+openjdk version "21.0.11" 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :services:circleguard-file-service:checkKotlinGradlePluginConfigurationErrors
+> Task :services:circleguard-file-service:compileKotlin NO-SOURCE
+> Task :services:circleguard-file-service:compileJava UP-TO-DATE
+> Task :services:circleguard-file-service:processResources UP-TO-DATE
+> Task :services:circleguard-file-service:classes UP-TO-DATE
+> Task :services:circleguard-file-service:compileTestKotlin NO-SOURCE
+> Task :services:circleguard-file-service:compileTestJava UP-TO-DATE
+> Task :services:circleguard-file-service:processTestResources NO-SOURCE
+> Task :services:circleguard-file-service:testClasses UP-TO-DATE
+> Task :services:circleguard-file-service:compileIntegrationTestKotlin NO-SOURCE
+> Task :services:circleguard-file-service:compileIntegrationTestJava NO-SOURCE
+> Task :services:circleguard-file-service:processIntegrationTestResources NO-SOURCE
+> Task :services:circleguard-file-service:integrationTestClasses UP-TO-DATE
+> Task :services:circleguard-file-service:integrationTest NO-SOURCE
+
+[Incubating] Problems report is available at: file:///home/jenkins/agent/workspace/file-dev/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 11s
+4 actionable tasks: 1 executed, 3 up-to-date
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build & Push Image)
+[Pipeline] sh
++ ./gradlew --no-daemon :services:circleguard-file-service:bootJar
+openjdk version "21.0.11" 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :services:circleguard-file-service:checkKotlinGradlePluginConfigurationErrors
+> Task :services:circleguard-file-service:compileKotlin NO-SOURCE
+> Task :services:circleguard-file-service:compileJava UP-TO-DATE
+> Task :services:circleguard-file-service:processResources UP-TO-DATE
+> Task :services:circleguard-file-service:classes UP-TO-DATE
+> Task :services:circleguard-file-service:resolveMainClassName
+> Task :services:circleguard-file-service:bootJar
+
+[Incubating] Problems report is available at: file:///home/jenkins/agent/workspace/file-dev/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 11s
+5 actionable tasks: 3 executed, 2 up-to-date
+[Pipeline] container
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $DOCKER_PASS
+[Pipeline] {
+[Pipeline] sh
++ docker login -u prapoju -p ****
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+[Pipeline] sh
++ docker build -t prapoju/circleguard-file-service:dev services/circleguard-file-service/
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 315B done
+#1 DONE 0.1s
+
+#2 [internal] load .dockerignore
+#2 transferring context: 2B done
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre-alpine
+#3 ...
+
+#4 [auth] library/eclipse-temurin:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre-alpine
+#3 DONE 1.3s
+
+#5 [1/3] FROM docker.io/library/eclipse-temurin:21-jre-alpine@sha256:704db3c40204a44f471191446ddd9cda5d60dab40f0e15c6507b815ed897238b
+#5 resolve docker.io/library/eclipse-temurin:21-jre-alpine@sha256:704db3c40204a44f471191446ddd9cda5d60dab40f0e15c6507b815ed897238b 0.0s done
+#5 ...
+
+#6 [internal] load build context
+#6 transferring context: 24.72MB 0.1s done
+#6 DONE 0.2s
+
+#5 [1/3] FROM docker.io/library/eclipse-temurin:21-jre-alpine@sha256:704db3c40204a44f471191446ddd9cda5d60dab40f0e15c6507b815ed897238b
+#5 sha256:e5c660cfae96c7c55c2f69892a274e310e98089a8f7797596551d2182b16913a 4.12kB / 4.12kB done
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 0B / 3.86MB 0.2s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 0B / 16.86MB 0.2s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 0B / 53.30MB 0.2s
+#5 sha256:704db3c40204a44f471191446ddd9cda5d60dab40f0e15c6507b815ed897238b 2.69kB / 2.69kB done
+#5 sha256:089ffb495d17108fd0a9f3f05a87d20e4b37ceea2db3fb55c07d4283b9bebe7d 1.94kB / 1.94kB done
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 7.34MB / 16.86MB 0.6s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 13.63MB / 16.86MB 0.7s
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 1.05MB / 3.86MB 0.8s
+#5 sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 16.86MB / 16.86MB 0.7s done
+#5 sha256:42516208460b63f47d0044aef98b70571ce7765cc9108b0a3d14ae7fa16d7566 0B / 128B 0.8s
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 2.10MB / 3.86MB 1.0s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 6.29MB / 53.30MB 1.0s
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 3.15MB / 3.86MB 1.1s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 10.49MB / 53.30MB 1.1s
+#5 sha256:42516208460b63f47d0044aef98b70571ce7765cc9108b0a3d14ae7fa16d7566 128B / 128B 1.0s done
+#5 sha256:2d1a277377d10ae29a58277bdefa13f3a1cfffb295a5b7bce5ad0b0d82661629 0B / 2.28kB 1.1s
+#5 extracting sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb
+#5 sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 3.86MB / 3.86MB 1.1s done
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 13.63MB / 53.30MB 1.2s
+#5 extracting sha256:6a0ac1617861a677b045b7ff88545213ec31c0ff08763195a70a4a5adda577bb 0.1s done
+#5 extracting sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 18.87MB / 53.30MB 1.3s
+#5 sha256:2d1a277377d10ae29a58277bdefa13f3a1cfffb295a5b7bce5ad0b0d82661629 2.28kB / 2.28kB 1.3s done
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 26.62MB / 53.30MB 1.5s
+#5 extracting sha256:5ef4bf1bda3522f6b64c24ee154ed6739c8ab26c1be19e7b9e564bf0f39cbf22 0.3s done
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 37.75MB / 53.30MB 1.7s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 47.19MB / 53.30MB 1.9s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 52.43MB / 53.30MB 2.0s
+#5 sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 53.30MB / 53.30MB 2.0s done
+#5 extracting sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 0.1s
+#5 extracting sha256:6e338134b21e530c8c101d288f216594c45a122a53f0d095568b2d0e943d8fec 0.7s done
+#5 extracting sha256:42516208460b63f47d0044aef98b70571ce7765cc9108b0a3d14ae7fa16d7566 done
+#5 extracting sha256:2d1a277377d10ae29a58277bdefa13f3a1cfffb295a5b7bce5ad0b0d82661629 done
+#5 DONE 3.1s
+
+#7 [2/3] WORKDIR /app
+#7 DONE 0.5s
+
+#8 [3/3] COPY build/libs/circleguard-file-service-*.jar app.jar
+#8 DONE 0.2s
+
+#9 exporting to image
+#9 exporting layers 0.1s done
+#9 writing image sha256:dcc6693d511c7975c4ef11f0d71bd10a64c38de4fc5e7db97dfadbea9b31d705 done
+#9 naming to docker.io/prapoju/circleguard-file-service:dev done
+#9 DONE 0.1s
+[Pipeline] sh
++ docker push prapoju/circleguard-file-service:dev
+The push refers to repository [docker.io/prapoju/circleguard-file-service]
+f283a500bd38: Preparing
+dee5f2d3939c: Preparing
+5265264d380d: Preparing
+4d88768ec38e: Preparing
+9ad256544b54: Preparing
+f04f9db94d3e: Preparing
+29df493baa13: Preparing
+f04f9db94d3e: Waiting
+29df493baa13: Waiting
+4d88768ec38e: Mounted from library/eclipse-temurin
+5265264d380d: Mounted from library/eclipse-temurin
+9ad256544b54: Mounted from library/eclipse-temurin
+f04f9db94d3e: Mounted from library/eclipse-temurin
+29df493baa13: Mounted from library/eclipse-temurin
+dee5f2d3939c: Pushed
+f283a500bd38: Pushed
+dev: digest: sha256:0a5c48cce09ec6974fe056fdc598eb7461ba538b5f6020d65b06576923aea1c5 size: 1785
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+circleguard-file-service pipeline completed successfully!
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // podTemplate
+[Pipeline] End of Pipeline
+Finished: SUCCESS

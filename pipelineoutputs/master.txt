@@ -1,0 +1,1203 @@
+Started by user Jenkins Admin
+Obtained pipelines/master/Jenkinsfile from git https://github.com/prapoju/circle-guard-public.git
+[Pipeline] Start of Pipeline
+[Pipeline] podTemplate
+[Pipeline] {
+[Pipeline] node
+Created Pod: kubernetes jenkins/master-18-x3n23-wwb9w-g0xsd
+[PodInfo] jenkins/master-18-x3n23-wwb9w-g0xsd
+	Container [docker] waiting [ContainerCreating] No message
+	Container [git] waiting [ContainerCreating] No message
+	Container [jdk21] waiting [ContainerCreating] No message
+	Container [jnlp] waiting [ContainerCreating] No message
+	Container [kubectl] waiting [ContainerCreating] No message
+	Pod [Pending][ContainersNotReady] containers with unready status: [jdk21 docker kubectl git jnlp]
+Still waiting to schedule task
+‘master-18-x3n23-wwb9w-g0xsd’ is offline
+[PodInfo] jenkins/master-18-x3n23-wwb9w-g0xsd
+	Container [docker] waiting [ContainerCreating] No message
+	Container [git] waiting [ContainerCreating] No message
+	Container [jdk21] waiting [ContainerCreating] No message
+	Container [jnlp] waiting [ContainerCreating] No message
+	Container [kubectl] waiting [ContainerCreating] No message
+	Pod [Pending][ContainersNotReady] containers with unready status: [jdk21 docker kubectl git jnlp]
+Agent master-18-x3n23-wwb9w-g0xsd is provisioned from template master_18-x3n23-wwb9w
+---
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  annotations:
+    kubernetes.jenkins.io/last-refresh: "1778438263574"
+    buildUrl: "http://jenkins.jenkins.svc.cluster.local:8080/job/master/18/"
+    runUrl: "job/master/18/"
+  labels:
+    jenkins/jenkins-jenkins-agent: "true"
+    jenkins/label-digest: "06bd74439324f1054f8ec5607bb190edf87e4f65"
+    jenkins/label: "master_18-x3n23"
+    kubernetes.jenkins.io/controller: "http___jenkins_jenkins_svc_cluster_local_8080x"
+  name: "master-18-x3n23-wwb9w-g0xsd"
+  namespace: "jenkins"
+spec:
+  containers:
+  - args:
+    - "infinity"
+    command:
+    - "sleep"
+    image: "eclipse-temurin:21-jdk"
+    name: "jdk21"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - args:
+    - "--host=tcp://0.0.0.0:2375"
+    - "--host=unix:///var/run/docker.sock"
+    command:
+    - "dockerd-entrypoint.sh"
+    env:
+    - name: "DOCKER_TLS_CERTDIR"
+      value: ""
+    image: "docker:24-dind"
+    name: "docker"
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - command:
+    - "cat"
+    image: "alpine/kubectl:1.36.0"
+    name: "kubectl"
+    tty: true
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - command:
+    - "cat"
+    image: "alpine/git:latest"
+    name: "git"
+    tty: true
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  - env:
+    - name: "JENKINS_SECRET"
+      value: "********"
+    - name: "JENKINS_TUNNEL"
+      value: "jenkins-agent.jenkins.svc.cluster.local:50000"
+    - name: "JENKINS_AGENT_NAME"
+      value: "master-18-x3n23-wwb9w-g0xsd"
+    - name: "REMOTING_OPTS"
+      value: "-noReconnectAfter 1d"
+    - name: "JENKINS_NAME"
+      value: "master-18-x3n23-wwb9w-g0xsd"
+    - name: "JENKINS_AGENT_WORKDIR"
+      value: "/home/jenkins/agent"
+    - name: "JENKINS_URL"
+      value: "http://jenkins.jenkins.svc.cluster.local:8080/"
+    image: "jenkins/inbound-agent:3355.v388858a_47b_33-3-jdk21"
+    name: "jnlp"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+    volumeMounts:
+    - mountPath: "/home/jenkins/agent"
+      name: "workspace-volume"
+      readOnly: false
+  nodeSelector:
+    kubernetes.io/os: "linux"
+  restartPolicy: "Never"
+  volumes:
+  - emptyDir:
+      medium: ""
+    name: "workspace-volume"
+
+Running on master-18-x3n23-wwb9w-g0xsd in /home/jenkins/agent/workspace/master
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning repository https://github.com/prapoju/circle-guard-public.git
+ > git init /home/jenkins/agent/workspace/master # timeout=10
+Fetching upstream changes from https://github.com/prapoju/circle-guard-public.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/prapoju/circle-guard-public.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/prapoju/circle-guard-public.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+Checking out Revision d43ee5c4ec705c4ca0ce5e7630bf3eef9ae448bc (refs/remotes/origin/master)
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f d43ee5c4ec705c4ca0ce5e7630bf3eef9ae448bc # timeout=10
+Commit message: "cd: replace printf in master pipeline"
+ > git rev-list --no-walk de081b1c968be1507969d2be0288496429b5ee63 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] container
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+Warning: JENKINS-30600: special launcher org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1@33b7b70f; decorates RemoteLauncher[hudson.remoting.Channel@68287a3:JNLP4-connect connection from 10.244.1.108/10.244.1.108:54600] will be ignored (a typical symptom is the Git executable not being run inside a designated container)
+Fetching changes from the remote Git repository
+Checking out Revision d43ee5c4ec705c4ca0ce5e7630bf3eef9ae448bc (refs/remotes/origin/master)
+Commit message: "cd: replace printf in master pipeline"
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Pull Stage Images)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
+ > git rev-parse --resolve-git-dir /home/jenkins/agent/workspace/master/.git # timeout=10
+ > git config remote.origin.url https://github.com/prapoju/circle-guard-public.git # timeout=10
+Fetching upstream changes from https://github.com/prapoju/circle-guard-public.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --tags --force --progress -- https://github.com/prapoju/circle-guard-public.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f d43ee5c4ec705c4ca0ce5e7630bf3eef9ae448bc # timeout=10
++ docker info
+Client:
+ Version:    24.0.9
+ Context:    default
+ Debug Mode: false
+ Plugins:
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.16.2
+    Path:     /usr/local/libexec/docker/cli-plugins/docker-buildx
+  compose: Docker Compose (Docker Inc.)
+    Version:  v2.29.1
+    Path:     /usr/local/libexec/docker/cli-plugins/docker-compose
+
+Server:
+ Containers: 0
+  Running: 0
+  Paused: 0
+  Stopped: 0
+ Images: 0
+ Server Version: 24.0.9
+ Storage Driver: overlay2
+  Backing Filesystem: btrfs
+  Supports d_type: true
+  Using metacopy: false
+  Native Overlay Diff: true
+  userxattr: false
+ Logging Driver: json-file
+ Cgroup Driver: cgroupfs
+ Cgroup Version: 2
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog
+ Swarm: inactive
+ Runtimes: io.containerd.runc.v2 runc
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: 7c3aca7a610df76212171d200ca3811ff6096eb8
+ runc version: v1.1.12-0-g51d5e94
+ init version: de40ad0
+ Security Options:
+  seccomp
+   Profile: builtin
+  cgroupns
+ Kernel Version: 6.17.1-300.fc43.x86_64
+ Operating System: Alpine Linux v3.20 (containerized)
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 16
+ Total Memory: 9.544GiB
+ Name: master-18-x3n23-wwb9w-g0xsd
+ ID: d061ad8c-0c49-4db6-9c00-ff49f028735c
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ Experimental: false
+ Insecure Registries:
+  127.0.0.0/8
+ Live Restore Enabled: false
+ Product License: Community Engine
+
+WARNING: API is accessible on http://0.0.0.0:2375 without encryption.
+         Access to the remote API is equivalent to root access on the host. Refer
+         to the 'Docker daemon attack surface' section in the documentation for
+         more information: https://docs.docker.com/go/attack-surface/
+[Pipeline] withCredentials
+Masking supported pattern matches of $DOCKER_PASS
+[Pipeline] {
+[Pipeline] sh
++ docker login -u prapoju -p ****
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+[Pipeline] sh
++ docker pull prapoju/circleguard-auth-service:stage
+stage: Pulling from prapoju/circleguard-auth-service
+6a0ac1617861: Pulling fs layer
+5ef4bf1bda35: Pulling fs layer
+6e338134b21e: Pulling fs layer
+42516208460b: Pulling fs layer
+2d1a277377d1: Pulling fs layer
+7474855904a2: Pulling fs layer
+3ddbefd74b12: Pulling fs layer
+2d1a277377d1: Waiting
+7474855904a2: Waiting
+3ddbefd74b12: Waiting
+42516208460b: Waiting
+6a0ac1617861: Verifying Checksum
+6a0ac1617861: Download complete
+42516208460b: Download complete
+6a0ac1617861: Pull complete
+2d1a277377d1: Download complete
+7474855904a2: Download complete
+3ddbefd74b12: Verifying Checksum
+3ddbefd74b12: Download complete
+5ef4bf1bda35: Verifying Checksum
+5ef4bf1bda35: Download complete
+6e338134b21e: Verifying Checksum
+6e338134b21e: Download complete
+5ef4bf1bda35: Pull complete
+6e338134b21e: Pull complete
+42516208460b: Pull complete
+2d1a277377d1: Pull complete
+7474855904a2: Pull complete
+3ddbefd74b12: Pull complete
+Digest: sha256:45da93a4f4784f21837276dda3b48f29c3b0c7ced5dbb01dcbbfa6e21d902364
+Status: Downloaded newer image for prapoju/circleguard-auth-service:stage
+docker.io/prapoju/circleguard-auth-service:stage
+[Pipeline] sh
++ docker pull prapoju/circleguard-identity-service:stage
+stage: Pulling from prapoju/circleguard-identity-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+091ee78d05cb: Pulling fs layer
+02ac8905a747: Pulling fs layer
+091ee78d05cb: Download complete
+091ee78d05cb: Pull complete
+02ac8905a747: Verifying Checksum
+02ac8905a747: Download complete
+02ac8905a747: Pull complete
+Digest: sha256:3921d7faa8c3a6aa6a223a94527ec3d40a60a729b0929d3d6904fcc7f3f90b20
+Status: Downloaded newer image for prapoju/circleguard-identity-service:stage
+docker.io/prapoju/circleguard-identity-service:stage
+[Pipeline] sh
+Failed to start websocket connection: io.fabric8.kubernetes.client.KubernetesClientException: An error has occurred.
+	at PluginClassLoader for kubernetes-client-api//io.fabric8.kubernetes.client.KubernetesClientException.launderThrowable(KubernetesClientException.java:109)
+	at PluginClassLoader for kubernetes-client-api//io.fabric8.kubernetes.client.KubernetesClientException.launderThrowable(KubernetesClientException.java:102)
+	at PluginClassLoader for kubernetes-client-api//io.fabric8.kubernetes.client.utils.Utils.waitUntilReadyOrFail(Utils.java:187)
+	at PluginClassLoader for kubernetes-client-api//io.fabric8.kubernetes.client.dsl.internal.core.v1.PodOperationsImpl.setupConnectionToPod(PodOperationsImpl.java:387)
+	at PluginClassLoader for kubernetes-client-api//io.fabric8.kubernetes.client.dsl.internal.core.v1.PodOperationsImpl.exec(PodOperationsImpl.java:293)
+	at PluginClassLoader for kubernetes//org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1.doLaunch(ContainerExecDecorator.java:520)
+	at PluginClassLoader for kubernetes//org.csanchez.jenkins.plugins.kubernetes.pipeline.ContainerExecDecorator$1.launch(ContainerExecDecorator.java:381)
+	at hudson.Launcher$ProcStarter.start(Launcher.java:507)
+	at PluginClassLoader for durable-task//org.jenkinsci.plugins.durabletask.BourneShellScript.launchWithCookie(BourneShellScript.java:179)
+	at PluginClassLoader for durable-task//org.jenkinsci.plugins.durabletask.FileMonitoringTask.launch(FileMonitoringTask.java:132)
+	at PluginClassLoader for workflow-durable-task-step//org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep$Execution.start(DurableTaskStep.java:330)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.DSL.invokeStep(DSL.java:339)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.DSL.invokeMethod(DSL.java:199)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsScript.invokeMethod(CpsScript.java:124)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:98)
+	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:325)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1225)
+	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1034)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaClassSite.call(PogoMetaClassSite.java:41)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:47)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:116)
+	at PluginClassLoader for script-security//org.kohsuke.groovy.sandbox.impl.Checker$1.call(Checker.java:180)
+	at PluginClassLoader for script-security//org.kohsuke.groovy.sandbox.GroovyInterceptor.onMethodCall(GroovyInterceptor.java:23)
+	at PluginClassLoader for script-security//org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.SandboxInterceptor.onMethodCall(SandboxInterceptor.java:163)
+	at PluginClassLoader for script-security//org.kohsuke.groovy.sandbox.impl.Checker$1.call(Checker.java:178)
+	at PluginClassLoader for script-security//org.kohsuke.groovy.sandbox.impl.Checker.checkedCall(Checker.java:182)
+	at PluginClassLoader for script-security//org.kohsuke.groovy.sandbox.impl.Checker.checkedCall(Checker.java:152)
+	at PluginClassLoader for script-security//org.kohsuke.groovy.sandbox.impl.Checker.checkedCall(Checker.java:152)
+	at PluginClassLoader for script-security//org.kohsuke.groovy.sandbox.impl.Checker.checkedCall(Checker.java:152)
+	at PluginClassLoader for workflow-cps//com.cloudbees.groovy.cps.sandbox.SandboxInvoker.methodCall(SandboxInvoker.java:17)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.LoggingInvoker.methodCall(LoggingInvoker.java:124)
+	at PluginClassLoader for workflow-cps//com.cloudbees.groovy.cps.impl.ContinuationGroup.methodCall(ContinuationGroup.java:107)
+	at PluginClassLoader for workflow-cps//com.cloudbees.groovy.cps.impl.FunctionCallBlock$ContinuationImpl.dispatchOrArg(FunctionCallBlock.java:118)
+	at PluginClassLoader for workflow-cps//com.cloudbees.groovy.cps.impl.FunctionCallBlock$ContinuationImpl.fixArg(FunctionCallBlock.java:87)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at PluginClassLoader for workflow-cps//com.cloudbees.groovy.cps.impl.ContinuationPtr$ContinuationImpl.receive(ContinuationPtr.java:71)
+	at PluginClassLoader for workflow-cps//com.cloudbees.groovy.cps.impl.ConstantBlock.eval(ConstantBlock.java:21)
+	at PluginClassLoader for workflow-cps//com.cloudbees.groovy.cps.Next.step(Next.java:84)
+	at PluginClassLoader for workflow-cps//com.cloudbees.groovy.cps.Continuable.run0(Continuable.java:142)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.SandboxContinuable.access$001(SandboxContinuable.java:17)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.SandboxContinuable.run0(SandboxContinuable.java:48)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsThread.runNextChunk(CpsThread.java:188)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsThreadGroup.run(CpsThreadGroup.java:464)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsThreadGroup$2.call(CpsThreadGroup.java:372)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsThreadGroup$2.call(CpsThreadGroup.java:302)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsVmExecutorService.lambda$wrap$4(CpsVmExecutorService.java:143)
+	at java.base/java.util.concurrent.FutureTask.run(Unknown Source)
+	at hudson.remoting.SingleLaneExecutorService$1.run(SingleLaneExecutorService.java:139)
+	at jenkins.util.ContextResettingExecutorService.lambda$wrap$0(ContextResettingExecutorService.java:26)
+	at jenkins.security.ImpersonatingExecutorService.lambda$wrap$0(ImpersonatingExecutorService.java:66)
+	at jenkins.util.ErrorLoggingExecutorService.lambda$wrap$0(ErrorLoggingExecutorService.java:51)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Unknown Source)
+	at java.base/java.util.concurrent.FutureTask.run(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsVmExecutorService$1.call(CpsVmExecutorService.java:53)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsVmExecutorService$1.call(CpsVmExecutorService.java:50)
+	at org.codehaus.groovy.runtime.GroovyCategorySupport$ThreadCategoryInfo.use(GroovyCategorySupport.java:136)
+	at org.codehaus.groovy.runtime.GroovyCategorySupport.use(GroovyCategorySupport.java:275)
+	at PluginClassLoader for workflow-cps//org.jenkinsci.plugins.workflow.cps.CpsVmExecutorService.lambda$categoryThreadFactory$0(CpsVmExecutorService.java:50)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.util.concurrent.TimeoutException: not ready after 15000 MILLISECONDS
+	... 62 more
+Retrying in 2s ...
+Retrying...
++ docker pull prapoju/circleguard-form-service:stage
+stage: Pulling from prapoju/circleguard-form-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+fafa7463a02a: Pulling fs layer
+1445bf391edd: Pulling fs layer
+fafa7463a02a: Download complete
+fafa7463a02a: Pull complete
+1445bf391edd: Verifying Checksum
+1445bf391edd: Download complete
+1445bf391edd: Pull complete
+Digest: sha256:1774188973524cb82007e5ba1a3ec428eefe7e7b722749aa1a2b8df4c6498fd1
+Status: Downloaded newer image for prapoju/circleguard-form-service:stage
+docker.io/prapoju/circleguard-form-service:stage
+[Pipeline] sh
++ docker pull prapoju/circleguard-file-service:stage
+stage: Pulling from prapoju/circleguard-file-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+9c4a91e266e8: Pulling fs layer
+008727198467: Pulling fs layer
+9c4a91e266e8: Verifying Checksum
+9c4a91e266e8: Download complete
+9c4a91e266e8: Pull complete
+008727198467: Verifying Checksum
+008727198467: Download complete
+008727198467: Pull complete
+Digest: sha256:0a5c48cce09ec6974fe056fdc598eb7461ba538b5f6020d65b06576923aea1c5
+Status: Downloaded newer image for prapoju/circleguard-file-service:stage
+docker.io/prapoju/circleguard-file-service:stage
+[Pipeline] sh
++ docker pull prapoju/circleguard-notification-service:stage
+stage: Pulling from prapoju/circleguard-notification-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+676b22acf24c: Pulling fs layer
+8d2bc487c01f: Pulling fs layer
+676b22acf24c: Verifying Checksum
+676b22acf24c: Download complete
+676b22acf24c: Pull complete
+8d2bc487c01f: Verifying Checksum
+8d2bc487c01f: Download complete
+8d2bc487c01f: Pull complete
+Digest: sha256:f45b647954eb6c603fde558558038941c5255f03fc2b14c081db5a20324b732c
+Status: Downloaded newer image for prapoju/circleguard-notification-service:stage
+docker.io/prapoju/circleguard-notification-service:stage
+[Pipeline] sh
++ docker pull prapoju/circleguard-dashboard-service:stage
+stage: Pulling from prapoju/circleguard-dashboard-service
+6a0ac1617861: Already exists
+5ef4bf1bda35: Already exists
+6e338134b21e: Already exists
+42516208460b: Already exists
+2d1a277377d1: Already exists
+a75659d883e3: Pulling fs layer
+ffb74782c270: Pulling fs layer
+a75659d883e3: Download complete
+a75659d883e3: Pull complete
+ffb74782c270: Verifying Checksum
+ffb74782c270: Download complete
+ffb74782c270: Pull complete
+Digest: sha256:ea5f75149ab368baf2fa1e7e70d11cf5e6edd736b308850093cc4b06e2169075
+Status: Downloaded newer image for prapoju/circleguard-dashboard-service:stage
+docker.io/prapoju/circleguard-dashboard-service:stage
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy to Master)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] sh
++ kubectl apply -k k8s/overlays/master
+namespace/circleguard-master unchanged
+configmap/postgres-init unchanged
+service/auth-service unchanged
+service/dashboard-service unchanged
+service/file-service unchanged
+service/form-service unchanged
+service/identity-service unchanged
+service/kafka unchanged
+service/neo4j unchanged
+service/notification-service unchanged
+service/openldap unchanged
+service/postgres unchanged
+service/redis unchanged
+service/zookeeper unchanged
+persistentvolumeclaim/neo4j-pvc unchanged
+persistentvolumeclaim/postgres-pvc unchanged
+deployment.apps/auth-service unchanged
+deployment.apps/dashboard-service unchanged
+deployment.apps/file-service unchanged
+deployment.apps/form-service unchanged
+deployment.apps/identity-service unchanged
+deployment.apps/notification-service unchanged
+deployment.apps/openldap unchanged
+deployment.apps/redis unchanged
+statefulset.apps/kafka unchanged
+statefulset.apps/neo4j unchanged
+statefulset.apps/postgres unchanged
+statefulset.apps/zookeeper unchanged
+[Pipeline] sh
++ kubectl rollout restart deployment/auth-service deployment/identity-service deployment/dashboard-service deployment/notification-service deployment/form-service deployment/file-service -n circleguard-master
+deployment.apps/auth-service restarted
+deployment.apps/identity-service restarted
+deployment.apps/dashboard-service restarted
+deployment.apps/notification-service restarted
+deployment.apps/form-service restarted
+deployment.apps/file-service restarted
+[Pipeline] sh
++ kubectl rollout status deployment/auth-service deployment/identity-service deployment/dashboard-service deployment/notification-service deployment/form-service deployment/file-service -n circleguard-master '--timeout=600s'
+Waiting for deployment "auth-service" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "auth-service" rollout to finish: 1 old replicas are pending termination...
+deployment "auth-service" successfully rolled out
+Waiting for deployment "identity-service" rollout to finish: 1 old replicas are pending termination...
+deployment "identity-service" successfully rolled out
+deployment "dashboard-service" successfully rolled out
+Waiting for deployment "notification-service" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "notification-service" rollout to finish: 1 old replicas are pending termination...
+deployment "notification-service" successfully rolled out
+deployment "form-service" successfully rolled out
+deployment "file-service" successfully rolled out
+[Pipeline] sh
++ sleep 30
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Generate Release Notes)
+[Pipeline] container
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $GITHUB_TOKEN
+[Pipeline] {
+[Pipeline] sh
++ apk add --no-cache curl jq
+(1/3) Installing curl (8.17.0-r1)
+(2/3) Installing oniguruma (6.9.10-r0)
+(3/3) Installing jq (1.8.1-r0)
+Executing busybox-1.37.0-r30.trigger
+OK: 91.2 MiB in 70 packages
++ git config --global --add safe.directory /home/jenkins/agent/workspace/master
++ date '+%Y.%m.%d'
++ git rev-parse --short HEAD
++ VERSION=v2026.05.10-d43ee5c
++ git describe --tags '--abbrev=0'
++ echo 
++ PREV_TAG=
++ '[' -z  ]
++ git log '--pretty=format:%s|%an'
++ LOG='cd: replace printf in master pipeline|prapoju
+cd: add curl container|prapoju
+cd: secure directory|prapoju
+cd: add git container|prapoju
+cd: increase time limit in master pipeline|prapoju
+cd: restart only app deployments, not infra|prapoju
+infra: add readiness probe|prapoju
+cd: add health point|prapoju
+cd: increase timeout in master pipeline|prapoju
+cd: master pipeline|prapoju
+test: locus tests|prapoju
+test: e2e collection update|prapoju
+doc: update report|prapoju
+test: update postman collection|prapoju
+test: update e2e tests|prapoju
+fix: update e2e tests|prapoju
+test: e2e actualization|prapoju
+test: add e2e tests|prapoju
+test: add sleep before e2e|prapoju
+test: fix token field in e2e tests|prapoju
+test: integration tests|prapoju
+cd: remove gateway and promotion service|prapoju
+infra: kubernetes manifests|prapoju
+fix: stage directory typo|prapoju
+cd: add sleep before docker commands|prapoju
+cd: stage pipeline|prapoju
+test: mock in attachment controller test|prapoju
+cd: push images with dev tag|prapoju
+cd: push auth service to dev|prapoju
+cd: update identity pipeline|prapoju
+feat: dockerfiles and pipelines fixes|prapoju
+test: fix auth pipeline|prapoju
+test: .env files|prapoju
+test: update git ignore|prapoju
+ci: jenkins dev pipelines|prapoju
+test: notification integration test|prapoju
+fix: change service resolution to application.yml|prapoju
+docs: promotion client intefration test|prapoju
+test: dashboard integration tests|prapoju
+Merge pull request #1 from jcmunozf/master|prapoju
+feat: change .env file location in docker compose integration|prapoju
+test: add integration test path in build.gradle|prapoju
+test: auth integration test|prapoju
+cd: identity service dockerfile|prapoju
+feat: identity client configuration|prapoju
+test: integration test task in auth|prapoju
+test: create gradle integration test task|prapoju
+test: uncomment docker compose|prapoju
+chore: update gitignore|prapoju
+test: dashboard test|prapoju
+test: questionnaire service tests|prapoju
+missing table added|Juan Carlos Muñoz
+test: auth tests|prapoju
+test:identity service new tests|prapoju
+documentation and kind manifest|prapoju
+update:git ignore|prapoju
+clean bin files|prapoju
+test: add jwt secret in yaml to pass tests|prapoju
+cd: create stage jenkins agent|prapoju
+docs: add workshop statement|prapoju
+complement front|Juan Carlos Muñoz
+startup and tests fixed|Juan Carlos Muñoz
+Add implementation on front and back|Juan Carlos Muñoz
+first commit|Juan Carlos Muñoz'
++ echo 'cd: replace printf in master pipeline|prapoju
+cd: add curl container|prapoju
+cd: secure directory|prapoju
+cd: add git container|prapoju
+cd: increase time limit in master pipeline|prapoju
+cd: restart only app deployments, not infra|prapoju
+infra: add readiness probe|prapoju
+cd: add health point|prapoju
+cd: increase timeout in master pipeline|prapoju
+cd: master pipeline|prapoju
+test: locus tests|prapoju
+test: e2e collection update|prapoju
+doc: update report|prapoju
+test: update postman collection|prapoju
+test: update e2e tests|prapoju
+fix: update e2e tests|prapoju
+test: e2e actualization|prapoju
+test: add e2e tests|prapoju
+test: add sleep before e2e|prapoju
+test: fix token field in e2e tests|prapoju
+test: integration tests|prapoju
+cd: remove gateway and promotion service|prapoju
+infra: kubernetes manifests|prapoju
+fix: stage directory typo|prapoju
+cd: add sleep before docker commands|prapoju
+cd: stage pipeline|prapoju
+test: mock in attachment controller test|prapoju
+cd: push images with dev tag|prapoju
+cd: push auth service to dev|prapoju
+cd: update identity pipeline|prapoju
+feat: dockerfiles and pipelines fixes|prapoju
+test: fix auth pipeline|prapoju
+test: .env files|prapoju
+test: update git ignore|prapoju
+ci: jenkins dev pipelines|prapoju
+test: notification integration test|prapoju
+fix: change service resolution to application.yml|prapoju
+docs: promotion client intefration test|prapoju
+test: dashboard integration tests|prapoju
+Merge pull request #1 from jcmunozf/master|prapoju
+feat: change .env file location in docker compose integration|prapoju
+test: add integration test path in build.gradle|prapoju
+test: auth integration test|prapoju
+cd: identity service dockerfile|prapoju
+feat: identity client configuration|prapoju
+test: integration test task in auth|prapoju
+test: create gradle integration test task|prapoju
+test: uncomment docker compose|prapoju
+chore: update gitignore|prapoju
+test: dashboard test|prapoju
+test: questionnaire service tests|prapoju
+missing table added|Juan Carlos Muñoz
+test: auth tests|prapoju
+test:identity service new tests|prapoju
+documentation and kind manifest|prapoju
+update:git ignore|prapoju
+clean bin files|prapoju
+test: add jwt secret in yaml to pass tests|prapoju
+cd: create stage jenkins agent|prapoju
+docs: add workshop statement|prapoju
+complement front|Juan Carlos Muñoz
+startup and tests fixed|Juan Carlos Muñoz
+Add implementation on front and back|Juan Carlos Muñoz
+first commit|Juan Carlos Muñoz'
++ grep -i ^feat
++ sed 's/|/ — /'
++ sed 's/^/- /'
++ FEATURES='- feat: dockerfiles and pipelines fixes — prapoju
+- feat: change .env file location in docker compose integration — prapoju
+- feat: identity client configuration — prapoju'
++ echo 'cd: replace printf in master pipeline|prapoju
+cd: add curl container|prapoju
+cd: secure directory|prapoju
+cd: add git container|prapoju
+cd: increase time limit in master pipeline|prapoju
+cd: restart only app deployments, not infra|prapoju
+infra: add readiness probe|prapoju
+cd: add health point|prapoju
+cd: increase timeout in master pipeline|prapoju
+cd: master pipeline|prapoju
+test: locus tests|prapoju
+test: e2e collection update|prapoju
+doc: update report|prapoju
+test: update postman collection|prapoju
+test: update e2e tests|prapoju
+fix: update e2e tests|prapoju
+test: e2e actualization|prapoju
+test: add e2e tests|prapoju
+test: add sleep before e2e|prapoju
+test: fix token field in e2e tests|prapoju
+test: integration tests|prapoju
+cd: remove gateway and promotion service|prapoju
+infra: kubernetes manifests|prapoju
+fix: stage directory typo|prapoju
+cd: add sleep before docker commands|prapoju
+cd: stage pipeline|prapoju
+test: mock in attachment controller test|prapoju
+cd: push images with dev tag|prapoju
+cd: push auth service to dev|prapoju
+cd: update identity pipeline|prapoju
+feat: dockerfiles and pipelines fixes|prapoju
+test: fix auth pipeline|prapoju
+test: .env files|prapoju
+test: update git ignore|prapoju
+ci: jenkins dev pipelines|prapoju
+test: notification integration test|prapoju
+fix: change service resolution to application.yml|prapoju
+docs: promotion client intefration test|prapoju
+test: dashboard integration tests|prapoju
+Merge pull request #1 from jcmunozf/master|prapoju
+feat: change .env file location in docker compose integration|prapoju
+test: add integration test path in build.gradle|prapoju
+test: auth integration test|prapoju
+cd: identity service dockerfile|prapoju
+feat: identity client configuration|prapoju
+test: integration test task in auth|prapoju
+test: create gradle integration test task|prapoju
+test: uncomment docker compose|prapoju
+chore: update gitignore|prapoju
+test: dashboard test|prapoju
+test: questionnaire service tests|prapoju
+missing table added|Juan Carlos Muñoz
+test: auth tests|prapoju
+test:identity service new tests|prapoju
+documentation and kind manifest|prapoju
+update:git ignore|prapoju
+clean bin files|prapoju
+test: add jwt secret in yaml to pass tests|prapoju
+cd: create stage jenkins agent|prapoju
+docs: add workshop statement|prapoju
+complement front|Juan Carlos Muñoz
+startup and tests fixed|Juan Carlos Muñoz
+Add implementation on front and back|Juan Carlos Muñoz
+first commit|Juan Carlos Muñoz'
++ grep -i ^fix
++ sed 's/|/ — /'
++ sed 's/^/- /'
++ FIXES='- fix: update e2e tests — prapoju
+- fix: stage directory typo — prapoju
+- fix: change service resolution to application.yml — prapoju'
++ echo 'cd: replace printf in master pipeline|prapoju
+cd: add curl container|prapoju
+cd: secure directory|prapoju
+cd: add git container|prapoju
+cd: increase time limit in master pipeline|prapoju
+cd: restart only app deployments, not infra|prapoju
+infra: add readiness probe|prapoju
+cd: add health point|prapoju
+cd: increase timeout in master pipeline|prapoju
+cd: master pipeline|prapoju
+test: locus tests|prapoju
+test: e2e collection update|prapoju
+doc: update report|prapoju
+test: update postman collection|prapoju
+test: update e2e tests|prapoju
+fix: update e2e tests|prapoju
+test: e2e actualization|prapoju
+test: add e2e tests|prapoju
+test: add sleep before e2e|prapoju
+test: fix token field in e2e tests|prapoju
+test: integration tests|prapoju
+cd: remove gateway and promotion service|prapoju
+infra: kubernetes manifests|prapoju
+fix: stage directory typo|prapoju
+cd: add sleep before docker commands|prapoju
+cd: stage pipeline|prapoju
+test: mock in attachment controller test|prapoju
+cd: push images with dev tag|prapoju
+cd: push auth service to dev|prapoju
+cd: update identity pipeline|prapoju
+feat: dockerfiles and pipelines fixes|prapoju
+test: fix auth pipeline|prapoju
+test: .env files|prapoju
+test: update git ignore|prapoju
+ci: jenkins dev pipelines|prapoju
+test: notification integration test|prapoju
+fix: change service resolution to application.yml|prapoju
+docs: promotion client intefration test|prapoju
+test: dashboard integration tests|prapoju
+Merge pull request #1 from jcmunozf/master|prapoju
+feat: change .env file location in docker compose integration|prapoju
+test: add integration test path in build.gradle|prapoju
+test: auth integration test|prapoju
+cd: identity service dockerfile|prapoju
+feat: identity client configuration|prapoju
+test: integration test task in auth|prapoju
+test: create gradle integration test task|prapoju
+test: uncomment docker compose|prapoju
+chore: update gitignore|prapoju
+test: dashboard test|prapoju
+test: questionnaire service tests|prapoju
+missing table added|Juan Carlos Muñoz
+test: auth tests|prapoju
+test:identity service new tests|prapoju
+documentation and kind manifest|prapoju
+update:git ignore|prapoju
+clean bin files|prapoju
+test: add jwt secret in yaml to pass tests|prapoju
+cd: create stage jenkins agent|prapoju
+docs: add workshop statement|prapoju
+complement front|Juan Carlos Muñoz
+startup and tests fixed|Juan Carlos Muñoz
+Add implementation on front and back|Juan Carlos Muñoz
+first commit|Juan Carlos Muñoz'
++ grep -iv '^feat\|^fix'
++ sed 's/|/ — /'
++ sed 's/^/- /'
++ OTHERS='- cd: replace printf in master pipeline — prapoju
+- cd: add curl container — prapoju
+- cd: secure directory — prapoju
+- cd: add git container — prapoju
+- cd: increase time limit in master pipeline — prapoju
+- cd: restart only app deployments, not infra — prapoju
+- infra: add readiness probe — prapoju
+- cd: add health point — prapoju
+- cd: increase timeout in master pipeline — prapoju
+- cd: master pipeline — prapoju
+- test: locus tests — prapoju
+- test: e2e collection update — prapoju
+- doc: update report — prapoju
+- test: update postman collection — prapoju
+- test: update e2e tests — prapoju
+- test: e2e actualization — prapoju
+- test: add e2e tests — prapoju
+- test: add sleep before e2e — prapoju
+- test: fix token field in e2e tests — prapoju
+- test: integration tests — prapoju
+- cd: remove gateway and promotion service — prapoju
+- infra: kubernetes manifests — prapoju
+- cd: add sleep before docker commands — prapoju
+- cd: stage pipeline — prapoju
+- test: mock in attachment controller test — prapoju
+- cd: push images with dev tag — prapoju
+- cd: push auth service to dev — prapoju
+- cd: update identity pipeline — prapoju
+- test: fix auth pipeline — prapoju
+- test: .env files — prapoju
+- test: update git ignore — prapoju
+- ci: jenkins dev pipelines — prapoju
+- test: notification integration test — prapoju
+- docs: promotion client intefration test — prapoju
+- test: dashboard integration tests — prapoju
+- Merge pull request #1 from jcmunozf/master — prapoju
+- test: add integration test path in build.gradle — prapoju
+- test: auth integration test — prapoju
+- cd: identity service dockerfile — prapoju
+- test: integration test task in auth — prapoju
+- test: create gradle integration test task — prapoju
+- test: uncomment docker compose — prapoju
+- chore: update gitignore — prapoju
+- test: dashboard test — prapoju
+- test: questionnaire service tests — prapoju
+- missing table added — Juan Carlos Muñoz
+- test: auth tests — prapoju
+- test:identity service new tests — prapoju
+- documentation and kind manifest — prapoju
+- update:git ignore — prapoju
+- clean bin files — prapoju
+- test: add jwt secret in yaml to pass tests — prapoju
+- cd: create stage jenkins agent — prapoju
+- docs: add workshop statement — prapoju
+- complement front — Juan Carlos Muñoz
+- startup and tests fixed — Juan Carlos Muñoz
+- Add implementation on front and back — Juan Carlos Muñoz
+- first commit — Juan Carlos Muñoz'
++ BODY='## CircleGuard Release v2026.05.10-d43ee5c\n\n'
++ '[' -n '- feat: dockerfiles and pipelines fixes — prapoju
+- feat: change .env file location in docker compose integration — prapoju
+- feat: identity client configuration — prapoju' ]
++ BODY='## CircleGuard Release v2026.05.10-d43ee5c\n\n### New Features\n- feat: dockerfiles and pipelines fixes — prapoju
+- feat: change .env file location in docker compose integration — prapoju
+- feat: identity client configuration — prapoju\n\n'
++ '[' -n '- fix: update e2e tests — prapoju
+- fix: stage directory typo — prapoju
+- fix: change service resolution to application.yml — prapoju' ]
++ BODY='## CircleGuard Release v2026.05.10-d43ee5c\n\n### New Features\n- feat: dockerfiles and pipelines fixes — prapoju
+- feat: change .env file location in docker compose integration — prapoju
+- feat: identity client configuration — prapoju\n\n### Bug Fixes\n- fix: update e2e tests — prapoju
+- fix: stage directory typo — prapoju
+- fix: change service resolution to application.yml — prapoju\n\n'
++ '[' -n '- cd: replace printf in master pipeline — prapoju
+- cd: add curl container — prapoju
+- cd: secure directory — prapoju
+- cd: add git container — prapoju
+- cd: increase time limit in master pipeline — prapoju
+- cd: restart only app deployments, not infra — prapoju
+- infra: add readiness probe — prapoju
+- cd: add health point — prapoju
+- cd: increase timeout in master pipeline — prapoju
+- cd: master pipeline — prapoju
+- test: locus tests — prapoju
+- test: e2e collection update — prapoju
+- doc: update report — prapoju
+- test: update postman collection — prapoju
+- test: update e2e tests — prapoju
+- test: e2e actualization — prapoju
+- test: add e2e tests — prapoju
+- test: add sleep before e2e — prapoju
+- test: fix token field in e2e tests — prapoju
+- test: integration tests — prapoju
+- cd: remove gateway and promotion service — prapoju
+- infra: kubernetes manifests — prapoju
+- cd: add sleep before docker commands — prapoju
+- cd: stage pipeline — prapoju
+- test: mock in attachment controller test — prapoju
+- cd: push images with dev tag — prapoju
+- cd: push auth service to dev — prapoju
+- cd: update identity pipeline — prapoju
+- test: fix auth pipeline — prapoju
+- test: .env files — prapoju
+- test: update git ignore — prapoju
+- ci: jenkins dev pipelines — prapoju
+- test: notification integration test — prapoju
+- docs: promotion client intefration test — prapoju
+- test: dashboard integration tests — prapoju
+- Merge pull request #1 from jcmunozf/master — prapoju
+- test: add integration test path in build.gradle — prapoju
+- test: auth integration test — prapoju
+- cd: identity service dockerfile — prapoju
+- test: integration test task in auth — prapoju
+- test: create gradle integration test task — prapoju
+- test: uncomment docker compose — prapoju
+- chore: update gitignore — prapoju
+- test: dashboard test — prapoju
+- test: questionnaire service tests — prapoju
+- missing table added — Juan Carlos Muñoz
+- test: auth tests — prapoju
+- test:identity service new tests — prapoju
+- documentation and kind manifest — prapoju
+- update:git ignore — prapoju
+- clean bin files — prapoju
+- test: add jwt secret in yaml to pass tests — prapoju
+- cd: create stage jenkins agent — prapoju
+- docs: add workshop statement — prapoju
+- complement front — Juan Carlos Muñoz
+- startup and tests fixed — Juan Carlos Muñoz
+- Add implementation on front and back — Juan Carlos Muñoz
+- first commit — Juan Carlos Muñoz' ]
++ BODY='## CircleGuard Release v2026.05.10-d43ee5c\n\n### New Features\n- feat: dockerfiles and pipelines fixes — prapoju
+- feat: change .env file location in docker compose integration — prapoju
+- feat: identity client configuration — prapoju\n\n### Bug Fixes\n- fix: update e2e tests — prapoju
+- fix: stage directory typo — prapoju
+- fix: change service resolution to application.yml — prapoju\n\n### Other Changes\n- cd: replace printf in master pipeline — prapoju
+- cd: add curl container — prapoju
+- cd: secure directory — prapoju
+- cd: add git container — prapoju
+- cd: increase time limit in master pipeline — prapoju
+- cd: restart only app deployments, not infra — prapoju
+- infra: add readiness probe — prapoju
+- cd: add health point — prapoju
+- cd: increase timeout in master pipeline — prapoju
+- cd: master pipeline — prapoju
+- test: locus tests — prapoju
+- test: e2e collection update — prapoju
+- doc: update report — prapoju
+- test: update postman collection — prapoju
+- test: update e2e tests — prapoju
+- test: e2e actualization — prapoju
+- test: add e2e tests — prapoju
+- test: add sleep before e2e — prapoju
+- test: fix token field in e2e tests — prapoju
+- test: integration tests — prapoju
+- cd: remove gateway and promotion service — prapoju
+- infra: kubernetes manifests — prapoju
+- cd: add sleep before docker commands — prapoju
+- cd: stage pipeline — prapoju
+- test: mock in attachment controller test — prapoju
+- cd: push images with dev tag — prapoju
+- cd: push auth service to dev — prapoju
+- cd: update identity pipeline — prapoju
+- test: fix auth pipeline — prapoju
+- test: .env files — prapoju
+- test: update git ignore — prapoju
+- ci: jenkins dev pipelines — prapoju
+- test: notification integration test — prapoju
+- docs: promotion client intefration test — prapoju
+- test: dashboard integration tests — prapoju
+- Merge pull request #1 from jcmunozf/master — prapoju
+- test: add integration test path in build.gradle — prapoju
+- test: auth integration test — prapoju
+- cd: identity service dockerfile — prapoju
+- test: integration test task in auth — prapoju
+- test: create gradle integration test task — prapoju
+- test: uncomment docker compose — prapoju
+- chore: update gitignore — prapoju
+- test: dashboard test — prapoju
+- test: questionnaire service tests — prapoju
+- missing table added — Juan Carlos Muñoz
+- test: auth tests — prapoju
+- test:identity service new tests — prapoju
+- documentation and kind manifest — prapoju
+- update:git ignore — prapoju
+- clean bin files — prapoju
+- test: add jwt secret in yaml to pass tests — prapoju
+- cd: create stage jenkins agent — prapoju
+- docs: add workshop statement — prapoju
+- complement front — Juan Carlos Muñoz
+- startup and tests fixed — Juan Carlos Muñoz
+- Add implementation on front and back — Juan Carlos Muñoz
+- first commit — Juan Carlos Muñoz\n\n'
++ date '+%Y-%m-%d %H:%M:%S'
++ BODY='## CircleGuard Release v2026.05.10-d43ee5c\n\n### New Features\n- feat: dockerfiles and pipelines fixes — prapoju
+- feat: change .env file location in docker compose integration — prapoju
+- feat: identity client configuration — prapoju\n\n### Bug Fixes\n- fix: update e2e tests — prapoju
+- fix: stage directory typo — prapoju
+- fix: change service resolution to application.yml — prapoju\n\n### Other Changes\n- cd: replace printf in master pipeline — prapoju
+- cd: add curl container — prapoju
+- cd: secure directory — prapoju
+- cd: add git container — prapoju
+- cd: increase time limit in master pipeline — prapoju
+- cd: restart only app deployments, not infra — prapoju
+- infra: add readiness probe — prapoju
+- cd: add health point — prapoju
+- cd: increase timeout in master pipeline — prapoju
+- cd: master pipeline — prapoju
+- test: locus tests — prapoju
+- test: e2e collection update — prapoju
+- doc: update report — prapoju
+- test: update postman collection — prapoju
+- test: update e2e tests — prapoju
+- test: e2e actualization — prapoju
+- test: add e2e tests — prapoju
+- test: add sleep before e2e — prapoju
+- test: fix token field in e2e tests — prapoju
+- test: integration tests — prapoju
+- cd: remove gateway and promotion service — prapoju
+- infra: kubernetes manifests — prapoju
+- cd: add sleep before docker commands — prapoju
+- cd: stage pipeline — prapoju
+- test: mock in attachment controller test — prapoju
+- cd: push images with dev tag — prapoju
+- cd: push auth service to dev — prapoju
+- cd: update identity pipeline — prapoju
+- test: fix auth pipeline — prapoju
+- test: .env files — prapoju
+- test: update git ignore — prapoju
+- ci: jenkins dev pipelines — prapoju
+- test: notification integration test — prapoju
+- docs: promotion client intefration test — prapoju
+- test: dashboard integration tests — prapoju
+- Merge pull request #1 from jcmunozf/master — prapoju
+- test: add integration test path in build.gradle — prapoju
+- test: auth integration test — prapoju
+- cd: identity service dockerfile — prapoju
+- test: integration test task in auth — prapoju
+- test: create gradle integration test task — prapoju
+- test: uncomment docker compose — prapoju
+- chore: update gitignore — prapoju
+- test: dashboard test — prapoju
+- test: questionnaire service tests — prapoju
+- missing table added — Juan Carlos Muñoz
+- test: auth tests — prapoju
+- test:identity service new tests — prapoju
+- documentation and kind manifest — prapoju
+- update:git ignore — prapoju
+- clean bin files — prapoju
+- test: add jwt secret in yaml to pass tests — prapoju
+- cd: create stage jenkins agent — prapoju
+- docs: add workshop statement — prapoju
+- complement front — Juan Carlos Muñoz
+- startup and tests fixed — Juan Carlos Muñoz
+- Add implementation on front and back — Juan Carlos Muñoz
+- first commit — Juan Carlos Muñoz\n\n---\n_Deployed by Jenkins build #18 on 2026-05-10 18:49:17_'
++ jq -n --arg tag v2026.05.10-d43ee5c --arg name 'Release v2026.05.10-d43ee5c' --arg body '## CircleGuard Release v2026.05.10-d43ee5c\n\n### New Features\n- feat: dockerfiles and pipelines fixes — prapoju
+- feat: change .env file location in docker compose integration — prapoju
+- feat: identity client configuration — prapoju\n\n### Bug Fixes\n- fix: update e2e tests — prapoju
+- fix: stage directory typo — prapoju
+- fix: change service resolution to application.yml — prapoju\n\n### Other Changes\n- cd: replace printf in master pipeline — prapoju
+- cd: add curl container — prapoju
+- cd: secure directory — prapoju
+- cd: add git container — prapoju
+- cd: increase time limit in master pipeline — prapoju
+- cd: restart only app deployments, not infra — prapoju
+- infra: add readiness probe — prapoju
+- cd: add health point — prapoju
+- cd: increase timeout in master pipeline — prapoju
+- cd: master pipeline — prapoju
+- test: locus tests — prapoju
+- test: e2e collection update — prapoju
+- doc: update report — prapoju
+- test: update postman collection — prapoju
+- test: update e2e tests — prapoju
+- test: e2e actualization — prapoju
+- test: add e2e tests — prapoju
+- test: add sleep before e2e — prapoju
+- test: fix token field in e2e tests — prapoju
+- test: integration tests — prapoju
+- cd: remove gateway and promotion service — prapoju
+- infra: kubernetes manifests — prapoju
+- cd: add sleep before docker commands — prapoju
+- cd: stage pipeline — prapoju
+- test: mock in attachment controller test — prapoju
+- cd: push images with dev tag — prapoju
+- cd: push auth service to dev — prapoju
+- cd: update identity pipeline — prapoju
+- test: fix auth pipeline — prapoju
+- test: .env files — prapoju
+- test: update git ignore — prapoju
+- ci: jenkins dev pipelines — prapoju
+- test: notification integration test — prapoju
+- docs: promotion client intefration test — prapoju
+- test: dashboard integration tests — prapoju
+- Merge pull request #1 from jcmunozf/master — prapoju
+- test: add integration test path in build.gradle — prapoju
+- test: auth integration test — prapoju
+- cd: identity service dockerfile — prapoju
+- test: integration test task in auth — prapoju
+- test: create gradle integration test task — prapoju
+- test: uncomment docker compose — prapoju
+- chore: update gitignore — prapoju
+- test: dashboard test — prapoju
+- test: questionnaire service tests — prapoju
+- missing table added — Juan Carlos Muñoz
+- test: auth tests — prapoju
+- test:identity service new tests — prapoju
+- documentation and kind manifest — prapoju
+- update:git ignore — prapoju
+- clean bin files — prapoju
+- test: add jwt secret in yaml to pass tests — prapoju
+- cd: create stage jenkins agent — prapoju
+- docs: add workshop statement — prapoju
+- complement front — Juan Carlos Muñoz
+- startup and tests fixed — Juan Carlos Muñoz
+- Add implementation on front and back — Juan Carlos Muñoz
+- first commit — Juan Carlos Muñoz\n\n---\n_Deployed by Jenkins build #18 on 2026-05-10 18:49:17_' '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false}'
++ curl -s -X POST https://api.github.com/repos/prapoju/circle-guard-public/releases -H 'Authorization: token ****' -H 'Content-Type: application/json' -d '{
+  "tag_name": "v2026.05.10-d43ee5c",
+  "name": "Release v2026.05.10-d43ee5c",
+  "body": "## CircleGuard Release v2026.05.10-d43ee5c\\n\\n### New Features\\n- feat: dockerfiles and pipelines fixes — prapoju\n- feat: change .env file location in docker compose integration — prapoju\n- feat: identity client configuration — prapoju\\n\\n### Bug Fixes\\n- fix: update e2e tests — prapoju\n- fix: stage directory typo — prapoju\n- fix: change service resolution to application.yml — prapoju\\n\\n### Other Changes\\n- cd: replace printf in master pipeline — prapoju\n- cd: add curl container — prapoju\n- cd: secure directory — prapoju\n- cd: add git container — prapoju\n- cd: increase time limit in master pipeline — prapoju\n- cd: restart only app deployments, not infra — prapoju\n- infra: add readiness probe — prapoju\n- cd: add health point — prapoju\n- cd: increase timeout in master pipeline — prapoju\n- cd: master pipeline — prapoju\n- test: locus tests — prapoju\n- test: e2e collection update — prapoju\n- doc: update report — prapoju\n- test: update postman collection — prapoju\n- test: update e2e tests — prapoju\n- test: e2e actualization — prapoju\n- test: add e2e tests — prapoju\n- test: add sleep before e2e — prapoju\n- test: fix token field in e2e tests — prapoju\n- test: integration tests — prapoju\n- cd: remove gateway and promotion service — prapoju\n- infra: kubernetes manifests — prapoju\n- cd: add sleep before docker commands — prapoju\n- cd: stage pipeline — prapoju\n- test: mock in attachment controller test — prapoju\n- cd: push images with dev tag — prapoju\n- cd: push auth service to dev — prapoju\n- cd: update identity pipeline — prapoju\n- test: fix auth pipeline — prapoju\n- test: .env files — prapoju\n- test: update git ignore — prapoju\n- ci: jenkins dev pipelines — prapoju\n- test: notification integration test — prapoju\n- docs: promotion client intefration test — prapoju\n- test: dashboard integration tests — prapoju\n- Merge pull request #1 from jcmunozf/master — prapoju\n- test: add integration test path in build.gradle — prapoju\n- test: auth integration test — prapoju\n- cd: identity service dockerfile — prapoju\n- test: integration test task in auth — prapoju\n- test: create gradle integration test task — prapoju\n- test: uncomment docker compose — prapoju\n- chore: update gitignore — prapoju\n- test: dashboard test — prapoju\n- test: questionnaire service tests — prapoju\n- missing table added — Juan Carlos Muñoz\n- test: auth tests — prapoju\n- test:identity service new tests — prapoju\n- documentation and kind manifest — prapoju\n- update:git ignore — prapoju\n- clean bin files — prapoju\n- test: add jwt secret in yaml to pass tests — prapoju\n- cd: create stage jenkins agent — prapoju\n- docs: add workshop statement — prapoju\n- complement front — Juan Carlos Muñoz\n- startup and tests fixed — Juan Carlos Muñoz\n- Add implementation on front and back — Juan Carlos Muñoz\n- first commit — Juan Carlos Muñoz\\n\\n---\\n_Deployed by Jenkins build #18 on 2026-05-10 18:49:17_",
+  "draft": false,
+  "prerelease": false
+}'
+{
+  "url": "https://api.github.com/repos/prapoju/circle-guard-public/releases/320172203",
+  "assets_url": "https://api.github.com/repos/prapoju/circle-guard-public/releases/320172203/assets",
+  "upload_url": "https://uploads.github.com/repos/prapoju/circle-guard-public/releases/320172203/assets{?name,label}",
+  "html_url": "https://github.com/prapoju/circle-guard-public/releases/tag/v2026.05.10-d43ee5c",
+  "id": 320172203,
+  "author": {
+    "login": "prapoju",
+    "id": 263239233,
+    "node_id": "U_kgDOD7C2QQ",
+    "avatar_url": "https://avatars.githubusercontent.com/u/263239233?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/prapoju",
+    "html_url": "https://github.com/prapoju",
+    "followers_url": "https://api.github.com/users/prapoju/followers",
+    "following_url": "https://api.github.com/users/prapoju/following{/other_user}",
+    "gists_url": "https://api.github.com/users/prapoju/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/prapoju/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/prapoju/subscriptions",
+    "organizations_url": "https://api.github.com/users/prapoju/orgs",
+    "repos_url": "https://api.github.com/users/prapoju/repos",
+    "events_url": "https://api.github.com/users/prapoju/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/prapoju/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "node_id": "RE_kwDOSMqpqM4TFXCr",
+  "tag_name": "v2026.05.10-d43ee5c",
+  "target_commitish": "main",
+  "name": "Release v2026.05.10-d43ee5c",
+  "draft": false,
+  "immutable": false,
+  "prerelease": false,
+  "created_at": "2026-04-20T09:48:49Z",
+  "updated_at": "2026-05-10T18:49:19Z",
+  "published_at": "2026-05-10T18:49:19Z",
+  "assets": [
+
+  ],
+  "tarball_url": "https://api.github.com/repos/prapoju/circle-guard-public/tarball/v2026.05.10-d43ee5c",
+  "zipball_url": "https://api.github.com/repos/prapoju/circle-guard-public/zipball/v2026.05.10-d43ee5c",
+  "body": "## CircleGuard Release v2026.05.10-d43ee5c\\n\\n### New Features\\n- feat: dockerfiles and pipelines fixes — prapoju\n- feat: change .env file location in docker compose integration — prapoju\n- feat: identity client configuration — prapoju\\n\\n### Bug Fixes\\n- fix: update e2e tests — prapoju\n- fix: stage directory typo — prapoju\n- fix: change service resolution to application.yml — prapoju\\n\\n### Other Changes\\n- cd: replace printf in master pipeline — prapoju\n- cd: add curl container — prapoju\n- cd: secure directory — prapoju\n- cd: add git container — prapoju\n- cd: increase time limit in master pipeline — prapoju\n- cd: restart only app deployments, not infra — prapoju\n- infra: add readiness probe — prapoju\n- cd: add health point — prapoju\n- cd: increase timeout in master pipeline — prapoju\n- cd: master pipeline — prapoju\n- test: locus tests — prapoju\n- test: e2e collection update — prapoju\n- doc: update report — prapoju\n- test: update postman collection — prapoju\n- test: update e2e tests — prapoju\n- test: e2e actualization — prapoju\n- test: add e2e tests — prapoju\n- test: add sleep before e2e — prapoju\n- test: fix token field in e2e tests — prapoju\n- test: integration tests — prapoju\n- cd: remove gateway and promotion service — prapoju\n- infra: kubernetes manifests — prapoju\n- cd: add sleep before docker commands — prapoju\n- cd: stage pipeline — prapoju\n- test: mock in attachment controller test — prapoju\n- cd: push images with dev tag — prapoju\n- cd: push auth service to dev — prapoju\n- cd: update identity pipeline — prapoju\n- test: fix auth pipeline — prapoju\n- test: .env files — prapoju\n- test: update git ignore — prapoju\n- ci: jenkins dev pipelines — prapoju\n- test: notification integration test — prapoju\n- docs: promotion client intefration test — prapoju\n- test: dashboard integration tests — prapoju\n- Merge pull request #1 from jcmunozf/master — prapoju\n- test: add integration test path in build.gradle — prapoju\n- test: auth integration test — prapoju\n- cd: identity service dockerfile — prapoju\n- test: integration test task in auth — prapoju\n- test: create gradle integration test task — prapoju\n- test: uncomment docker compose — prapoju\n- chore: update gitignore — prapoju\n- test: dashboard test — prapoju\n- test: questionnaire service tests — prapoju\n- missing table added — Juan Carlos Muñoz\n- test: auth tests — prapoju\n- test:identity service new tests — prapoju\n- documentation and kind manifest — prapoju\n- update:git ignore — prapoju\n- clean bin files — prapoju\n- test: add jwt secret in yaml to pass tests — prapoju\n- cd: create stage jenkins agent — prapoju\n- docs: add workshop statement — prapoju\n- complement front — Juan Carlos Muñoz\n- startup and tests fixed — Juan Carlos Muñoz\n- Add implementation on front and back — Juan Carlos Muñoz\n- first commit — Juan Carlos Muñoz\\n\\n---\\n_Deployed by Jenkins build #18 on 2026-05-10 18:49:17_"
+}
++ echo 'Release v2026.05.10-d43ee5c created successfully'
+Release v2026.05.10-d43ee5c created successfully
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+Master pipeline completed. Application deployed and release notes published.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // container
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // podTemplate
+[Pipeline] End of Pipeline
+Finished: SUCCESS
