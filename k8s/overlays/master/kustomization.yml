@@ -11,9 +11,6 @@ images:
   - name: circleguard-identity-service
     newName: prapoju/circleguard-identity-service
     newTag: stage
-  - name: circleguard-promotion-service
-    newName: prapoju/circleguard-promotion-service
-    newTag: stage
   - name: circleguard-dashboard-service
     newName: prapoju/circleguard-dashboard-service
     newTag: stage
@@ -25,7 +22,4 @@ images:
     newTag: stage
   - name: circleguard-file-service
     newName: prapoju/circleguard-file-service
-    newTag: stage
-  - name: circleguard-gateway-service
-    newName: prapoju/circleguard-gateway-service
     newTag: stage

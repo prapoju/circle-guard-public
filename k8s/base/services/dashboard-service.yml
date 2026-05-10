@@ -15,6 +15,7 @@ spec:
       containers:
         - name: dashboard-service
           image: circleguard-dashboard-service
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:

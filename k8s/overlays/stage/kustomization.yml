@@ -11,9 +11,6 @@ images:
   - name: circleguard-identity-service
     newName: prapoju/circleguard-identity-service
     newTag: dev
-  - name: circleguard-promotion-service
-    newName: prapoju/circleguard-promotion-service
-    newTag: dev
   - name: circleguard-dashboard-service
     newName: prapoju/circleguard-dashboard-service
     newTag: dev
@@ -25,7 +22,4 @@ images:
     newTag: dev
   - name: circleguard-file-service
     newName: prapoju/circleguard-file-service
-    newTag: dev
-  - name: circleguard-gateway-service
-    newName: prapoju/circleguard-gateway-service
     newTag: dev

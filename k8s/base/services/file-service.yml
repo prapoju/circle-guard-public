@@ -15,6 +15,7 @@ spec:
       containers:
         - name: file-service
           image: circleguard-file-service
+          imagePullPolicy: Always
           ports:
             - containerPort: 8085
 ---
