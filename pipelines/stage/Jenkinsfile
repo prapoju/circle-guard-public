@@ -31,6 +31,10 @@ pipeline {
                   image: postman/newman:latest
                   command: ["sleep"]
                   args: ["infinity"]
+                - name: locust
+                  image: locustio/locust:2.29.0
+                  command: ["sleep"]
+                  args: ["infinity"]
             '''
         }
     }
@@ -88,8 +92,16 @@ pipeline {
 
         stage('Stress Tests') {
             steps {
-                echo 'Running stress tests...'
-                echo 'Stress tests passed.'
+                container('locust') {
+                    sh '''
+                        locust -f tests/stress/locustfile.py \
+                            --headless \
+                            --users 15 \
+                            --spawn-rate 3 \
+                            --run-time 60s \
+                            --loglevel WARNING
+                    '''
+                }
             }
         }
 
