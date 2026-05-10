@@ -1,0 +1,141 @@
+#!/usr/bin/env groovy
+
+pipeline {
+
+    agent {
+        kubernetes {
+            defaultContainer 'jdk21'
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+                - name: jdk21
+                  image: eclipse-temurin:21-jdk
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: docker
+                  image: docker:24-dind
+                  securityContext:
+                    privileged: true
+                  env:
+                    - name: DOCKER_TLS_CERTDIR
+                      value: ""
+                  command: ["dockerd-entrypoint.sh"]
+                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
+                - name: kubectl
+                  image: alpine/kubectl:1.36.0
+                  command: ["cat"]
+                  tty: true
+            '''
+        }
+    }
+
+    environment {
+        REPO = 'prapoju/circle-guard-public'
+        SERVICES = 'auth-service identity-service dashboard-service notification-service form-service file-service'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Pull Stage Images') {
+            steps {
+                container('docker') {
+                    sh 'until docker info; do sleep 2; done'
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+                        sh 'docker pull prapoju/circleguard-auth-service:stage'
+                        sh 'docker pull prapoju/circleguard-identity-service:stage'
+                        sh 'docker pull prapoju/circleguard-form-service:stage'
+                        sh 'docker pull prapoju/circleguard-file-service:stage'
+                        sh 'docker pull prapoju/circleguard-notification-service:stage'
+                        sh 'docker pull prapoju/circleguard-dashboard-service:stage'
+                        //sh 'docker pull prapoju/circleguard-promotion-service:stage'
+                        //sh 'docker pull prapoju/circleguard-gateway-service:stage'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Master') {
+            steps {
+                container('kubectl') {
+                    sh 'kubectl apply -k k8s/overlays/master'
+                    sh 'kubectl rollout restart deployment -n circleguard-master'
+                    sh 'kubectl rollout status deployment -n circleguard-master --timeout=180s'
+                    sh 'sleep 30'
+                }
+            }
+        }
+
+        stage('Generate Release Notes') {
+            steps {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                        # Determinar version: fecha + short commit
+                        VERSION="v$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)"
+
+                        # Obtener el tag anterior
+                        PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+                        # Generar changelog agrupado por tipo de commit
+                        if [ -z "$PREV_TAG" ]; then
+                            LOG=$(git log --pretty=format:"%s|%an" )
+                        else
+                            LOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s|%an")
+                        fi
+
+                        # Clasificar commits
+                        FEATURES=$(echo "$LOG" | grep -i "^feat" | sed 's/|/ — /' | sed 's/^/- /' || true)
+                        FIXES=$(echo "$LOG"    | grep -i "^fix"  | sed 's/|/ — /' | sed 's/^/- /' || true)
+                        OTHERS=$(echo "$LOG"   | grep -iv "^feat\\|^fix" | sed 's/|/ — /' | sed 's/^/- /' || true)
+
+                        # Construir cuerpo del release
+                        BODY="## CircleGuard Release $VERSION\\n\\n"
+
+                        if [ -n "$FEATURES" ]; then
+                            BODY="${BODY}### New Features\\n${FEATURES}\\n\\n"
+                        fi
+                        if [ -n "$FIXES" ]; then
+                            BODY="${BODY}### Bug Fixes\\n${FIXES}\\n\\n"
+                        fi
+                        if [ -n "$OTHERS" ]; then
+                            BODY="${BODY}### Other Changes\\n${OTHERS}\\n\\n"
+                        fi
+
+                        BODY="${BODY}---\\n_Deployed by Jenkins build #${BUILD_NUMBER} on $(date '+%Y-%m-%d %H:%M:%S')_"
+
+                        # Crear GitHub Release via API
+                        curl -s -X POST https://api.github.com/repos/${REPO}/releases \
+                            -H "Authorization: token $GITHUB_TOKEN" \
+                            -H "Content-Type: application/json" \
+                            -d "$(printf '{
+                                "tag_name": "%s",
+                                "name": "Release %s",
+                                "body": "%s",
+                                "draft": false,
+                                "prerelease": false
+                            }' "$VERSION" "$VERSION" "$(echo "$BODY" | sed 's/"/\\\\"/g')")"
+
+                        echo "Release $VERSION created successfully"
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Master pipeline completed. Application deployed and release notes published.'
+        }
+        failure {
+            echo 'Master pipeline failed. Check the logs.'
+        }
+    }
+}
