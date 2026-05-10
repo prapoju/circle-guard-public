@@ -61,7 +61,7 @@ pipeline {
         stage('Deploy to Stage') {
             steps {
                 container('kubectl') {
-                    sh 'kubectl apply -k k8s/overlays/stage/'
+                    sh 'kubectl apply -k k8s/overlays/stage'
                     sh 'kubectl rollout status deployment -n circleguard-stage --timeout=120s'
                 }
             }
