@@ -289,7 +289,7 @@
                   "});",
                   "pm.test('Response tiene token QR', function () {",
                   "    var json = pm.response.json();",
-                  "    pm.expect(json).to.have.property('token');",
+                  "    pm.expect(json).to.have.property('qrToken');",
                   "});"
                 ],
                 "type": "text/javascript"
