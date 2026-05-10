@@ -80,6 +80,19 @@ pipeline {
                 }
             }
         }
+
+        stage('Build & Push Image') {
+            steps {
+                sh './gradlew --no-daemon :services:circleguard-notification-service:bootJar'
+                container('docker') {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+                        sh 'docker build -t prapoju/circleguard-notification-service:dev services/circleguard-notification-service/'
+                        sh 'docker push prapoju/circleguard-notification-service:dev'
+                    }
+                }
+            }
+        }
     }
 
     post {

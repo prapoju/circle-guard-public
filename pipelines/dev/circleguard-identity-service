@@ -64,9 +64,7 @@ pipeline {
                 container('docker') {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
-                        sh 'docker build -t prapoju/circleguard-identity-service:latest services/circleguard-identity-service/'
-                        sh 'docker push prapoju/circleguard-identity-service:latest'
-                        sh 'docker tag prapoju/circleguard-identity-service:latest prapoju/circleguard-identity-service:dev'
+                        sh 'docker build -t prapoju/circleguard-identity-service:dev services/circleguard-identity-service/'
                         sh 'docker push prapoju/circleguard-identity-service:dev'
                     }
                 }

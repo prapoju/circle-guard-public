@@ -14,6 +14,15 @@ pipeline {
                   image: eclipse-temurin:21-jdk
                   command: ["sleep"]
                   args: ["infinity"]
+                - name: docker
+                  image: docker:24-dind
+                  securityContext:
+                    privileged: true
+                  env:
+                    - name: DOCKER_TLS_CERTDIR
+                      value: ""
+                  command: ["dockerd-entrypoint.sh"]
+                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
             '''
         }
     }
@@ -46,6 +55,19 @@ pipeline {
         stage('Integration Tests') {
             steps {
                 sh './gradlew --no-daemon :services:circleguard-promotion-service:integrationTest'
+            }
+        }
+
+        stage('Build & Push Image') {
+            steps {
+                sh './gradlew --no-daemon :services:circleguard-promotion-service:bootJar'
+                container('docker') {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+                        sh 'docker build -t prapoju/circleguard-promotion-service:dev services/circleguard-promotion-service/'
+                        sh 'docker push prapoju/circleguard-promotion-service:dev'
+                    }
+                }
             }
         }
     }
