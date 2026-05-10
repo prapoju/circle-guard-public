@@ -160,10 +160,11 @@
                   "pm.test('Status 200', function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('Cuestionario activo es valido', function () {",
+                  "pm.test('Cuestionario activo es el que creamos', function () {",
                   "    var json = pm.response.json();",
                   "    pm.expect(json).to.have.property('id');",
                   "    pm.expect(json.isActive).to.be.true;",
+                  "    pm.expect(json.id).to.eql(pm.environment.get('questionnaireId'));",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -189,6 +190,12 @@
                 "exec": [
                   "pm.test('Status 200 o 201', function () {",
                   "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "pm.test('Survey persistida con id y anonymousId correcto', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json.anonymousId).to.eql(pm.environment.get('anonymousId'));",
+                  "    pm.environment.set('surveyId', json.id);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -292,6 +299,11 @@
                   "    pm.expect(json).to.have.property('qrToken');",
                   "    pm.expect(json).to.have.property('expiresIn');",
                   "    pm.environment.set('qrToken', json.qrToken);",
+                  "});",
+                  "pm.test('qrToken es un JWT valido', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.qrToken).to.match(/^eyJ/);",
+                  "    pm.expect(json.qrToken.split('.').length).to.eql(3);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -366,6 +378,8 @@
                   "    pm.expect(json).to.have.property('token');",
                   "    pm.expect(json).to.have.property('handoffPayload');",
                   "    pm.expect(json.handoffPayload).to.include('HANDOFF_TOKEN');",
+                  "    pm.expect(json.handoffPayload).to.include(pm.environment.get('handoffAnonymousId'));",
+                  "    pm.expect(json.token).to.match(/^eyJ/);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -484,6 +498,37 @@
                 { "key": "status", "value": "APPROVED" },
                 { "key": "adminId", "value": "00000000-0000-0000-0000-000000000001" }
               ]
+            }
+          }
+        },
+        {
+          "name": "Verificar que certificado ya no esta en pending",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('certSurveyId no aparece en pending (fue procesado)', function () {",
+                  "    var json = pm.response.json();",
+                  "    var certId = pm.environment.get('certSurveyId');",
+                  "    var ids = json.map(function(s) { return s.id; });",
+                  "    pm.expect(ids).to.not.include(certId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{formServiceUrl}}/api/v1/certificates/pending",
+              "host": ["{{formServiceUrl}}"],
+              "path": ["api", "v1", "certificates", "pending"]
             }
           }
         }
