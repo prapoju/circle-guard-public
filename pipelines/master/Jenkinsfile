@@ -83,7 +83,7 @@ pipeline {
                 container('git') {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     sh '''
-                        apk add --no-cache curl
+                        apk add --no-cache curl jq
                         git config --global --add safe.directory "$WORKSPACE"
 
                         # Determinar version: fecha + short commit
@@ -123,13 +123,11 @@ pipeline {
                         curl -s -X POST https://api.github.com/repos/${REPO}/releases \
                             -H "Authorization: token $GITHUB_TOKEN" \
                             -H "Content-Type: application/json" \
-                            -d "$(printf '{
-                                "tag_name": "%s",
-                                "name": "Release %s",
-                                "body": "%s",
-                                "draft": false,
-                                "prerelease": false
-                            }' "$VERSION" "$VERSION" "$(echo "$BODY" | sed 's/"/\\\\"/g')")"
+                            -d "$(jq -n \
+                                --arg tag "$VERSION" \
+                                --arg name "Release $VERSION" \
+                                --arg body "$BODY" \
+                                '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false}')"
 
                         echo "Release $VERSION created successfully"
                     '''
