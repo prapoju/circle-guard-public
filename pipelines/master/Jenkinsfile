@@ -67,7 +67,7 @@ pipeline {
             steps {
                 container('kubectl') {
                     sh 'kubectl apply -k k8s/overlays/master'
-                    sh 'kubectl rollout restart deployment -n circleguard-master'
+                    sh 'kubectl rollout restart deployment/auth-service deployment/identity-service deployment/dashboard-service deployment/notification-service deployment/form-service deployment/file-service -n circleguard-master'
                     sh 'kubectl rollout status deployment -n circleguard-master --timeout=300s'
                     sh 'sleep 30'
                 }
