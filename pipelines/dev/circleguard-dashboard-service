@@ -47,8 +47,7 @@ pipeline {
             }
             post {
                 always {
-                    junit allowEmptyResults: true,
-                          testResults: '**/circleguard-dashboard-service/build/test-results/test/*.xml'
+                    echo 'Unit tests completed'
                 }
             }
         }
@@ -75,8 +74,6 @@ pipeline {
             }
             post {
                 always {
-                    junit allowEmptyResults: true,
-                          testResults: '**/circleguard-dashboard-service/build/test-results/integrationTest/*.xml'
                     container('docker') {
                         sh '''
                             docker compose \

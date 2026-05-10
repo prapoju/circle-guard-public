@@ -38,8 +38,7 @@ pipeline {
             }
             post {
                 always {
-                    junit allowEmptyResults: true,
-                          testResults: '**/circleguard-identity-service/build/test-results/test/*.xml'
+                    echo 'Unit tests completed'
                 }
             }
         }
@@ -47,12 +46,6 @@ pipeline {
         stage('Integration Tests') {
             steps {
                 sh './gradlew --no-daemon :services:circleguard-identity-service:integrationTest'
-            }
-            post {
-                always {
-                    junit allowEmptyResults: true,
-                          testResults: '**/circleguard-identity-service/build/test-results/integrationTest/*.xml'
-                }
             }
         }
     }
