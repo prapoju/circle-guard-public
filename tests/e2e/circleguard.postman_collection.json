@@ -160,7 +160,7 @@
                   "pm.test('Status 200', function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('Response es cuestionario valido', function () {",
+                  "pm.test('Cuestionario activo es valido', function () {",
                   "    var json = pm.response.json();",
                   "    pm.expect(json).to.have.property('id');",
                   "    pm.expect(json.isActive).to.be.true;",
@@ -287,9 +287,11 @@
                   "pm.test('Status 200', function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('Response tiene token QR', function () {",
+                  "pm.test('Response tiene qrToken y expiresIn', function () {",
                   "    var json = pm.response.json();",
                   "    pm.expect(json).to.have.property('qrToken');",
+                  "    pm.expect(json).to.have.property('expiresIn');",
+                  "    pm.environment.set('qrToken', json.qrToken);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -305,6 +307,351 @@
               "raw": "{{authServiceUrl}}/api/v1/auth/qr/generate",
               "host": ["{{authServiceUrl}}"],
               "path": ["api", "v1", "auth", "qr", "generate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flujo 6 - Mapeo de identidad y lookup",
+      "item": [
+        {
+          "name": "Mapear identidad real",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 o 201', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "pm.test('Response tiene anonymousId del mapeo', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('anonymousId');",
+                  "    pm.environment.set('mappedAnonymousId', json.anonymousId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"realIdentity\": \"staff_guard@circleguard.test\"}"
+            },
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identities/map",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identities", "map"]
+            }
+          }
+        },
+        {
+          "name": "Lookup de identidad real (privilegiado)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response contiene realIdentity', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('realIdentity');",
+                  "    pm.expect(json.realIdentity).to.be.a('string').and.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identities/lookup/{{mappedAnonymousId}}",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identities", "lookup", "{{mappedAnonymousId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flujo 7 - Visitor Handoff",
+      "item": [
+        {
+          "name": "Registrar visitante para handoff",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 o 201', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "pm.test('Response tiene anonymousId', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('anonymousId');",
+                  "    pm.environment.set('handoffAnonymousId', json.anonymousId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Visitante Handoff E2E\", \"email\": \"handoff@circleguard.test\", \"reason_for_visit\": \"Test de handoff\"}"
+            },
+            "url": {
+              "raw": "{{identityServiceUrl}}/api/v1/identities/visitor",
+              "host": ["{{identityServiceUrl}}"],
+              "path": ["api", "v1", "identities", "visitor"]
+            }
+          }
+        },
+        {
+          "name": "Generar token de handoff",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response tiene token y handoffPayload', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('token');",
+                  "    pm.expect(json).to.have.property('handoffPayload');",
+                  "    pm.expect(json.handoffPayload).to.include('HANDOFF_TOKEN');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"anonymousId\": \"{{handoffAnonymousId}}\"}"
+            },
+            "url": {
+              "raw": "{{authServiceUrl}}/api/v1/auth/visitor/handoff",
+              "host": ["{{authServiceUrl}}"],
+              "path": ["api", "v1", "auth", "visitor", "handoff"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flujo 8 - Validacion de certificado medico",
+      "item": [
+        {
+          "name": "Enviar encuesta con sintomas (PENDING)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 o 201', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "pm.test('Survey guardada con id', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.environment.set('certSurveyId', json.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"anonymousId\": \"{{anonymousId}}\", \"hasFever\": true, \"hasCough\": true, \"otherSymptoms\": \"Dolor de cabeza, fatiga\", \"validationStatus\": \"PENDING\", \"responses\": {}}"
+            },
+            "url": {
+              "raw": "{{formServiceUrl}}/api/v1/surveys",
+              "host": ["{{formServiceUrl}}"],
+              "path": ["api", "v1", "surveys"]
+            }
+          }
+        },
+        {
+          "name": "Obtener certificados pendientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Lista de pendientes no esta vacia', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "    pm.expect(json.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{formServiceUrl}}/api/v1/certificates/pending",
+              "host": ["{{formServiceUrl}}"],
+              "path": ["api", "v1", "certificates", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Validar certificado como APPROVED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{formServiceUrl}}/api/v1/certificates/{{certSurveyId}}/validate?status=APPROVED&adminId=00000000-0000-0000-0000-000000000001",
+              "host": ["{{formServiceUrl}}"],
+              "path": ["api", "v1", "certificates", "{{certSurveyId}}", "validate"],
+              "query": [
+                { "key": "status", "value": "APPROVED" },
+                { "key": "adminId", "value": "00000000-0000-0000-0000-000000000001" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flujo 9 - Analytics completo",
+      "item": [
+        {
+          "name": "Stats por departamento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response es JSON', function () {",
+                  "    pm.response.to.be.json;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{dashboardServiceUrl}}/api/v1/analytics/department/INGENIERIA",
+              "host": ["{{dashboardServiceUrl}}"],
+              "path": ["api", "v1", "analytics", "department", "INGENIERIA"]
+            }
+          }
+        },
+        {
+          "name": "Time-series horario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response es array', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{dashboardServiceUrl}}/api/v1/analytics/time-series?period=hourly&limit=24",
+              "host": ["{{dashboardServiceUrl}}"],
+              "path": ["api", "v1", "analytics", "time-series"],
+              "query": [
+                { "key": "period", "value": "hourly" },
+                { "key": "limit", "value": "24" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Trends por ubicacion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response es JSON', function () {",
+                  "    pm.response.to.be.json;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{dashboardServiceUrl}}/api/v1/analytics/trends/1",
+              "host": ["{{dashboardServiceUrl}}"],
+              "path": ["api", "v1", "analytics", "trends", "1"]
             }
           }
         }
