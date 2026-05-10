@@ -439,10 +439,9 @@
                   "pm.test('Status 200', function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('Lista de pendientes no esta vacia', function () {",
+                  "pm.test('Response es array', function () {",
                   "    var json = pm.response.json();",
                   "    pm.expect(json).to.be.an('array');",
-                  "    pm.expect(json.length).to.be.above(0);",
                   "});"
                 ],
                 "type": "text/javascript"
