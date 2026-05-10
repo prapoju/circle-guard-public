@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - infra/postgres.yml
+  - infra/neo4j.yml
+  - infra/zookeeper.yml
+  - infra/kafka.yml
+  - infra/redis.yml
+  - infra/openldap.yml
+  - services/auth-service.yml
+  - services/identity-service.yml
+  - services/promotion-service.yml
+  - services/dashboard-service.yml
+  - services/notification-service.yml
+  - services/form-service.yml
+  - services/file-service.yml
+  - services/gateway-service.yml
