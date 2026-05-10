@@ -68,6 +68,7 @@ pipeline {
                     sh 'kubectl apply -k k8s/overlays/stage'
                     sh 'kubectl rollout restart deployment -n circleguard-stage'
                     sh 'kubectl rollout status deployment -n circleguard-stage --timeout=120s'
+                    sh 'sleep 30'
                 }
             }
         }
