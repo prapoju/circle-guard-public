@@ -137,7 +137,7 @@ Auth, Identity, Form, File, dashboard y notification
 
 **Por que es pertinente:** El dashboard necesita funcionar incluso cuando la base de datos no esta completamente configurada (ej: durante desarrollo inicial o migraciones). Si el metodo falla cuando la tabla no existe, el dashboard mostraria errores en produccion durante deployments. Este test asegura resiliencia - el sistema continua funcionando con datos mock cuando hay problemas de infraestructura, y el equipo recibe aviso visual de que los datos no son reales.
 
----
+
 
 # Tests de Integración
 
@@ -290,26 +290,161 @@ docker compose -f services/circleguard-auth-service/docker-compose.integration.y
 ./gradlew :services:circleguard-auth-service:integrationTest --tests '*AuthLoginIntegrationTest*'
 ```
 
-## Correr Integration Tests
+---
 
-```bash
-./gradlew :services:circleguard-auth-service:integrationTest
-```
+# Tests E2E (Newman)
 
-## Correr un Test Específico
+Los tests E2E se ejecutan con Newman (CLI de Postman) dentro del cluster de Kubernetes, usando DNS interno para acceder a los servicios directamente sin exponerlos. Se corren en el stage `E2E Tests` de la pipeline de stage, después del deploy y antes del push a `:stage`. Si algún test falla, la pipeline se detiene y no se promueven las imágenes.
 
-```bash
-./gradlew :services:circleguard-auth-service:integrationTest --tests '*AuthLoginIntegrationTest*'
-```
+**Archivo de colección:** `tests/e2e/circleguard.postman_collection.json`  
+**Archivo de entorno:** `tests/e2e/stage.postman_environment.json`
 
-## Correr Integration Tests
+---
 
-```bash
-./gradlew :services:circleguard-auth-service:integrationTest
-```
+## Flujo 1 — Login y obtención de JWT
 
-## Correr un Test Específico
+**Servicios involucrados:** auth-service
 
-```bash
-./gradlew :services/circleguard-auth-service:integrationTest --tests '*AuthLoginIntegrationTest*'
-```
+**Requests:**
+1. `POST /api/v1/auth/login` con `{"username": "super_admin", "password": "password"}`
+
+**Tests:**
+- Status 200
+- Response tiene campo `token` → se guarda como `authToken` para los flujos siguientes
+
+**Por qué es pertinente:** Es el punto de entrada de toda sesión autenticada. Si el login falla, todos los flujos que dependen del JWT también fallarán. Valida que el sistema de autenticación JWT + base de datos local funciona end-to-end.
+
+---
+
+## Flujo 2 — Registro de visitante anónimo
+
+**Servicios involucrados:** identity-service
+
+**Requests:**
+1. `POST /api/v1/identities/visitor` con nombre, email y motivo de visita
+
+**Tests:**
+- Status 200 o 201
+- Response tiene `anonymousId` → se guarda para los flujos de encuesta y validación
+
+**Por qué es pertinente:** El anonimato del visitante es el núcleo del sistema de privacidad. Valida que el identity-service asigna correctamente un UUID anónimo a una identidad real sin exponer datos personales.
+
+---
+
+## Flujo 3 — Cuestionario y encuesta de salud
+
+**Servicios involucrados:** form-service
+
+**Requests:**
+1. `POST /api/v1/questionnaires` — crea un cuestionario con preguntas YES_NO
+2. `POST /api/v1/questionnaires/{id}/activate` — lo activa (desactiva cualquier otro)
+3. `GET /api/v1/questionnaires/active` — verifica que hay un cuestionario activo
+4. `POST /api/v1/surveys` — envía encuesta de salud asociada al `anonymousId` del Flujo 2
+
+**Tests:**
+- Cuestionario creado con id
+- Activación exitosa
+- Cuestionario activo tiene `isActive: true`
+- Encuesta enviada con status 200 o 201
+
+**Por qué es pertinente:** Cubre el flujo principal de uso del sistema: un usuario llena su encuesta diaria de salud. Valida la lógica de exclusividad mutua (solo un cuestionario activo) y el envío de surveys.
+
+---
+
+## Flujo 4 — Dashboard analytics básico
+
+**Servicios involucrados:** dashboard-service
+
+**Requests:**
+1. `GET /api/v1/analytics/summary`
+2. `GET /api/v1/analytics/health-board`
+
+**Tests:**
+- Ambos retornan status 200 y JSON válido
+
+**Por qué es pertinente:** Valida que el dashboard responde correctamente a las consultas más frecuentes de los administradores de salud.
+
+---
+
+## Flujo 5 — Generación de token QR
+
+**Servicios involucrados:** auth-service
+
+**Requests:**
+1. `GET /api/v1/auth/qr/generate` con `Authorization: Bearer {{authToken}}`
+
+**Tests:**
+- Status 200
+- Response tiene `qrToken` y `expiresIn`
+- `qrToken` se guarda en entorno para usos futuros
+
+**Por qué es pertinente:** El token QR es el mecanismo de check-in en campus. Valida que un usuario autenticado puede generar el código que luego escanea el guardia. Si este endpoint falla, nadie puede registrar su entrada.
+
+---
+
+## Flujo 6 — Check-in con token QR
+
+**Servicios involucrados:** auth-service, notification-service
+
+**Requests:**
+1. `POST /api/v1/auth/qr/validate` con el `qrToken` generado en el Flujo 5
+
+**Tests:**
+- Status 200
+- Response confirma el check-in con timestamp
+
+**Por qué es pertinente:** Este flujo completa el ciclo del token QR. El guardia escanea el código generado por el usuario y lo valida en el sistema. Es el paso final para registrar la presencia del visitante en el campus y es necesario para el rastreo de contactos.
+
+---
+
+## Flujo 7 — Visitor Handoff
+
+**Servicios involucrados:** identity-service, auth-service
+
+**Requests:**
+1. `POST /api/v1/identities/visitor` — registra nuevo visitante, obtiene `anonymousId`
+2. `POST /api/v1/auth/visitor/handoff` con `{"anonymousId": "..."}` — genera token de handoff
+
+**Tests:**
+- Visitante registrado con anonymousId
+- Handoff retorna `token` y `handoffPayload`
+- `handoffPayload` contiene el prefijo `HANDOFF_TOKEN`
+
+**Por qué es pertinente:** Cubre el flujo de transferencia de sesión para visitantes que necesitan continuar usando el sistema desde otro dispositivo o contexto. Valida la integración entre identity-service y auth-service para un caso de uso menos común pero crítico.
+
+---
+
+## Flujo 8 — Validación de certificado médico
+
+**Servicios involucrados:** form-service
+
+**Requests:**
+1. `POST /api/v1/surveys` con `hasFever: true`, `hasCough: true` y `validationStatus: PENDING` → obtiene `surveyId`
+2. `GET /api/v1/certificates/pending` — verifica que el survey aparece en la cola de validación
+3. `POST /api/v1/certificates/{surveyId}/validate?status=APPROVED&adminId=...` — valida el certificado
+
+**Tests:**
+- Survey creada y guardada con id
+- Lista de pendientes no está vacía
+- Validación retorna status 200
+
+**Por qué es pertinente:** Cubre el flujo de aprobación médica, que es el más sensible del sistema. Un estudiante con síntomas envía su encuesta, queda pendiente de revisión, y el personal de salud la aprueba o rechaza. Valida que la transición de estados (PENDING → APPROVED) funciona correctamente y que el endpoint de validación persiste el cambio.
+
+---
+
+## Flujo 9 — Analytics completo
+
+**Servicios involucrados:** dashboard-service
+
+**Requests:**
+1. `GET /api/v1/analytics/department/INGENIERIA` — stats filtradas por departamento
+2. `GET /api/v1/analytics/time-series?period=hourly&limit=24` — serie temporal de 24h
+3. `GET /api/v1/analytics/trends/1` — tendencias de una ubicación específica
+
+**Tests:**
+- Stats por departamento retornan JSON válido
+- Time-series retorna array
+- Trends retornan JSON válido
+
+**Por qué es pertinente:** Extiende el Flujo 4 para cubrir las consultas de análisis más avanzadas. Valida que el dashboard puede segmentar datos por departamento y tiempo, lo cual es esencial para que epidemiología universitaria pueda identificar focos de contagio.
+
