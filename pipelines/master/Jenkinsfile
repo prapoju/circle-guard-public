@@ -27,6 +27,10 @@ pipeline {
                   image: alpine/kubectl:1.36.0
                   command: ["cat"]
                   tty: true
+                - name: git
+                  image: alpine/git:latest
+                  command: ["cat"]
+                  tty: true
             '''
         }
     }
@@ -76,6 +80,7 @@ pipeline {
 
         stage('Generate Release Notes') {
             steps {
+                container('git') {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     sh '''
                         # Determinar version: fecha + short commit
@@ -126,6 +131,7 @@ pipeline {
                         echo "Release $VERSION created successfully"
                     '''
                 }
+                } // container
             }
         }
     }
