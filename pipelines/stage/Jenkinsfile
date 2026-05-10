@@ -27,6 +27,10 @@ pipeline {
                   image: alpine/kubectl:1.36.0
                   command: ["cat"]
                   tty: true
+                - name: newman
+                  image: postman/newman:latest
+                  command: ["sleep"]
+                  args: ["infinity"]
             '''
         }
     }
@@ -70,8 +74,14 @@ pipeline {
 
         stage('E2E Tests') {
             steps {
-                echo 'Running E2E tests...'
-                echo 'E2E tests passed.'
+                container('newman') {
+                    sh '''
+                        newman run tests/e2e/circleguard.postman_collection.json \
+                            -e tests/e2e/stage.postman_environment.json \
+                            --reporters cli \
+                            --bail
+                    '''
+                }
             }
         }
 
