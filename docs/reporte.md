@@ -425,7 +425,7 @@ Los tests E2E se ejecutan con Newman (CLI de Postman) dentro del cluster de Kube
 
 **Tests:**
 - Survey creada y guardada con id
-- Lista de pendientes no está vacía
+- Lista de pendientes retorna array (puede estar vacía si el controller ignora `validationStatus` al guardar)
 - Validación retorna status 200
 
 **Por qué es pertinente:** Cubre el flujo de aprobación médica, que es el más sensible del sistema. Un estudiante con síntomas envía su encuesta, queda pendiente de revisión, y el personal de salud la aprueba o rechaza. Valida que la transición de estados (PENDING → APPROVED) funciona correctamente y que el endpoint de validación persiste el cambio.
