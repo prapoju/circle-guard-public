@@ -575,9 +575,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{dashboardServiceUrl}}/api/v1/analytics/trends/1",
+              "raw": "{{dashboardServiceUrl}}/api/v1/analytics/trends/00000000-0000-0000-0000-000000000001",
               "host": ["{{dashboardServiceUrl}}"],
-              "path": ["api", "v1", "analytics", "trends", "1"]
+              "path": ["api", "v1", "analytics", "trends", "00000000-0000-0000-0000-000000000001"]
             }
           }
         }
