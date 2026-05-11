@@ -1,8 +1,7 @@
-# 🛡️ CircleGuard Monorepo
+# REPORTE Y VIDEO
+[Reporte completo del taller](./docs/reporte.md)
 
-**Absolute Privacy. High-Speed Containment. Secure Campus.**
-
-> 📄 [Reporte completo del taller](./docs/reporte.md)
+VIDEO: https://youtu.be/cWmiRX9dR7k
 
 ---
 
