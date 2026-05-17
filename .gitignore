@@ -55,3 +55,4 @@ terraform/.terraform*
 terraform/terraform.tfvars
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
+terraform.tfstate
