@@ -51,4 +51,7 @@ web-build/
 pgdata/
 neo4jdata/
 # Terraform
-*.terraform.tfvars
+terraform/.terraform*
+terraform/terraform.tfvars*
+terraform/terraform.tfstate
+*terraform.tfstate*
