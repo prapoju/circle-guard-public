@@ -50,4 +50,5 @@ web-build/
 *_data/
 pgdata/
 neo4jdata/
-
+# Terraform
+*.terraform.tfvars
