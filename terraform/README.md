@@ -1,6 +1,27 @@
+
 # From scratch
 
-- Credentias settings
+- Backend config
+
+az group create \
+  --name cgp \
+  --location eastus
+
+
+az storage account create \
+  --name cgpaccount \
+  --resource-group cgp \
+  --sku Standard_LRS
+
+az storage container create \
+  --name tfstate \
+  --account-name cgpaccount
+
+
+-Credentias settings
+
+
+
 az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<SUBSCRIPTION_ID>"
 
 - Environment variables

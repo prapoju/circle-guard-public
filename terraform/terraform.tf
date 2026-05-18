@@ -2,6 +2,17 @@
 # SPDX-License-Identifier: MPL-2.0
 
 terraform {
+
+  backend "azurerm" {
+    use_azuread_auth = true
+
+    storage_account_name = "cgpaccount"
+
+    container_name = "tfstate"
+
+    key = "prod.terraform.tfstate"
+  }
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"

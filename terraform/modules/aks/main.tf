@@ -6,7 +6,7 @@ resource "azurerm_resource_group" "aks_group" {
   location =  var.aks_location 
 
   tags = {
-    environment = "gcp"
+    environment = "cgp"
   }
 }
 
@@ -32,7 +32,7 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
   role_based_access_control_enabled = true
 
   tags = {
-    environment = "gcp"
+    environment = "cgp"
   }
 }
 
@@ -42,7 +42,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "aks_node_pool_master" {
   vm_size               = var.aks_master_pool_vm_size 
   node_count            = var.aks_master_pool_node_count
   tags = {
-    Environment = "gcp-master"
+    Environment = "cgp-master"
   }
 }
 
@@ -52,6 +52,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "aks_node_pool_stage" {
   vm_size               = var.aks_stage_pool_vm_size 
   node_count            = var.aks_stage_pool_node_count
   tags = {
-    Environment = "gcp-stage"
+    Environment = "cgp-stage"
   }
 }
