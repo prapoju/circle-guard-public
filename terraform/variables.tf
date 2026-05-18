@@ -6,6 +6,11 @@ variable "aks_location"{
   description = "AKW cluster location"
   type= string
 }
+variable "subscription_id" {
+  description = "sub id"
+  type = string
+}
+
 
 variable "aks_resource_group_name"{
   description = "aks resource group name"

@@ -18,25 +18,17 @@ az storage container create \
   --account-name cgpaccount
 
 
+az role assignment create \
+  --assignee <TU_USER_ID> \
+  --role "Storage Blob Data Contributor" \
+  --scope /subscriptions/<SUB_ID>/resourceGroups/cgp/providers/Microsoft.Storage/storageAccounts/cgpaccount
+
+
 -Credentias settings
 
 
 
 az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<SUBSCRIPTION_ID>"
-
-- Environment variables
-
-PWS
-$Env:ARM_CLIENT_ID = "<APPID_VALUE>"
-$Env:ARM_CLIENT_SECRET = "<PASSWORD_VALUE>"
-$Env:ARM_SUBSCRIPTION_ID = "<SUBSCRIPTION_ID>"
-$Env:ARM_TENANT_ID = "<TENANT_VALUE>"
-
-Linux
-export ARM_CLIENT_ID="<APPID_VALUE>"
-export ARM_CLIENT_SECRET="<PASSWORD_VALUE>"
-export ARM_SUBSCRIPTION_ID="<SUBSCRIPTION_ID>"
-export ARM_TENANT_ID="<TENANT_VALUE>"
 
 
 - tfvars configuration based on terraform.tfvas.example

@@ -21,7 +21,7 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
     name            = "default"
     node_count      = var.aks_default_pool_node_count
     vm_size         = var.aks_default_pool_vm_size 
-    os_disk_size_gb = var.aks_default_os_disk_size_gb
+    os_disk_size_gb = var.aks_default_pool_os_disk_size_gb
   }
 
   service_principal {

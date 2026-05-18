@@ -4,13 +4,12 @@
 terraform {
 
   backend "azurerm" {
+    use_cli= true
     use_azuread_auth = true
-
     storage_account_name = "cgpaccount"
-
     container_name = "tfstate"
-
     key = "prod.terraform.tfstate"
+
   }
 
   required_providers {

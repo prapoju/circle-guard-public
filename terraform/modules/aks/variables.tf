@@ -39,7 +39,7 @@ variable "aks_default_pool_vm_size" {
 }
 
 
-variable "aks_default_os_disk_size_gb" {
+variable "aks_default_pool_os_disk_size_gb" {
   description = "AKS default disk size"
   type=number
 }

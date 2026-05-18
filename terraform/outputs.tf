@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: MPL-2.0
 
 output "resource_group_name" {
-  value = module.aks-cluster.azurerm_resource_group.aks_group.name
+  value = module.aks-cluster.resource_group_name
 }
 
 output "kubernetes_cluster_name" {
-  value = module.aks-cluster.azurerm_kubernetes_cluster.aks_cluster.name
+  value = module.aks-cluster.kubernetes_cluster_name
 }
 
 output "kubernetes_cluster_stage_node_name" {

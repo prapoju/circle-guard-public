@@ -1,3 +1,5 @@
+subscription_id =
+
 aks_app_id    = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 aks_password = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 aks_location = "East US" 

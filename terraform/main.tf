@@ -1,4 +1,5 @@
 provider "azurerm" {
+  subscription_id = var.subscription_id
   features {}
 }
 
@@ -13,7 +14,7 @@ module "aks-cluster" {
   aks_kubernetes_version      = var.aks_kubernetes_version
   aks_default_pool_node_count = var.aks_default_pool_node_count
   aks_default_pool_vm_size    = var.aks_default_pool_vm_size
-  aks_default_os_disk_size_gb = var.aks_default_os_disk_size_gb
+  aks_default_pool_os_disk_size_gb = var.aks_default_pool_os_disk_size_gb
   aks_stage_pool_node_count = var.aks_stage_pool_node_count
   aks_stage_pool_vm_size    = var.aks_stage_pool_vm_size
   aks_master_pool_node_count = var.aks_master_pool_node_count
