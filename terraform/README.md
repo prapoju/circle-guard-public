@@ -1,67 +1,130 @@
+# Blob Storage Backend Configuration
 
-# From scratch
+## 1. Create Resource Group
 
-- Backend config
-
+```bash
 az group create \
   --name cgp \
   --location eastus
+```
 
+## 2. Create Storage Account
 
+```bash
 az storage account create \
   --name cgpaccount \
   --resource-group cgp \
   --sku Standard_LRS
+```
 
+## 3. Create Blob Container
+
+```bash
 az storage container create \
   --name tfstate \
   --account-name cgpaccount
+```
 
+## 4. Assign Blob Storage Permissions
 
+```bash
 az role assignment create \
-  --assignee <TU_USER_ID> \
+  --assignee <USER_ID> \
   --role "Storage Blob Data Contributor" \
   --scope /subscriptions/<SUB_ID>/resourceGroups/cgp/providers/Microsoft.Storage/storageAccounts/cgpaccount
+```
 
+---
 
--Credentias settings
+# Collaborators
 
+Assign the same Blob Storage permissions to collaborators:
 
+```bash
+az role assignment create \
+  --assignee <USER_ID> \
+  --role "Storage Blob Data Contributor" \
+  --scope /subscriptions/<SUB_ID>/resourceGroups/cgp/providers/Microsoft.Storage/storageAccounts/cgpaccount
+```
 
-az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<SUBSCRIPTION_ID>"
+Also share the application credentials with collaborators.
 
+---
 
-- tfvars configuration based on terraform.tfvas.example
+# Application Credentials
 
-- Terraform plugins installation
+Create a Service Principal for Terraform authentication:
+
+```bash
+az ad sp create-for-rbac \
+  --role="Contributor" \
+  --scopes="/subscriptions/<SUBSCRIPTION_ID>"
+```
+
+---
+
+# Terraform Setup
+
+## 1. Configure Variables
+
+Create your `.tfvars` file based on:
+
+```text
+terraform.tfvars.example
+```
+
+## 2. Install Terraform Providers and Plugins
+
+```bash
 terraform init
+```
 
--  Terraform infrastructure 
+## 3. Deploy Infrastructure
+
+```bash
 terraform apply
+```
 
-- Kubectl configuration
+---
 
-az aks get-credentials --resource-group cgp-rc --name cgp-cluster
+# Kubectl Configuration
 
+Connect `kubectl` to the AKS cluster:
 
-In case of errors delete ~/.kube/config and try again
+```bash
+az aks get-credentials \
+  --resource-group cgp-rc \
+  --name cgp-cluster
+```
 
+> If you encounter configuration conflicts, delete the kubeconfig file and try again:
+>
+> ```bash
+> rm -f ~/.kube/config
+> ```
 
-- Test
-❯ kubectl get namespaces
-NAME              STATUS   AGE
-default           Active   11m
-kube-node-lease   Active   11m
-kube-public       Active   11m
-kube-system       Active   11m
-# With cluster running
+---
 
-- Configure your ~/.kube/config file
+# Important Commands
 
-# Stop cluster
+## Stop Cluster
 
-az aks stop -n generous-troll-aks -g generous-troll-rg
+```bash
+az aks stop \
+  -n cgp-cluster \
+  -g cgp-rc
+```
 
-# Delete cluster
+## Start Cluster
 
+```bash
+az aks start \
+  -n cgp-cluster \
+  -g cgp-rc
+```
 
+## Destroy Infrastructure
+
+```bash
+terraform destroy
+```
