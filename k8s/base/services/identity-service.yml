@@ -15,7 +15,6 @@ spec:
       containers:
         - name: identity-service
           image: circleguard-identity-service
-          imagePullPolicy: Always
           ports:
             - containerPort: 8083
           readinessProbe:

@@ -1,0 +1,189 @@
+#!/usr/bin/env groovy
+
+pipeline {
+
+    agent {
+        kubernetes {
+            defaultContainer 'jdk21'
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+                - name: jdk21
+                  image: eclipse-temurin:21-jdk
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: docker
+                  image: docker:24-dind
+                  securityContext:
+                    privileged: true
+                  env:
+                    - name: DOCKER_TLS_CERTDIR
+                      value: ""
+                  command: ["dockerd-entrypoint.sh"]
+                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
+                - name: kubectl
+                  image: alpine/kubectl:1.36.0
+                  command: ["cat"]
+                  tty: true
+                - name: newman
+                  image: postman/newman:latest
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: locust
+                  image: locustio/locust:2.29.0
+                  command: ["sleep"]
+                  args: ["infinity"]
+            '''
+        }
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Pull Dev Images') {
+            steps {
+                container('docker') {
+                    sh 'until docker info; do sleep 2; done'
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+
+                        // Auth Service
+                        copyArtifacts(projectName: 'dev-auth', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                        def authHash = readFile('commit-hash.txt').trim()
+                        
+                        // Identity Service
+                        copyArtifacts(projectName: 'dev-identity', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                        def identityHash = readFile('commit-hash.txt').trim()
+                        
+                        // Form Service
+                        copyArtifacts(projectName: 'dev-form', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                        def formHash = readFile('commit-hash.txt').trim()
+                        
+                        // File Service
+                        copyArtifacts(projectName: 'dev-file', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                        def fileHash = readFile('commit-hash.txt').trim()
+                        
+                        // Dashboard Service
+                        copyArtifacts(projectName: 'dev-dashboard', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                        def dashboardHash = readFile('commit-hash.txt').trim()
+                        
+                        // Notification Service
+                        copyArtifacts(projectName: 'dev-notification', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                        def notificationHash = readFile('commit-hash.txt').trim()
+
+                        sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
+                        sh "docker pull prapoju/circleguard-auth-service:${authHash}"
+                        sh "docker pull prapoju/circleguard-identity-service:${identityHash}"
+                        sh "docker pull prapoju/circleguard-form-service:${formHash}"
+                        sh "docker pull prapoju/circleguard-file-service:${fileHash}"
+                        sh "docker pull prapoju/circleguard-dashboard-service:${dashboardHash}"
+                        sh "docker pull prapoju/circleguard-notification-service:${notificationHash}"
+                   }
+                }
+            }
+        }
+
+        stage('Deploy to Stage') {
+            steps {
+                container('kubectl') {
+                        // Auth Service
+                    copyArtifacts(projectName: 'dev-auth', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                    def authHash = readFile('commit-hash.txt').trim()
+                    
+                    // Identity Service
+                    copyArtifacts(projectName: 'dev-identity', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                    def identityHash = readFile('commit-hash.txt').trim()
+                    
+                    // Form Service
+                    copyArtifacts(projectName: 'dev-form', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                    def formHash = readFile('commit-hash.txt').trim()
+                    
+                    // File Service
+                    copyArtifacts(projectName: 'dev-file', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                    def fileHash = readFile('commit-hash.txt').trim()
+                    
+                    // Dashboard Service
+                    copyArtifacts(projectName: 'dev-dashboard', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                    def dashboardHash = readFile('commit-hash.txt').trim()
+                    
+                    // Notification Service
+                    copyArtifacts(projectName: 'dev-notification', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                    def notificationHash = readFile('commit-hash.txt').trim()
+                    sh "cd k8s/overlays/stage"
+                    sh "kustomize edit set image=prapoju/circleguard-auth-service:dev=prapoju/circleguard-auth-service:${authHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-identity-service:dev=prapoju/circleguard-identity-service:${identityHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-form-service:dev=prapoju/circleguard-form-service:${formHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-file-service:dev=prapoju/circleguard-file-service:${fileHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-dashboard-service:dev=prapoju/circleguard-dashboard-service:${dashboardHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-notification-service:dev=prapoju/circleguard-notification-service:${notificationHash}"
+                    sh "kustomize build | kubectl apply -f -"
+                    sh "sleep 30"
+                }
+            }
+        }
+
+        stage('E2E Tests') {
+            steps {
+                container('newman') {
+                    sh '''
+                        newman run tests/e2e/circleguard.postman_collection.json \
+                            -e tests/e2e/stage.postman_environment.json \
+                            --reporters cli \
+                            --bail
+                    '''
+                }
+            }
+        }
+
+        stage('Stress Tests') {
+            steps {
+                container('locust') {
+                    sh '''
+                        locust -f tests/stress/locustfile.py \
+                            --headless \
+                            --users 15 \
+                            --spawn-rate 3 \
+                            --run-time 60s \
+                            --loglevel WARNING
+                    '''
+                }
+            }
+        }
+
+        stage('Push Stage Images') {
+            steps {
+                container('docker') {
+                    def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    sh "docker push prapoju/circleguard-auth-service:${commitHash}"
+                    sh "docker push prapoju/circleguard-identity-service:${commitHash}"
+                    sh "docker push prapoju/circleguard-form-service:${commitHash}"
+                    sh "docker push prapoju/circleguard-file-service:${commitHash}"
+                    sh "docker push prapoju/circleguard-notification-service:${commitHash}"
+                    sh "docker push prapoju/circleguard-dashboard-service:${commitHash}"
+
+                    sh "echo ${commitHash} > commit-hash.txt"
+                    archiveArtifacts artifacts: 'commit-hash.txt', fingerprint: true
+                    //sh 'docker tag prapoju/circleguard-promotion-service:dev prapoju/circleguard-promotion-service:stage'
+                    //sh 'docker push prapoju/circleguard-promotion-service:stage'
+                    //sh 'docker tag prapoju/circleguard-gateway-service:dev prapoju/circleguard-gateway-service:stage'
+                    //sh 'docker push prapoju/circleguard-gateway-service:stage'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Stage pipeline completed successfully! All services promoted to :stage.'
+        }
+        failure {
+            echo 'Stage pipeline failed. Check the logs.'
+        }
+    }
+}
