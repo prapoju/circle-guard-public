@@ -41,21 +41,19 @@ terraform apply
 
 - Kubectl configuration
 
-az aks get-credentials --resource-group generous-troll-rg --name generous-troll-aks
+az aks get-credentials --resource-group cgp-rc --name cgp-cluster
 
-Or
-
-az aks get-credentials --resource-group $(terraform output -raw resource_group_name) --name $(terraform output -raw kubernetes_cluster_name)
 
 In case of errors delete ~/.kube/config and try again
 
 
 - Test
-kubectl get nodes
-NAME                              STATUS   ROLES    AGE   VERSION
-aks-default-33271581-vmss000000   Ready    <none>   17m   v1.34.7
-aks-default-33271581-vmss000001   Ready    <none>   17m   v1.34.7
-
+❯ kubectl get namespaces
+NAME              STATUS   AGE
+default           Active   11m
+kube-node-lease   Active   11m
+kube-public       Active   11m
+kube-system       Active   11m
 # With cluster running
 
 - Configure your ~/.kube/config file
