@@ -31,7 +31,7 @@ Dos, uno por iteración. `Milestone 1 - Fundamentos` cierra el 2026-05-26 y empu
 
 Si surge algo nuevo durante el trabajo, se abre como issue con la misma estructura.
 
-Cuando una HU del Backlog cumple DoR, alguien se asigna, mueve la tarjeta a `In Progress` y crea una rama `feature/<scope>-<descripcion>` desde `develop`. Trabaja con Conventional Commits referenciando el issue (`Closes #N` en el último commit) y abre PR a `develop`. La tarjeta pasa a `In Review` por workflow del project. Tras la revisión y los checks, el squash & merge cierra el issue y mueve la tarjeta a `Done`, también por workflow.
+Cuando una HU del Backlog cumple DoR, alguien se asigna, mueve la tarjeta a `In Progress` y crea una rama `feat/<descripcion>` desde `develop`. Trabaja con Conventional Commits referenciando el issue (`Closes #N` en el último commit) y abre PR a `develop`. La tarjeta pasa a `In Review` por workflow del project. Tras la revisión y los checks, el squash & merge cierra el issue y mueve la tarjeta a `Done`, también por workflow.
 
 ## Workflows automáticos
 

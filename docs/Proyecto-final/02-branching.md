@@ -12,8 +12,8 @@ master (producción, recibe solo de release/* o hotfix/*)
   │
   └─ develop (integración del día a día)
        │
-       ├─ feature/<scope>-<descripcion>
-       ├─ docs/<area>-<descripcion>
+       ├─ feat/<descripcion>
+       ├─ docs/<descripcion>
        ├─ fix/<descripcion>
        ├─ release/<version>   (sale de develop, merge a master + develop, genera tag)
        └─ hotfix/<version>    (sale de master, merge a master + develop, genera tag)
@@ -22,7 +22,7 @@ master (producción, recibe solo de release/* o hotfix/*)
 
 ## Nombres de rama
 
-Prefijos válidos: `feature/`, `docs/`, `fix/`, `chore/`, `test/`, `release/`, `hotfix/`. Todos salen de `develop` salvo `release/` y `hotfix/` (ver arriba). Algunos ejemplos del repo: `feature/circuit-breaker-promotion-service`, `docs/proyecto-final-metodologia`, `release/v1.0.0`, `hotfix/v1.0.1-cve-fix`.
+Prefijos válidos: `feat/`, `docs/`, `fix/`, `chore/`, `test/`, `release/`, `hotfix/`. Todos salen de `develop` salvo `release/` y `hotfix/` (ver arriba). Algunos ejemplos del repo: `feat/circuit-breaker-promotion-service`, `docs/proyecto-final-metodologia`, `release/v1.0.0`, `hotfix/v1.0.1-cve-fix`.
 
 ## Pull Requests
 

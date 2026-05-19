@@ -16,7 +16,7 @@ El tablero (descrito en [03-gestion-proyectos.md](./03-gestion-proyectos.md)) ha
 Las cuatro columnas:
 
 - `Backlog`: HU priorizada y lista para tomarse (cumple DoR). Sin límite.
-- `In Progress`: alguien la está trabajando en una rama `feature/*`. Máximo dos por persona.
+- `In Progress`: alguien la está trabajando en una rama `feat/*`. Máximo dos por persona.
 - `In Review`: PR abierto con checks corriendo. Si pasa de cinco ítems acumulados, paramos de tomar trabajo nuevo y priorizamos revisar.
 - `Done`: mergeada a `develop`, DoD cumplida.
 
