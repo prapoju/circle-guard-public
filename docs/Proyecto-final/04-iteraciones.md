@@ -38,7 +38,7 @@ Las 18 HU asignadas:
 | US-35 | Gestión segura de secretos | seguridad |
 | US-36 | Configurar RBAC en Kubernetes | seguridad |
 
-La iteración se cierra cuando todas estas HU están en `Done`, la branch protection está activa en ambas ramas y queda al menos un PR ejemplar que recorrió el pipeline completo. La retro se documenta en `retros/2026-05-26-iteracion-1.md`.
+La iteración se cierra cuando todas estas HU están en `Done`, la branch protection está activa en ambas ramas y queda al menos un PR ejemplar que recorrió el pipeline completo.
 
 ## Iteración 2: Completitud + Bonus (cierra 8-jun)
 
@@ -60,26 +60,9 @@ Documentación y presentación: US-38 (arquitectura completa), US-39 (manual de 
 
 Bonificaciones: BONUS-01 (Multi-Cloud), BONUS-02 (Service Mesh), BONUS-03 (Chaos), BONUS-04 (FinOps).
 
-La iteración cierra cuando todas las HU están en `Done`, el release `v1.0.0` está tageado en `master` con sus release notes publicadas, el video está enlazado en el README y la presentación está ensayada. Retro en `retros/2026-06-08-iteracion-2.md`.
+La iteración cierra cuando todas las HU están en `Done`, el release `v1.0.0` está tageado en `master` con sus release notes publicadas, el video está enlazado en el README y la presentación está ensayada.
 
 ## Riesgos
 
 El más probable es el sobre-alcance por querer hacer las cuatro bonificaciones; la mitigación es no abrir ningún bonus hasta que el alcance base esté en `Done`. El cluster en cloud puede generar costos altos si se queda corriendo, así que usamos minikube/kind para dev y solo provisionamos cloud para validar stage/prod en sesiones cortas. Las pruebas E2E pueden volverse flaky si comparten estado entre tests, por eso se aíslan con Testcontainers. OWASP ZAP puede generar ruido en el pipeline; empezamos con baseline scan en vez de full scan. La aprobación manual a prod (US-17) requiere coordinación humana, definimos dos aprobadores por adelantado.
 
-## Formato de retrospectiva
-
-Cada acta sigue este esqueleto:
-
-```markdown
-# Retrospectiva iteración N — YYYY-MM-DD
-
-## Métricas
-HU completadas, cycle time promedio, throughput semanal, WIP promedio.
-
-## Qué salió bien
-
-## Qué se puede mejorar
-
-## Acciones para la siguiente iteración
-- (owner, fecha objetivo)
-```

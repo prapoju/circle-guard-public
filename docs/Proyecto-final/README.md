@@ -11,7 +11,6 @@ Carpeta de gestión y proceso del Proyecto Final sobre `circle-guard-public`. El
 | [03-gestion-proyectos.md](./03-gestion-proyectos.md) | GitHub Projects | US-02 |
 | [04-iteraciones.md](./04-iteraciones.md) | Plan de las dos iteraciones | US-03 |
 | [05-definiciones.md](./05-definiciones.md) | DoR y DoD | US-03 |
-| [retros/](./retros/) | Actas de retrospectiva | US-03 |
 
 Los seis archivos cubren el primer requisito del PDF (Metodología y branching, 10%).
 

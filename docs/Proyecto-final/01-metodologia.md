@@ -9,7 +9,7 @@ En Kanban las iteraciones no son sprints rígidos sino cadencias de entrega; usa
 
 ## Cómo lo aplicamos
 
-El tablero (descrito en [03-gestion-proyectos.md](./03-gestion-proyectos.md)) hace visible el trabajo. Limitamos el WIP a dos ítems por persona en `In Progress` para evitar acumulación y reducir cycle time. Las políticas de entrada y salida están en [05-definiciones.md](./05-definiciones.md). La mejora continua se hace al cierre de cada iteración en `retros/`.
+El tablero (descrito en [03-gestion-proyectos.md](./03-gestion-proyectos.md)) hace visible el trabajo. Limitamos el WIP a dos ítems por persona en `In Progress` para evitar acumulación y reducir cycle time. Las políticas de entrada y salida están en [05-definiciones.md](./05-definiciones.md).
 
 ## Tablero Kanban
 
@@ -22,11 +22,11 @@ Las cuatro columnas:
 
 ## Ceremonias
 
-Mínimas. Standup async diario por el canal del equipo (ayer, hoy, bloqueos), refinamiento bajo demanda cuando una HU del Backlog no cumple DoR, revisión obligatoria por PR (al menos un reviewer distinto del autor) y retrospectiva al cierre de cada iteración. El acta queda en `retros/YYYY-MM-DD-iteracion-N.md`.
+Mínimas. Standup async diario por el canal del equipo (ayer, hoy, bloqueos), refinamiento bajo demanda cuando una HU del Backlog no cumple DoR, y revisión obligatoria por PR (al menos un reviewer distinto del autor).
 
 ## Métricas
 
-Cycle time por HU (objetivo bajo cinco días), throughput semanal (al menos cinco en M1 y ocho en M2), WIP promedio y antigüedad del Backlog. Si una HU lleva más de dos semanas sin mover, se revisa en la siguiente retro.
+Cycle time por HU (objetivo bajo cinco días), throughput semanal (al menos cinco en M1 y ocho en M2), WIP promedio y antigüedad del Backlog. Si una HU lleva más de dos semanas sin mover, se revisa para entender si está bloqueada.
 
 ## Priorización
 
