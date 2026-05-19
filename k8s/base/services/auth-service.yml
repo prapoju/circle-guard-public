@@ -15,7 +15,6 @@ spec:
       containers:
         - name: auth-service
           image: circleguard-auth-service
-          imagePullPolicy: Always
           ports:
             - containerPort: 8180
           readinessProbe:

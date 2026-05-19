@@ -423,6 +423,7 @@ controller:
     - git:5.10.1
     - configuration-as-code:2074.va_57f83f7a_10b_
     - kubernetes-cli:1.375.v8001982544ba
+    - copyartifact:795.ve8e151429b_27
 
 
   # If set to false, Jenkins will download the minimum required version of all dependencies.

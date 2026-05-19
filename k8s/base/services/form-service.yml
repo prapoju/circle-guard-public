@@ -15,7 +15,6 @@ spec:
       containers:
         - name: form-service
           image: circleguard-form-service
-          imagePullPolicy: Always
           ports:
             - containerPort: 8086
           readinessProbe:

@@ -37,13 +37,13 @@ pipeline {
 
         stage('Compile') {
             steps {
-                sh 'chmod +x gradlew && ./gradlew --no-daemon :services:circleguard-gateway-service:compileJava'
+                sh 'chmod +x gradlew && ./gradlew --no-daemon :services:circleguard-identity-service:compileJava'
             }
         }
 
         stage('Unit Tests') {
             steps {
-                sh './gradlew --no-daemon :services:circleguard-gateway-service:test'
+                sh './gradlew --no-daemon :services:circleguard-identity-service:test'
             }
             post {
                 always {
@@ -54,18 +54,21 @@ pipeline {
 
         stage('Integration Tests') {
             steps {
-                sh './gradlew --no-daemon :services:circleguard-gateway-service:integrationTest'
+                sh './gradlew --no-daemon :services:circleguard-identity-service:integrationTest'
             }
         }
 
         stage('Build & Push Image') {
             steps {
-                sh './gradlew --no-daemon :services:circleguard-gateway-service:bootJar'
+                sh './gradlew --no-daemon :services:circleguard-identity-service:bootJar'
                 container('docker') {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
-                        sh 'docker build -t prapoju/circleguard-gateway-service:dev services/circleguard-gateway-service/'
-                        sh 'docker push prapoju/circleguard-gateway-service:dev'
+                        def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                        sh "docker build -t prapoju/circleguard-identity-service:${commitHash} services/circleguard-identity-service/"
+                        sh "docker push prapoju/circleguard-identity-service:${commitHash}"
+                        sh "echo ${commitHash} > commit-hash.txt"
+                        archiveArtifacts artifacts: 'commit-hash.txt', fingerprint: true
                     }
                 }
             }
@@ -74,10 +77,10 @@ pipeline {
 
     post {
         success {
-            echo 'circleguard-gateway-service pipeline completed successfully!'
+            echo 'circleguard-identity-service pipeline completed successfully!'
         }
         failure {
-            echo 'circleguard-gateway-service pipeline failed. Check the logs.'
+            echo 'circleguard-identity-service pipeline failed. Check the logs.'
         }
     }
 }

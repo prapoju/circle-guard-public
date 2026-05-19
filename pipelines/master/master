@@ -53,13 +53,14 @@ pipeline {
                 container('docker') {
                     sh 'until docker info; do sleep 2; done'
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
-                        sh 'docker pull prapoju/circleguard-auth-service:stage'
-                        sh 'docker pull prapoju/circleguard-identity-service:stage'
-                        sh 'docker pull prapoju/circleguard-form-service:stage'
-                        sh 'docker pull prapoju/circleguard-file-service:stage'
-                        sh 'docker pull prapoju/circleguard-notification-service:stage'
-                        sh 'docker pull prapoju/circleguard-dashboard-service:stage'
+                        copyArtifacts(projectName: 'stage', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                        def commitHash = readFile('commit-hash.txt').trim()
+                        sh "docker pull prapoju/circleguard-auth-service:${commitHash}"
+                        sh "docker pull prapoju/circleguard-identity-service:${commitHash}"
+                        sh "docker pull prapoju/circleguard-form-service:${commitHash}"
+                        sh "docker pull prapoju/circleguard-file-service:${commitHash}"
+                        sh "docker pull prapoju/circleguard-notification-service:${commitHash}"
+                        sh "docker pull prapoju/circleguard-dashboard-service:${commitHash}"
                         //sh 'docker pull prapoju/circleguard-promotion-service:stage'
                         //sh 'docker pull prapoju/circleguard-gateway-service:stage'
                     }
@@ -70,19 +71,47 @@ pipeline {
         stage('Deploy to Master') {
             steps {
                 container('kubectl') {
-                    sh 'kubectl apply -k k8s/overlays/master'
-                    sh 'kubectl rollout restart deployment/auth-service deployment/identity-service deployment/dashboard-service deployment/notification-service deployment/form-service deployment/file-service -n circleguard-master'
-                    sh 'kubectl rollout status deployment/auth-service deployment/identity-service deployment/dashboard-service deployment/notification-service deployment/form-service deployment/file-service -n circleguard-master --timeout=600s'
-                    sh 'sleep 30'
+                    copyArtifacts(projectName: 'stage', selector: lastSuccessful(), filter: 'commit-hash.txt')
+                    def commitHash = readFile('commit-hash.txt').trim()
+                    sh "kustomize edit set image=prapoju/circleguard-auth-service:dev=prapoju/circleguard-auth-service:${commitHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-identity-service:dev=prapoju/circleguard-identity-service:${commitHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-form-service:dev=prapoju/circleguard-form-service:${commitHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-file-service:dev=prapoju/circleguard-file-service:${commitHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-dashboard-service:dev=prapoju/circleguard-dashboard-service:${commitHash}"
+                    sh "kustomize edit set image=prapoju/circleguard-notification-service:dev=prapoju/circleguard-notification-service:${commitHash}"
+                    sh "kustomize build | kubectl apply -f -"
+                    sh "sleep 30"
                 }
             }
+        }
+
+
+        stage('Push Stage Images') {
+          steps {
+            container('docker') {
+              def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                sh "docker push prapoju/circleguard-auth-service:${commitHash}"
+                sh "docker push prapoju/circleguard-identity-service:${commitHash}"
+                sh "docker push prapoju/circleguard-form-service:${commitHash}"
+                sh "docker push prapoju/circleguard-file-service:${commitHash}"
+                sh "docker push prapoju/circleguard-notification-service:${commitHash}"
+                sh "docker push prapoju/circleguard-dashboard-service:${commitHash}"
+
+                sh "echo ${commitHash} > commit-hash.txt"
+                archiveArtifacts artifacts: 'commit-hash.txt', fingerprint: true
+                //sh 'docker tag prapoju/circleguard-promotion-service:dev prapoju/circleguard-promotion-service:stage'
+                //sh 'docker push prapoju/circleguard-promotion-service:stage'
+                //sh 'docker tag prapoju/circleguard-gateway-service:dev prapoju/circleguard-gateway-service:stage'
+                //sh 'docker push prapoju/circleguard-gateway-service:stage'
+            }
+          }
         }
 
         stage('Generate Release Notes') {
             steps {
                 container('git') {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                    sh '''
+                    sh """
                         apk add --no-cache curl jq
                         git config --global --add safe.directory "$WORKSPACE"
 
@@ -130,7 +159,7 @@ pipeline {
                                 '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false}')"
 
                         echo "Release $VERSION created successfully"
-                    '''
+                    """
                 }
                 } // container
             }
