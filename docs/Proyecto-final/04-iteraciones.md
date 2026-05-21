@@ -1,6 +1,6 @@
 # Planificación de iteraciones
 
-Cubre el punto 1 del PDF y el criterio "realizar al menos dos iteraciones completas" de la HU US-03.
+Cubre el punto 1 del PDF y el criterio de realizar al menos dos iteraciones completas.
 
 Dos iteraciones marcadas con los milestones de GitHub. La primera cubre la base; la segunda completa el alcance y mete las bonificaciones.
 
@@ -17,26 +17,26 @@ Al cierre tenemos: repo configurado con GitFlow y branch protection en `master` 
 
 Las 18 HU asignadas:
 
-| ID | Título | Epic |
-|---|---|---|
-| US-01 | Configurar GitFlow como estrategia de branching | metodología |
-| US-02 | Configurar GitHub Projects con tablero Kanban | metodología |
-| US-03 | Documentar metodología ágil y planificación de iteraciones | metodología |
-| US-04 | Crear módulos Terraform para red e infraestructura base | terraform |
-| US-05 | Configurar backend remoto para estado de Terraform | terraform |
-| US-06 | Configurar Terraform para dev/stage/prod | terraform |
-| US-07 | Documentar arquitectura de infraestructura con diagramas | terraform |
-| US-08 | Identificar y documentar patrones existentes | patrones |
-| US-09 | Implementar Circuit Breaker | patrones |
-| US-10 | Implementar External Configuration / Feature Toggle | patrones |
-| US-11 | Implementar un tercer patrón adicional | patrones |
-| US-12 | Pipeline de CI para validación de PRs | cicd |
-| US-13 | Integrar SonarQube | cicd |
-| US-14 | Integrar Trivy | cicd |
-| US-28 | Stack Prometheus + Grafana | observabilidad |
-| US-31 | Health checks y readiness/liveness probes | observabilidad |
-| US-35 | Gestión segura de secretos | seguridad |
-| US-36 | Configurar RBAC en Kubernetes | seguridad |
+| Título | Epic |
+|---|---|
+| Configurar GitFlow como estrategia de branching | metodología |
+| Configurar GitHub Projects con tablero Kanban | metodología |
+| Documentar metodología ágil y planificación de iteraciones | metodología |
+| Crear módulos Terraform para red e infraestructura base | terraform |
+| Configurar backend remoto para estado de Terraform | terraform |
+| Configurar Terraform para dev/stage/prod | terraform |
+| Documentar arquitectura de infraestructura con diagramas | terraform |
+| Identificar y documentar patrones existentes | patrones |
+| Implementar Circuit Breaker | patrones |
+| Implementar External Configuration / Feature Toggle | patrones |
+| Implementar un tercer patrón adicional | patrones |
+| Pipeline de CI para validación de PRs | cicd |
+| Integrar SonarQube | cicd |
+| Integrar Trivy | cicd |
+| Stack Prometheus + Grafana | observabilidad |
+| Health checks y readiness/liveness probes | observabilidad |
+| Gestión segura de secretos | seguridad |
+| Configurar RBAC en Kubernetes | seguridad |
 
 La iteración se cierra cuando todas estas HU están en `Done`, la branch protection está activa en ambas ramas y queda al menos un PR ejemplar que recorrió el pipeline completo.
 
@@ -46,23 +46,23 @@ Se completa el 100% del alcance base y se incorporan las cuatro bonificaciones. 
 
 Las HU agrupadas por área:
 
-CI/CD avanzado: US-15 (semver), US-16 (notificaciones), US-17 (aprobaciones a prod), US-18 (pipeline CD).
+CI/CD avanzado: semver, notificaciones, aprobaciones a prod, pipeline CD.
 
-Pruebas: US-19 (unitarias), US-20 (integración), US-21 (E2E), US-22 (Locust), US-23 (OWASP ZAP), US-24 (reportes de cobertura).
+Pruebas: unitarias, integración, E2E, Locust, OWASP ZAP, reportes de cobertura.
 
-Releases: US-25 (release notes), US-26 (planes de rollback), US-27 (sistema de tagging).
+Releases: release notes, planes de rollback, sistema de tagging.
 
-Observabilidad avanzada: US-29 (ELK), US-30 (tracing), US-32 (métricas de negocio), US-33 (alertas).
+Observabilidad avanzada: ELK, tracing, métricas de negocio, alertas.
 
-Seguridad avanzada: US-34 (escaneo continuo), US-37 (TLS).
+Seguridad avanzada: escaneo continuo, TLS.
 
-Documentación y presentación: US-38 (arquitectura completa), US-39 (manual de ops), US-40 (costos), US-41 (video), US-42 (presentación).
+Documentación y presentación: arquitectura completa, manual de ops, costos, video, presentación.
 
-Bonificaciones: BONUS-01 (Multi-Cloud), BONUS-02 (Service Mesh), BONUS-03 (Chaos), BONUS-04 (FinOps).
+Bonificaciones: Multi-Cloud, Service Mesh, Chaos, FinOps.
 
 La iteración cierra cuando todas las HU están en `Done`, el release `v1.0.0` está tageado en `master` con sus release notes publicadas, el video está enlazado en el README y la presentación está ensayada.
 
 ## Riesgos
 
-El más probable es el sobre-alcance por querer hacer las cuatro bonificaciones; la mitigación es no abrir ningún bonus hasta que el alcance base esté en `Done`. El cluster en cloud puede generar costos altos si se queda corriendo, así que usamos minikube/kind para dev y solo provisionamos cloud para validar stage/prod en sesiones cortas. Las pruebas E2E pueden volverse flaky si comparten estado entre tests, por eso se aíslan con Testcontainers. OWASP ZAP puede generar ruido en el pipeline; empezamos con baseline scan en vez de full scan. La aprobación manual a prod (US-17) requiere coordinación humana, definimos dos aprobadores por adelantado.
+El más probable es el sobre-alcance por querer hacer las cuatro bonificaciones; la mitigación es no abrir ningún bonus hasta que el alcance base esté en `Done`. El cluster en cloud puede generar costos altos si se queda corriendo, así que usamos minikube/kind para dev y solo provisionamos cloud para validar stage/prod en sesiones cortas. Las pruebas E2E pueden volverse flaky si comparten estado entre tests, por eso se aíslan con Testcontainers. OWASP ZAP puede generar ruido en el pipeline; empezamos con baseline scan en vez de full scan. La aprobación manual a prod requiere coordinación humana, definimos dos aprobadores por adelantado.
 
