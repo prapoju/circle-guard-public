@@ -16,16 +16,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Prueba del Circuit Breaker para identity-service.
- *
- * Demuestra el ciclo CLOSED -> OPEN -> HALF_OPEN -> CLOSED con una instancia
- * programatica de Resilience4j configurada igual que la del application.yml
- * pero con valores reducidos para acelerar el test (minimumNumberOfCalls=2,
- * waitDurationInOpenState=500ms).
- *
- * Cubre los AC de US-09:
- *  - Estados open/closed/half-open documentados
- *  - Prueba que demuestra el patron funcionando
+ * Verifica las transiciones de estado del circuit breaker hacia identity-service.
+ * Usa una instancia programatica con valores reducidos (minimumNumberOfCalls=2,
+ * waitDurationInOpenState=500ms) para correr en milisegundos sin tocar el
+ * application.yml.
  */
 class IdentityClientCircuitBreakerTest {
 

@@ -77,10 +77,10 @@ El CB tiene tres estados:
 
 El test usa valores reducidos (sliding window de 2, wait de 500ms) para correr en milisegundos sin tocar configuración de producción.
 
-### Feature Toggle (US-10)
+### Feature Toggle
 
-> Pendiente 
+> Pendiente
 
-### Health Check con Actuator y HealthIndicators custom (US-11)
+### Health Check con Actuator y HealthIndicators custom
 
-> Pendiente 
+> Pendiente

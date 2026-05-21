@@ -3,7 +3,7 @@
 
 ## Por qué GitFlow
 
-Tenemos tres ambientes (`dev`, `stage`, `prod`) y la entrega final exige aprobación manual a producción (US-17) y release notes automáticas por tag (US-25). Eso se mapea naturalmente a `release/*` y tags sobre `master`. GitHub Flow puro deja muy poco espacio para preparar releases sin congelar el día a día; GitFlow se ajusta mejor. El contenido del Taller 2 ya estaba en `master`, así que conservamos esa convención histórica.
+Tenemos tres ambientes (`dev`, `stage`, `prod`) y la entrega final exige aprobación manual a producción y release notes automáticas por tag. Eso se mapea naturalmente a `release/*` y tags sobre `master`. GitHub Flow puro deja muy poco espacio para preparar releases sin congelar el día a día; GitFlow se ajusta mejor. El contenido del Taller 2 ya estaba en `master`, así que conservamos esa convención histórica.
 
 ## Modelo
 
@@ -30,7 +30,7 @@ Se mergea por PR, nunca push directo a `master` ni `develop`. Tamaño objetivo b
 
 ## Convención de commits
 
-Conventional Commits, alineado con US-15 (versionado semántico automático):
+Conventional Commits, alineado con el versionado semántico automático que se generará a partir del histórico:
 
 ```
 <tipo>: <descripción>
@@ -46,6 +46,6 @@ docs: initial methodology docs
 
 ## Protección de ramas
 
-En `master` exigimos PR, una aprobación, todos los status checks (build, tests, Sonar, Trivy), historia lineal, y bloqueo de force-push y deletes. En `develop` aplica lo mismo pero con checks más livianos (build + tests). Ambas reglas se configuran en Settings → Branches del repo cuando se cierre US-01.
+En `master` exigimos PR, una aprobación, todos los status checks (build, tests, Sonar, Trivy), historia lineal, y bloqueo de force-push y deletes. En `develop` aplica lo mismo pero con checks más livianos (build + tests). Ambas reglas se configuran en Settings → Branches del repo.
 
 

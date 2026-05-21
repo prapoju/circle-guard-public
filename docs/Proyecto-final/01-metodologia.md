@@ -30,4 +30,4 @@ Cycle time por HU (objetivo bajo cinco días), throughput semanal (al menos cinc
 
 ## Priorización
 
-Tres reglas. Primero, bloqueantes: si una HU bloquea a otras (por ejemplo US-04 Terraform bloquea US-28 Prometheus), va antes. Segundo, peso en el PDF: las épicas grandes (Terraform 20%, CI/CD 15%) entran temprano. Tercero, las bonificaciones solo se abren cuando el 100% del alcance base está en `Done`.
+Tres reglas. Primero, bloqueantes: si una HU bloquea a otras (por ejemplo Terraform bloquea Prometheus), va antes. Segundo, peso en el PDF: las épicas grandes (Terraform 20%, CI/CD 15%) entran temprano. Tercero, las bonificaciones solo se abren cuando el 100% del alcance base está en `Done`.
