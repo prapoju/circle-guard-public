@@ -1,6 +1,5 @@
 # Patrones de diseño
 
-Este documento cubre el punto 3 del PDF del Proyecto Final (Patrones de diseño, 10%). Tiene dos partes: el inventario de los patrones que ya estaban en el repo cuando empezamos, y los tres patrones nuevos que implementamos durante el proyecto.
 
 ## Patrones existentes en el repo
 
@@ -14,11 +13,11 @@ Este documento cubre el punto 3 del PDF del Proyecto Final (Patrones de diseño,
 | Health Check (básico) | Operativo | `readinessProbe` TCP sobre el puerto del servicio en los manifiestos K8s |
 | Service Discovery (implícito) | Operativo | DNS nativo de Kubernetes (`http://auth-service:8180`); sin Eureka/Consul |
 
-Los más sólidos son **Database per Service** y **Event-Driven Architecture**. Los marcados como *parcial* o *implícito* son la base sobre la que apoyamos los nuevos patrones (por ejemplo, los HealthIndicators de US-11 amplían el Health Check básico).
+Los más sólidos son **Database per Service** y **Event-Driven Architecture**. Los marcados como *parcial* o *implícito* son la base sobre la que apoyamos los nuevos patrones.
 
 ## Patrones nuevos implementados
 
-### Circuit Breaker (US-09)
+### Circuit Breaker 
 
 Protege a un servicio cuando el downstream al que llama falla repetidamente: en vez de seguir golpeando un endpoint caído (consumiendo threads, conexiones y tiempo), el Circuit Breaker "abre el circuito" y rechaza las llamadas de inmediato durante un periodo, ejecutando un fallback. Después de ese periodo permite una llamada de prueba para ver si el downstream recuperó, y vuelve a cerrar el circuito si todo está bien.
 
@@ -80,8 +79,8 @@ El test usa valores reducidos (sliding window de 2, wait de 500ms) para correr e
 
 ### Feature Toggle (US-10)
 
-> Pendiente — se implementa en la Fase 2 del plan de patrones. Esta sección se completa cuando se mergee el PR correspondiente.
+> Pendiente 
 
 ### Health Check con Actuator y HealthIndicators custom (US-11)
 
-> Pendiente — se implementa en la Fase 3 del plan de patrones. Esta sección se completa cuando se mergee el PR correspondiente.
+> Pendiente 
