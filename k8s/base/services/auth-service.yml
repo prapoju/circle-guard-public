@@ -26,16 +26,11 @@ spec:
           env:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres:5432/circleguard_auth
-            - name: SPRING_DATASOURCE_USERNAME
-              value: admin
-            - name: SPRING_DATASOURCE_PASSWORD
-              value: password
-            - name: SPRING_LDAP_URLS
-              value: ldap://openldap:389
-            - name: IDENTITY_SERVICE_URL
-              value: http://identity-service:8083
-            - name: AUTH_SERVICE_URL
-              value: http://auth-service:8180
+          envFrom:
+            - configMapRef:
+                name: circleguard-config
+            - secretRef:
+                name: circleguard-secrets
 ---
 apiVersion: v1
 kind: Service

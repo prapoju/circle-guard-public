@@ -23,13 +23,11 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 10
-          env:
-            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
-              value: kafka:9092
-            - name: AUTH_SERVICE_URL
-              value: http://auth-service:8180
-            - name: IDENTITY_SERVICE_URL
-              value: http://identity-service:8083
+          envFrom:
+            - configMapRef:
+                name: circleguard-config
+            - secretRef:
+                name: circleguard-secrets
 ---
 apiVersion: v1
 kind: Service

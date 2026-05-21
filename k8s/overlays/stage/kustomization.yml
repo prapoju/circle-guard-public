@@ -4,3 +4,5 @@ namespace: circleguard-stage
 resources:
   - namespace.yml
   - ../../base
+patches:
+  - path: configmap-patches.yml

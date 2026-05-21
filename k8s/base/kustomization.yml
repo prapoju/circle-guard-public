@@ -7,6 +7,8 @@ resources:
   - infra/kafka.yml
   - infra/redis.yml
   - infra/openldap.yml
+  - config/circleguard-config.yml
+  - config/circleguard-secrets.yml
   - services/auth-service.yml
   - services/identity-service.yml
   - services/dashboard-service.yml
