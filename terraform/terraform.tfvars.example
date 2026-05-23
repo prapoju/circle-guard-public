@@ -31,7 +31,7 @@ platform_jenkins_storage_image_reference = {
   sku       = "22_04-lts-gen2"
   version   = "latest"
 }
-platform_jenkins_admin = "chepe"
+platform_jenkins_admin = ""
 jenkins_custom_data_path = "./cloud-init-jenkins.txt"
 jenkins_public_key_path = "/home/julio/.ssh/id_ed25519.pub"
 

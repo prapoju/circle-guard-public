@@ -72,6 +72,9 @@ Create your `.tfvars` file based on:
 ```text
 terraform.tfvars.example
 ```
+Generate your ssh keys for jenkins
+ssh-keygen -t ed25519
+
 
 ## 2. Install Terraform Providers and Plugins
 
@@ -84,6 +87,24 @@ terraform init
 ```bash
 terraform apply
 ```
+
+
+--- 
+# Jenkins setup
+
+
+ssh username@<ip> -i ~/.ssh/id_ed25519
+
+Validate jenkins 
+
+service jenkins status
+
+Copy your initial passwod
+sudo less /var/lib/jenkins/secrets/initialAdminPassword
+
+Install suggested plugins
+
+Configue your users
 
 ---
 
@@ -129,9 +150,3 @@ az aks start \
 terraform destroy
 ```
 
-
-## Jenkins
-Generate your key
-ssh-keygen -t ed25519
-Update your tf.vars
-ssh chepe@20.10.149.83 -i ~/.ssh/id_ed25519
