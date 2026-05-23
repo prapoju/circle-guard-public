@@ -17,3 +17,21 @@ aks_stage_pool_vm_size = "Standard_B2s"
 aks_master_pool_node_count = 1
 aks_master_pool_vm_size = "Standard_B2s"
 
+platform_location = "East US"
+platform_rg_name = "plat-rg"
+platform_vn_name = "plat-vn"
+platform_subnet_name = "plat-subn"
+platform_sa_diagnostics_name = "platsa"
+platform_jenkins_vm = {
+  name = "vm_jenkins"
+  size = "Standard_DS1_v2"
+}
+platform_jenkins_storage_image_reference = {
+  publisher = "Canonical"
+  offer     = "ubuntu-24_04-lts"
+  sku       = "server"
+  version   = "latest"
+}
+platform_jenkins_admin = "chepe"
+jenkins_custom_data_path = "./cloud-init-jenkins.txt"
+jenkins_public_key_path = "/home/julio/.ssh/id_ed25519.pub"

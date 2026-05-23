@@ -128,3 +128,8 @@ az aks start \
 ```bash
 terraform destroy
 ```
+
+
+## Jenkins
+Generate your key
+ssh-keygen -t ed25519
