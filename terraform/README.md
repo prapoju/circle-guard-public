@@ -133,3 +133,5 @@ terraform destroy
 ## Jenkins
 Generate your key
 ssh-keygen -t ed25519
+Update your tf.vars
+ssh chepe@20.10.149.83 -i ~/.ssh/id_ed25519

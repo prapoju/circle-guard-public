@@ -16,7 +16,7 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
   resource_group_name = azurerm_resource_group.aks_group.name
   dns_prefix          = var.aks_dns_prefix 
   kubernetes_version  = var.aks_kubernetes_version 
-
+  oidc_issuer_enabled = true
   default_node_pool {
     name            = "default"
     node_count      = var.aks_default_pool_node_count
