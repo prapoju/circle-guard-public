@@ -1,11 +1,28 @@
 pipeline {
     agent any
-
+    
     stages {
         stage('Hello') {
             steps {
                 echo 'Hola'
             }
+        }
+    }
+
+    post {
+        success {
+            githubNotify(
+                status: 'SUCCESS',
+                description: 'Build passed',
+                context: 'Jenkins CI'
+            )
+        }
+        failure {
+            githubNotify(
+                status: 'FAILURE',
+                description: 'Build failed',
+                context: 'Jenkins CI'
+            )
         }
     }
 }
