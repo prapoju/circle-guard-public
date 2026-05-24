@@ -8,21 +8,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        success {
-            githubNotify(
-                status: 'SUCCESS',
-                description: 'Build passed',
-                context: 'Jenkins CI'
-            )
-        }
-        failure {
-            githubNotify(
-                status: 'FAILURE',
-                description: 'Build failed',
-                context: 'Jenkins CI'
-            )
-        }
-    }
 }
