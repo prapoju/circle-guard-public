@@ -90,21 +90,36 @@ terraform apply
 
 
 --- 
-# Jenkins setup
+# Jenkins  VM setup
+
+## Sonarqube
+https://docs.sonarsource.com/sonarqube-server/9.9/requirements/prerequisites-and-overview
+
+Validate that this
+sysctl vm.max_map_count
+sysctl fs.file-max
+ulimit -n
+ulimit -u
+
+vm.max_map_count is greater than or equal to 524288
+fs.file-max is greater than or equal to 131072
+the user running SonarQube can open at least 131072 file descriptors
+the user running SonarQube can open at least 8192 threads
+
+Sonarqube docker file
+
+scp -r ./sonarqube <USERNAME>@<IP>:~/
+
+sudo usermod -aG docker $USER
+Exit And ssh againg
+
+cd sonarqube
+docker compose up -d
 
 
-ssh username@<ip> -i ~/.ssh/id_ed25519
-
-Validate jenkins 
-
-service jenkins status
-
-Copy your initial passwod
-sudo less /var/lib/jenkins/secrets/initialAdminPassword
-
+## Jenkins
 Install suggested plugins
 
-Configue your users
 
 ---
 
@@ -149,4 +164,7 @@ az aks start \
 ```bash
 terraform destroy
 ```
+
+## Destroy cluster
+terraform destroy -target="module.aks-cluster"
 
