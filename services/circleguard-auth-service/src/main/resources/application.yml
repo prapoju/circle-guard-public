@@ -36,3 +36,20 @@ identity:
 auth:
   service:
     base-url: ${AUTH_SERVICE_URL:http://localhost:8180}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      show-components: always
+      group:
+        readiness:
+          include: readinessState,db,ldap
+        liveness:
+          include: livenessState
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -18,11 +18,19 @@ spec:
           ports:
             - containerPort: 8082
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /actuator/health/readiness
               port: 8082
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8082
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 6
           env:
             - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
               value: kafka:9092

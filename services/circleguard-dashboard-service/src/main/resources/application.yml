@@ -16,3 +16,20 @@ spring:
 promotion:
   service:
     url: ${PROMOTION_SERVICE_URL:http://localhost:8088}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      show-components: always
+      group:
+        readiness:
+          include: readinessState,db
+        liveness:
+          include: livenessState
+  endpoints:
+    web:
+      exposure:
+        include: health,info
