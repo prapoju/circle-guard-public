@@ -4,15 +4,13 @@ Carpeta de gestión y proceso del Proyecto Final sobre `circle-guard-public`. El
 
 ## Contenido
 
-| Archivo | Tema | HU |
-|---|---|---|
-| [01-metodologia.md](./01-metodologia.md) | Kanban | US-03 |
-| [02-branching.md](./02-branching.md) | GitFlow | US-01 |
-| [03-gestion-proyectos.md](./03-gestion-proyectos.md) | GitHub Projects | US-02 |
-| [04-iteraciones.md](./04-iteraciones.md) | Plan de las dos iteraciones | US-03 |
-| [05-definiciones.md](./05-definiciones.md) | DoR y DoD | US-03 |
-
-Los seis archivos cubren el primer requisito del PDF (Metodología y branching, 10%).
+| Archivo | Tema |
+|---|---|
+| [01-metodologia.md](./01-metodologia.md) | Kanban |
+| [02-branching.md](./02-branching.md) | GitFlow |
+| [03-gestion-proyectos.md](./03-gestion-proyectos.md) | GitHub Projects |
+| [04-iteraciones.md](./04-iteraciones.md) | Plan de las dos iteraciones |
+| [05-definiciones.md](./05-definiciones.md) | DoR y DoD |
 
 ## Convenciones
 

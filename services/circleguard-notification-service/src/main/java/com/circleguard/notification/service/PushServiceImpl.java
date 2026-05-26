@@ -1,5 +1,6 @@
 package com.circleguard.notification.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -39,6 +40,7 @@ public class PushServiceImpl implements PushService {
 
     @Override
     @Async
+    @CircuitBreaker(name = "gotifyApi", fallbackMethod = "pushFallback")
     @org.springframework.retry.annotation.Retryable(
         retryFor = { Exception.class },
         maxAttempts = 3,
@@ -54,16 +56,16 @@ public class PushServiceImpl implements PushService {
 
         try {
             log.debug("Attempting to send push notification with metadata to user: {}", userId);
-            
+
             Map<String, Object> body = new HashMap<>();
             body.put("title", "CircleGuard Alert");
             body.put("message", message);
             body.put("priority", 5);
-            
+
             if (!metadata.isEmpty()) {
                 body.put("extras", Map.of("client::notification", metadata));
             }
-            
+
             webClient.post()
                 .uri("/message?token=" + gotifyToken)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -88,5 +90,12 @@ public class PushServiceImpl implements PushService {
         log.error("Push delivery failed after max retries for user: {}. Error: {}", userId, e.getMessage());
         auditLogService.logDelivery(userId, "PUSH", "FAILED", null);
         return CompletableFuture.failedFuture(e);
+    }
+
+    @SuppressWarnings("unused")
+    public CompletableFuture<Void> pushFallback(String userId, String message, Map<String, String> metadata, Throwable t) {
+        log.error("Circuit breaker fallback: gotify unavailable for user {}: {}", userId, t.getMessage());
+        auditLogService.logDelivery(userId, "PUSH", "CB_OPEN", null);
+        return CompletableFuture.failedFuture(t);
     }
 }

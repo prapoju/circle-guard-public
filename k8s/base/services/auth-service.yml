@@ -18,24 +18,27 @@ spec:
           ports:
             - containerPort: 8180
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /actuator/health/readiness
               port: 8180
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8180
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 6
           env:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres:5432/circleguard_auth
-            - name: SPRING_DATASOURCE_USERNAME
-              value: admin
-            - name: SPRING_DATASOURCE_PASSWORD
-              value: password
-            - name: SPRING_LDAP_URLS
-              value: ldap://openldap:389
-            - name: IDENTITY_SERVICE_URL
-              value: http://identity-service:8083
-            - name: AUTH_SERVICE_URL
-              value: http://auth-service:8180
+          envFrom:
+            - configMapRef:
+                name: circleguard-config
+            - secretRef:
+                name: circleguard-secrets
 ---
 apiVersion: v1
 kind: Service
