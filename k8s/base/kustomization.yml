@@ -15,3 +15,5 @@ resources:
   - services/notification-service.yml
   - services/form-service.yml
   - services/file-service.yml
+  - services/promotion-service.yml
+  - services/gateway-service.yml
