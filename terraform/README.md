@@ -119,11 +119,7 @@ docker compose up -d
 
 ## Jenkins
 Install suggested plugins
-
-
----
-
-# Kubectl Configuration
+Create your first user
 
 Connect `kubectl` to the AKS cluster:
 
@@ -137,7 +133,67 @@ az aks get-credentials \
 >
 > ```bash
 > rm -f ~/.kube/config
-> ```
+> ``
+
+Go to /terraform/k8s
+And run script.sh
+
+To generate your token
+
+Install this plugin 
+KubernetesVersion
+4423.vb_59f230b_ce53
+Cloud Providers
+Cluster Management
+kubernetes
+Agent Management
+This plugin integrates Jenkins with Kubernetes
+
+
+Credentials
+Add credentials
+secret text
+Scop global: kubernetes token
+
+
+Manage jenkins Clouds
+New cloud 
+Name:aks
+type: kubernetes
+
+
+Now you have to fill these four
+
+Kubernetes URL
+They are obtained from 
+
+kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'
+
+
+
+
+Kubernetes server certificate key
+They are obtained from
+
+kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}'
+
+
+Credentials
+
+The token that was created before.
+
+
+
+JenkinsUrl
+http://<PUBLICIP>:8080/
+
+Web socket: Choose it
+
+
+
+---
+
+# Kubectl Configuration
 
 ---
 
