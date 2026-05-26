@@ -121,6 +121,10 @@ docker compose up -d
 Install suggested plugins
 Create your first user
 
+
+
+
+### Kubectl configuration
 Connect `kubectl` to the AKS cluster:
 
 ```bash
@@ -190,7 +194,21 @@ http://<PUBLICIP>:8080/
 Web socket: Choose it
 
 
+###Docker hub credentials
+Go to docker hub, Personal access token
+Generate new token
 
+Description: cgp
+Expiration: 90 days
+Read and write access
+
+Now go to jenkins
+Credentials
+Username with password
+
+Username: Docker hub account
+password: token
+id: dockerhub-credentials
 ---
 
 # Kubectl Configuration
