@@ -4,14 +4,14 @@ def serviceStatus = [:]
 def commitHash = ''
 
 def services = [
-    [name: 'auth',         gradle: ':services:circleguard-auth-service',         dir: 'services/circleguard-auth-service',         image: 'prapoju/circleguard-auth-service',         compose: true],
-    [name: 'dashboard',    gradle: ':services:circleguard-dashboard-service',    dir: 'services/circleguard-dashboard-service',    image: 'prapoju/circleguard-dashboard-service',    compose: true],
-    [name: 'file',         gradle: ':services:circleguard-file-service',         dir: 'services/circleguard-file-service',         image: 'prapoju/circleguard-file-service',         compose: false],
-    [name: 'form',         gradle: ':services:circleguard-form-service',         dir: 'services/circleguard-form-service',         image: 'prapoju/circleguard-form-service',         compose: false],
-    [name: 'gateway',      gradle: ':services:circleguard-gateway-service',      dir: 'services/circleguard-gateway-service',      image: 'prapoju/circleguard-gateway-service',      compose: false],
-    [name: 'identity',     gradle: ':services:circleguard-identity-service',     dir: 'services/circleguard-identity-service',     image: 'prapoju/circleguard-identity-service',     compose: false],
-    [name: 'notification', gradle: ':services:circleguard-notification-service', dir: 'services/circleguard-notification-service', image: 'prapoju/circleguard-notification-service', compose: true],
-    [name: 'promotion',    gradle: ':services:circleguard-promotion-service',    dir: 'services/circleguard-promotion-service',    image: 'prapoju/circleguard-promotion-service',    compose: false],
+    [name: 'auth',         gradle: ':services:circleguard-auth-service',         dir: 'services/circleguard-auth-service',         image: 'prapoju/circleguard-auth-service'],
+    [name: 'dashboard',    gradle: ':services:circleguard-dashboard-service',    dir: 'services/circleguard-dashboard-service',    image: 'prapoju/circleguard-dashboard-service'],
+    [name: 'file',         gradle: ':services:circleguard-file-service',         dir: 'services/circleguard-file-service',         image: 'prapoju/circleguard-file-service'],
+    [name: 'form',         gradle: ':services:circleguard-form-service',         dir: 'services/circleguard-form-service',         image: 'prapoju/circleguard-form-service'],
+    [name: 'gateway',      gradle: ':services:circleguard-gateway-service',      dir: 'services/circleguard-gateway-service',      image: 'prapoju/circleguard-gateway-service'],
+    [name: 'identity',     gradle: ':services:circleguard-identity-service',     dir: 'services/circleguard-identity-service',     image: 'prapoju/circleguard-identity-service'],
+    [name: 'notification', gradle: ':services:circleguard-notification-service', dir: 'services/circleguard-notification-service', image: 'prapoju/circleguard-notification-service'],
+    [name: 'promotion',    gradle: ':services:circleguard-promotion-service',    dir: 'services/circleguard-promotion-service',    image: 'prapoju/circleguard-promotion-service'],
 ]
 
 pipeline {
@@ -103,7 +103,7 @@ pipeline {
                             serviceStatus[name] = 'ok'
                             echo "[${name}] Compile + Unit Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus[name] = 'fail'
+                            serviceStatus[name] = 'fail:compile'
                             echo "[${name}] Compile + Unit Tests: FAILED"
                         }
                     }
@@ -127,7 +127,7 @@ pipeline {
                             sh "./gradlew --no-daemon --no-parallel :services:circleguard-auth-service:integrationTest"
                             echo "[auth] Integration Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus['auth'] = 'fail'
+                            serviceStatus['auth'] = 'fail:integration'
                             echo "[auth] Integration Tests: FAILED"
                         } finally {
                             container('docker') {
@@ -150,7 +150,7 @@ pipeline {
                             sh "./gradlew --no-daemon --no-parallel :services:circleguard-dashboard-service:integrationTest"
                             echo "[dashboard] Integration Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus['dashboard'] = 'fail'
+                            serviceStatus['dashboard'] = 'fail:integration'
                             echo "[dashboard] Integration Tests: FAILED"
                         } finally {
                             container('docker') {
@@ -168,7 +168,7 @@ pipeline {
                             sh "./gradlew --no-daemon --no-parallel :services:circleguard-file-service:integrationTest"
                             echo "[file] Integration Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus['file'] = 'fail'
+                            serviceStatus['file'] = 'fail:integration'
                             echo "[file] Integration Tests: FAILED"
                         }
                     } else {
@@ -182,7 +182,7 @@ pipeline {
                             sh "./gradlew --no-daemon --no-parallel :services:circleguard-form-service:integrationTest"
                             echo "[form] Integration Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus['form'] = 'fail'
+                            serviceStatus['form'] = 'fail:integration'
                             echo "[form] Integration Tests: FAILED"
                         }
                     } else {
@@ -196,7 +196,7 @@ pipeline {
                             sh "./gradlew --no-daemon --no-parallel :services:circleguard-gateway-service:integrationTest"
                             echo "[gateway] Integration Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus['gateway'] = 'fail'
+                            serviceStatus['gateway'] = 'fail:integration'
                             echo "[gateway] Integration Tests: FAILED"
                         }
                     } else {
@@ -210,7 +210,7 @@ pipeline {
                             sh "./gradlew --no-daemon --no-parallel :services:circleguard-identity-service:integrationTest"
                             echo "[identity] Integration Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus['identity'] = 'fail'
+                            serviceStatus['identity'] = 'fail:integration'
                             echo "[identity] Integration Tests: FAILED"
                         }
                     } else {
@@ -228,7 +228,7 @@ pipeline {
                             sh "./gradlew --no-daemon --no-parallel :services:circleguard-notification-service:integrationTest"
                             echo "[notification] Integration Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus['notification'] = 'fail'
+                            serviceStatus['notification'] = 'fail:integration'
                             echo "[notification] Integration Tests: FAILED"
                         } finally {
                             container('docker') {
@@ -246,7 +246,7 @@ pipeline {
                             sh "./gradlew --no-daemon --no-parallel :services:circleguard-promotion-service:integrationTest"
                             echo "[promotion] Integration Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus['promotion'] = 'fail'
+                            serviceStatus['promotion'] = 'fail:integration'
                             echo "[promotion] Integration Tests: FAILED"
                         }
                     } else {
@@ -259,16 +259,27 @@ pipeline {
         stage('Build & Push Images') {
             steps {
                 script {
+                    def anyFailed = serviceStatus.values().any { it != 'ok' }
+
+                    if (anyFailed) {
+                        echo "Skipping ALL Build & Push — one or more services failed previous stages."
+                        for (svc in services) {
+                            if (serviceStatus[svc.name] != 'ok') {
+                                echo "  [${svc.name}] failed — skip"
+                            } else {
+                                echo "  [${svc.name}] passed but will NOT be pushed (other services failed)"
+                                serviceStatus[svc.name] = 'skipped:push'
+                            }
+                        }
+                        return
+                    }
+
+                    // Solo llega aqui si todos pasaron
                     for (svc in services) {
                         def name   = svc.name
                         def gradle = svc.gradle
                         def dir    = svc.dir
                         def image  = svc.image
-
-                        if (serviceStatus[name] != 'ok') {
-                            echo "[${name}] Skipping Build & Push (previous stages failed)"
-                            continue
-                        }
 
                         echo "-------- [${name}] Build & Push --------"
                         try {
@@ -284,7 +295,7 @@ pipeline {
                             archiveArtifacts artifacts: "commit-hash-${name}.txt", fingerprint: true
                             echo "[${name}] Build & Push: PASSED"
                         } catch (Exception e) {
-                            serviceStatus[name] = 'fail'
+                            serviceStatus[name] = 'fail:push'
                             echo "[${name}] Build & Push: FAILED"
                         }
                     }
@@ -296,17 +307,45 @@ pipeline {
     post {
         always {
             script {
+                def passed  = []
+                def skipped = []
+                def failed  = []
+
+                for (svc in services) {
+                    def status = serviceStatus[svc.name]
+                    if (status == 'ok') {
+                        passed << "  OK      ${svc.name}"
+                    } else if (status == 'skipped:push') {
+                        skipped << "  SKIP    ${svc.name} — not pushed (other services failed)"
+                    } else if (status == 'fail:compile') {
+                        failed << "  FAILED  ${svc.name} — at Compile & Unit Tests"
+                    } else if (status == 'fail:integration') {
+                        failed << "  FAILED  ${svc.name} — at Integration Tests"
+                    } else if (status == 'fail:push') {
+                        failed << "  FAILED  ${svc.name} — at Build & Push"
+                    } else {
+                        failed << "  FAILED  ${svc.name} — never executed"
+                    }
+                }
+
                 echo '========================================'
                 echo '       Pipeline Results Summary'
                 echo '========================================'
-                for (svc in services) {
-                    if (serviceStatus[svc.name] == 'ok') {
-                        echo "[${svc.name}] SUCCESS"
-                    } else {
-                        echo "[${svc.name}] FAILED"
-                    }
+                echo "PASSED  (${passed.size()}/${services.size()}):"
+                passed.each  { echo it }
+                if (skipped) {
+                    echo "SKIPPED (${skipped.size()}/${services.size()}):"
+                    skipped.each { echo it }
+                }
+                if (failed) {
+                    echo "FAILED  (${failed.size()}/${services.size()}):"
+                    failed.each  { echo it }
                 }
                 echo '========================================'
+
+                if (failed || skipped) {
+                    error("Pipeline finished with ${failed.size()} failure(s) and ${skipped.size()} skipped push(es).")
+                }
             }
         }
     }
