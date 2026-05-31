@@ -1,6 +1,6 @@
 """
 CircleGuard - Pruebas de rendimiento y estrés con Locust
-Simula tres tipos de usuarios concurrentes con flujos reales del sistema.
+Simula cuatro tipos de usuarios concurrentes con flujos reales del sistema.
 
 Umbrales de aceptación:
   - Tasa de error:  <= 5%
@@ -14,6 +14,8 @@ AUTH_URL      = "http://auth-service.circleguard-stage.svc.cluster.local:8180"
 IDENTITY_URL  = "http://identity-service.circleguard-stage.svc.cluster.local:8083"
 FORM_URL      = "http://form-service.circleguard-stage.svc.cluster.local:8086"
 DASHBOARD_URL = "http://dashboard-service.circleguard-stage.svc.cluster.local:8080"
+PROMOTION_URL = "http://promotion-service.circleguard-stage.svc.cluster.local:8088"
+GATEWAY_URL   = "http://gateway-service.circleguard-stage.svc.cluster.local:8087"
 
 ERROR_RATE_THRESHOLD = 0.05   # 5%
 P95_THRESHOLD_MS     = 3000   # 3 segundos
@@ -213,6 +215,114 @@ class PersonalSaludUser(HttpUser):
                 resp.success()
             else:
                 resp.failure(f"Error: {resp.status_code}")
+
+    @task(1)
+    def ver_promotion_stats_directo(self):
+        """Golpea promotion-service sin pasar por el dashboard intermedio."""
+        with self.client.get(
+            f"{PROMOTION_URL}/api/v1/health-status/stats",
+            name="GET /promotion/health-status/stats",
+            catch_response=True
+        ) as resp:
+            if resp.status_code == 200:
+                resp.success()
+            else:
+                resp.failure(f"Error: {resp.status_code}")
+
+    @task(1)
+    def ver_promotion_stats_departamento(self):
+        dept = random.choice(self.DEPARTAMENTOS)
+        with self.client.get(
+            f"{PROMOTION_URL}/api/v1/health-status/stats/department/{dept}",
+            name="GET /promotion/health-status/stats/department/{dept}",
+            catch_response=True
+        ) as resp:
+            if resp.status_code == 200:
+                resp.success()
+            else:
+                resp.failure(f"Error: {resp.status_code}")
+
+
+# ---------------------------------------------------------------------------
+# Tipo 4: Guardia de entrada — escaneo de tokens QR en el gateway
+# Representa el control de acceso al campus (weight=2)
+# ---------------------------------------------------------------------------
+class GuardiaUser(HttpUser):
+    """
+    Flujo: login con super_admin -> generar QR token -> validar contra gateway.
+    Simula al guardia escaneando códigos QR en la entrada del campus.
+    """
+    weight = 2
+    wait_time = between(1, 2)
+    host = AUTH_URL
+
+    def on_start(self):
+        self.auth_token = None
+        self.qr_token = None
+        self._login()
+
+    def _login(self):
+        with self.client.post(
+            "/api/v1/auth/login",
+            json={"username": "super_admin", "password": "password"},
+            name="POST /auth/login (guardia)",
+            catch_response=True
+        ) as resp:
+            if resp.status_code == 200:
+                self.auth_token = resp.json().get("token")
+                resp.success()
+            else:
+                resp.failure(f"Login guardia fallo: {resp.status_code}")
+
+    @task(5)
+    def validar_qr_valido(self):
+        """Flujo completo: generar QR fresco y validarlo en el gateway."""
+        if not self.auth_token:
+            self._login()
+            return
+
+        # 1) Generar token QR vía auth-service
+        with self.client.get(
+            "/api/v1/auth/qr/generate",
+            headers={"Authorization": f"Bearer {self.auth_token}"},
+            name="GET /auth/qr/generate",
+            catch_response=True
+        ) as gen_resp:
+            if gen_resp.status_code != 200:
+                self.auth_token = None
+                gen_resp.failure(f"Gen QR fallo: {gen_resp.status_code}")
+                return
+            self.qr_token = gen_resp.json().get("qrToken")
+            gen_resp.success()
+
+        if not self.qr_token:
+            return
+
+        # 2) Validar el QR en gateway-service
+        with self.client.post(
+            f"{GATEWAY_URL}/api/v1/gate/validate",
+            json={"token": self.qr_token},
+            name="POST /gateway/gate/validate",
+            catch_response=True
+        ) as val_resp:
+            if val_resp.status_code == 200:
+                val_resp.success()
+            else:
+                val_resp.failure(f"Validation fallo: {val_resp.status_code}")
+
+    @task(1)
+    def rechazar_qr_invalido(self):
+        """Negativo: token inválido debe responder 200 con valid=false."""
+        with self.client.post(
+            f"{GATEWAY_URL}/api/v1/gate/validate",
+            json={"token": "not-a-valid-token-payload"},
+            name="POST /gateway/gate/validate (invalid)",
+            catch_response=True
+        ) as resp:
+            if resp.status_code == 200 and resp.json().get("valid") is False:
+                resp.success()
+            else:
+                resp.failure(f"Comportamiento inesperado: {resp.status_code}")
 
 
 # ---------------------------------------------------------------------------
