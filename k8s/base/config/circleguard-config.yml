@@ -8,6 +8,8 @@ data:
   SPRING_DATASOURCE_USERNAME: admin
   SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
   SPRING_LDAP_URLS: ldap://openldap:389
+  SPRING_DATA_REDIS_HOST: redis
+  SPRING_DATA_REDIS_PORT: "6379"
   AUTH_SERVICE_URL: http://auth-service:8180
   IDENTITY_SERVICE_URL: http://identity-service:8083
   PROMOTION_SERVICE_URL: http://promotion-service:8088
