@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cd k8s/overlays/stage
+cd k8s/overlays/master
 
 # Hashes
 AUTH_HASH="67b3f13"
