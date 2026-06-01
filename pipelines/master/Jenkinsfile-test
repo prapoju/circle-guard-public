@@ -1,40 +1,18 @@
 #!/usr/bin/env groovy
 
-def serviceStatus = [:]
-def commitHash = ''
-
-def services = [
-    [name: 'auth',         gradle: ':services:circleguard-auth-service',         dir: 'services/circleguard-auth-service',         image: 'prapoju/circleguard-auth-service'],
-    [name: 'dashboard',    gradle: ':services:circleguard-dashboard-service',    dir: 'services/circleguard-dashboard-service',    image: 'prapoju/circleguard-dashboard-service'],
-    [name: 'file',         gradle: ':services:circleguard-file-service',         dir: 'services/circleguard-file-service',         image: 'prapoju/circleguard-file-service'],
-    [name: 'form',         gradle: ':services:circleguard-form-service',         dir: 'services/circleguard-form-service',         image: 'prapoju/circleguard-form-service'],
-    [name: 'gateway',      gradle: ':services:circleguard-gateway-service',      dir: 'services/circleguard-gateway-service',      image: 'prapoju/circleguard-gateway-service'],
-    [name: 'identity',     gradle: ':services:circleguard-identity-service',     dir: 'services/circleguard-identity-service',     image: 'prapoju/circleguard-identity-service'],
-    [name: 'notification', gradle: ':services:circleguard-notification-service', dir: 'services/circleguard-notification-service', image: 'prapoju/circleguard-notification-service'],
-    [name: 'promotion',    gradle: ':services:circleguard-promotion-service',    dir: 'services/circleguard-promotion-service',    image: 'prapoju/circleguard-promotion-service'],
-]
+def stageProjectName = 'stage-test'
 
 pipeline {
 
     agent {
         kubernetes {
-            defaultContainer 'jdk21'
+            defaultContainer 'docker'
+            namespace 'jenkins-agents'
             yaml '''
             apiVersion: v1
             kind: Pod
             spec:
               containers:
-                - name: jdk21
-                  image: eclipse-temurin:21-jdk
-                  command: ["sleep"]
-                  args: ["infinity"]
-                  resources:
-                    requests:
-                      memory: "1Gi"
-                      cpu: "500m"
-                    limits:
-                      memory: "3Gi"
-                      cpu: "1500m"
                 - name: docker
                   image: docker:24-dind
                   securityContext:
@@ -44,32 +22,20 @@ pipeline {
                       value: ""
                   command: ["dockerd-entrypoint.sh"]
                   args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
-                  resources:
-                    requests:
-                      memory: "512Mi"
-                      cpu: "300m"
-                    limits:
-                      memory: "1Gi"
-                      cpu: "500m"
+                - name: kubectl
+                  image: line/kubectl-kustomize:latest
+                  command: ["cat"]
+                  tty: true
                 - name: git
                   image: alpine/git:latest
                   command: ["cat"]
                   tty: true
-                  resources:
-                    requests:
-                      memory: "32Mi"
-                      cpu: "50m"
-                    limits:
-                      memory: "64Mi"
-                      cpu: "100m"
             '''
         }
     }
 
     environment {
-        GRADLE_OPTS = '-Xmx1536m -Xms256m -XX:MaxMetaspaceSize=256m'
-        JAVA_OPTS   = '-Xmx1536m'
-        DOCKER_HOST = 'tcp://localhost:2375'
+        REPO = 'prapoju/circle-guard-public'
     }
 
     stages {
@@ -79,7 +45,7 @@ pipeline {
                 script {
                     container('git') {
                         sh 'rm -rf * .git'
-                        sh 'git clone https://github.com/prapoju/circle-guard-public -b master .'
+                        sh 'git clone https://github.com/prapoju/circle-guard-public -b feat/ci-cd .'
                         sh 'git config --global --add safe.directory "$(pwd)"'
                         commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                         echo "Commit hash: ${commitHash}"
@@ -88,113 +54,111 @@ pipeline {
             }
         }
 
-        stage('Compile & Unit Tests') {
+        stage('Pull Stage Images') {
             steps {
-                script {
-                    sh 'chmod +x gradlew'
-                    sh './gradlew --no-daemon --version'
-                    for (svc in services) {
-                        def name   = svc.name
-                        def gradle = svc.gradle
-                        echo "-------- [${name}] Unit Tests --------"
-                        try {
-                            sh "./gradlew --no-daemon --no-parallel ${gradle}:test"
-                            serviceStatus[name] = 'ok'
-                            echo "[${name}] Unit Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus[name] = 'fail:compile'
-                            echo "[${name}] Unit Tests: FAILED"
+                container('docker') {
+                    sh 'until docker info; do sleep 2; done'
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        script {
+                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-auth.txt')
+                            def authHash = readFile('commit-hash-auth.txt').trim()
+
+                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-identity.txt')
+                            def identityHash = readFile('commit-hash-identity.txt').trim()
+
+                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-form.txt')
+                            def formHash = readFile('commit-hash-form.txt').trim()
+
+                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-file.txt')
+                            def fileHash = readFile('commit-hash-file.txt').trim()
+
+                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-dashboard.txt')
+                            def dashboardHash = readFile('commit-hash-dashboard.txt').trim()
+
+                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-notification.txt')
+                            def notificationHash = readFile('commit-hash-notification.txt').trim()
+
+                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-gateway.txt')
+                            def gatewayHash = readFile('commit-hash-gateway.txt').trim()
+
+                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-promotion.txt')
+                            def promotionHash = readFile('commit-hash-promotion.txt').trim()
+
+                            sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
+                            sh "docker pull prapoju/circleguard-auth-service:${authHash}"
+                            sh "docker pull prapoju/circleguard-identity-service:${identityHash}"
+                            sh "docker pull prapoju/circleguard-form-service:${formHash}"
+                            sh "docker pull prapoju/circleguard-file-service:${fileHash}"
+                            sh "docker pull prapoju/circleguard-dashboard-service:${dashboardHash}"
+                            sh "docker pull prapoju/circleguard-notification-service:${notificationHash}"
+                            sh "docker pull prapoju/circleguard-gateway-service:${gatewayHash}"
+                            sh "docker pull prapoju/circleguard-promotion-service:${promotionHash}"
                         }
                     }
                 }
             }
         }
 
-        stage('Integration Tests') {
+        stage('Deploy to Master') {
             steps {
-                script {
-                    for (svc in services) {
-                        def name       = svc.name
-                        def gradle     = svc.gradle
-                        def composeDir = "services/circleguard-${name}-service"
-                        def composeFile = "${composeDir}/docker-compose.integration.yml"
+                container('kubectl') {
+                    script {
+                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-auth.txt')
+                        def authHash = readFile('commit-hash-auth.txt').trim()
 
-                        if (serviceStatus[name] != 'ok') {
-                            echo "[${name}] Skipping Integration Tests (unit failed)"
-                            continue
-                        }
+                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-identity.txt')
+                        def identityHash = readFile('commit-hash-identity.txt').trim()
 
-                        echo "-------- [${name}] Integration Tests --------"
+                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-form.txt')
+                        def formHash = readFile('commit-hash-form.txt').trim()
 
-                        try {
-                            container('docker') {
-                                sh """
-                                    if [ -f "${composeFile}" ] && [ \$(docker compose -f "${composeFile}" config --services 2>/dev/null | wc -l) -gt 0 ]; then
-                                        docker compose -p circleguard -f "${composeFile}" down -v 2>/dev/null || true
-                                        docker compose -p circleguard -f "${composeFile}" up -d --wait
-                                    fi
-                                """
-                            }
-                            sh "./gradlew --no-daemon --no-parallel ${gradle}:integrationTest"
-                            echo "[${name}] Integration Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus[name] = 'fail:integration'
-                            echo "[${name}] Integration Tests: FAILED"
-                        } finally {
-                            container('docker') {
-                                sh """
-                                    if [ -f "${composeFile}" ] && [ \$(docker compose -f "${composeFile}" config --services 2>/dev/null | wc -l) -gt 0 ]; then
-                                        docker compose -p circleguard -f "${composeFile}" down -v 2>/dev/null || true
-                                    fi
-                                """
-                            }
-                        }
+                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-file.txt')
+                        def fileHash = readFile('commit-hash-file.txt').trim()
+
+                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-dashboard.txt')
+                        def dashboardHash = readFile('commit-hash-dashboard.txt').trim()
+
+                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-notification.txt')
+                        def notificationHash = readFile('commit-hash-notification.txt').trim()
+
+                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-gateway.txt')
+                        def gatewayHash = readFile('commit-hash-gateway.txt').trim()
+
+                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-promotion.txt')
+                        def promotionHash = readFile('commit-hash-promotion.txt').trim()
+
+                        sh """
+                            cd k8s/overlays/master
+                            kustomize edit set image prapoju/circleguard-auth-service:dev=prapoju/circleguard-auth-service:${authHash}
+                            kustomize edit set image prapoju/circleguard-identity-service:dev=prapoju/circleguard-identity-service:${identityHash}
+                            kustomize edit set image prapoju/circleguard-form-service:dev=prapoju/circleguard-form-service:${formHash}
+                            kustomize edit set image prapoju/circleguard-file-service:dev=prapoju/circleguard-file-service:${fileHash}
+                            kustomize edit set image prapoju/circleguard-dashboard-service:dev=prapoju/circleguard-dashboard-service:${dashboardHash}
+                            kustomize edit set image prapoju/circleguard-notification-service:dev=prapoju/circleguard-notification-service:${notificationHash}
+                            kustomize edit set image prapoju/circleguard-gateway-service:dev=prapoju/circleguard-gateway-service:${gatewayHash}
+                            kustomize edit set image prapoju/circleguard-promotion-service:dev=prapoju/circleguard-promotion-service:${promotionHash}
+                            kustomize build | kubectl apply -f -
+                        """
+
+                        sh "echo ${commitHash} > commit-hash-auth.txt"
+                        sh "echo ${commitHash} > commit-hash-identity.txt"
+                        sh "echo ${commitHash} > commit-hash-form.txt"
+                        sh "echo ${commitHash} > commit-hash-file.txt"
+                        sh "echo ${commitHash} > commit-hash-dashboard.txt"
+                        sh "echo ${commitHash} > commit-hash-notification.txt"
+                        sh "echo ${commitHash} > commit-hash-gateway.txt"
+                        sh "echo ${commitHash} > commit-hash-promotion.txt"
+                        archiveArtifacts artifacts: 'commit-hash-auth.txt,commit-hash-identity.txt,commit-hash-form.txt,commit-hash-file.txt,commit-hash-dashboard.txt,commit-hash-notification.txt,commit-hash-gateway.txt,commit-hash-promotion.txt', fingerprint: true
                     }
                 }
             }
         }
 
-        stage('Build & Push Images') {
+        stage('Generate Release Notes') {
             steps {
-                script {
-                    def anyFailed = serviceStatus.values().any { it != 'ok' }
-
-                    if (anyFailed) {
-                        echo "Skipping ALL Build & Push — one or more services failed previous stages."
-                        for (svc in services) {
-                            if (serviceStatus[svc.name] != 'ok') {
-                                echo "  [${svc.name}] failed — skip"
-                            } else {
-                                echo "  [${svc.name}] passed but will NOT be pushed (other services failed)"
-                                serviceStatus[svc.name] = 'skipped:push'
-                            }
-                        }
-                        return
-                    }
-
-                    for (svc in services) {
-                        def name   = svc.name
-                        def gradle = svc.gradle
-                        def dir    = svc.dir
-                        def image  = svc.image
-
-                        echo "-------- [${name}] Build & Push --------"
-                        try {
-                            sh "./gradlew --no-daemon --no-parallel ${gradle}:bootJar"
-                            container('docker') {
-                                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
-                                    sh "docker build -t ${image}:${commitHash} ${dir}/"
-                                    sh "docker push ${image}:${commitHash}"
-                                }
-                            }
-                            sh "echo ${commitHash} > commit-hash-${name}.txt"
-                            archiveArtifacts artifacts: "commit-hash-${name}.txt", fingerprint: true
-                            echo "[${name}] Build & Push: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus[name] = 'fail:push'
-                            echo "[${name}] Build & Push: FAILED"
-                        }
+                container('git') {
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        sh 'pipelines/scripts/release_notes.sh'
                     }
                 }
             }
@@ -202,48 +166,11 @@ pipeline {
     }
 
     post {
-        always {
-            script {
-                def passed  = []
-                def skipped = []
-                def failed  = []
-
-                for (svc in services) {
-                    def status = serviceStatus[svc.name]
-                    if (status == 'ok') {
-                        passed << "  OK      ${svc.name}"
-                    } else if (status == 'skipped:push') {
-                        skipped << "  SKIP    ${svc.name} — not pushed (other services failed)"
-                    } else if (status == 'fail:compile') {
-                        failed << "  FAILED  ${svc.name} — at Compile & Unit Tests"
-                    } else if (status == 'fail:integration') {
-                        failed << "  FAILED  ${svc.name} — at Integration Tests"
-                    } else if (status == 'fail:push') {
-                        failed << "  FAILED  ${svc.name} — at Build & Push"
-                    } else {
-                        failed << "  FAILED  ${svc.name} — never executed"
-                    }
-                }
-
-                echo '========================================'
-                echo '       Pipeline Results Summary'
-                echo '========================================'
-                echo "PASSED  (${passed.size()}/${services.size()}):"
-                passed.each  { echo it }
-                if (skipped) {
-                    echo "SKIPPED (${skipped.size()}/${services.size()}):"
-                    skipped.each { echo it }
-                }
-                if (failed) {
-                    echo "FAILED  (${failed.size()}/${services.size()}):"
-                    failed.each  { echo it }
-                }
-                echo '========================================'
-
-                if (failed || skipped) {
-                    error("Pipeline finished with ${failed.size()} failure(s) and ${skipped.size()} skipped push(es).")
-                }
-            }
+        success {
+            echo 'Master pipeline completed successfully! All services deployed and release notes published.'
+        }
+        failure {
+            echo 'Master pipeline failed. Check the logs.'
         }
     }
 }

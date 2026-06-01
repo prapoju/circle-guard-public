@@ -147,6 +147,16 @@ pipeline {
                             kustomize edit set image prapoju/circleguard-promotion-service:dev=prapoju/circleguard-promotion-service:${promotionHash}
                             kustomize build | kubectl apply -f -
                         """
+
+                        sh "echo ${commitHash} > commit-hash-auth.txt"
+                        sh "echo ${commitHash} > commit-hash-identity.txt"
+                        sh "echo ${commitHash} > commit-hash-form.txt"
+                        sh "echo ${commitHash} > commit-hash-file.txt"
+                        sh "echo ${commitHash} > commit-hash-dashboard.txt"
+                        sh "echo ${commitHash} > commit-hash-notification.txt"
+                        sh "echo ${commitHash} > commit-hash-gateway.txt"
+                        sh "echo ${commitHash} > commit-hash-promotion.txt"
+                        archiveArtifacts artifacts: 'commit-hash-auth.txt,commit-hash-identity.txt,commit-hash-form.txt,commit-hash-file.txt,commit-hash-dashboard.txt,commit-hash-notification.txt,commit-hash-gateway.txt,commit-hash-promotion.txt', fingerprint: true
                     }
                 }
             }
@@ -180,30 +190,7 @@ pipeline {
 //            }
 //        }
 //
-//        stage('Push Stage Images') {
-//            steps {
-//                container('docker') {
-//                    sh "docker push prapoju/circleguard-auth-service:${commitHash}"
-//                    sh "docker push prapoju/circleguard-identity-service:${commitHash}"
-//                    sh "docker push prapoju/circleguard-form-service:${commitHash}"
-//                    sh "docker push prapoju/circleguard-file-service:${commitHash}"
-//                    sh "docker push prapoju/circleguard-notification-service:${commitHash}"
-//                    sh "docker push prapoju/circleguard-dashboard-service:${commitHash}"
-//                    sh "docker push prapoju/circleguard-gateway-service:${commitHash}"
-//                    sh "docker push prapoju/circleguard-promotion-service:${commitHash}"
-//
-//                    sh "echo ${commitHash} > commit-hash-auth.txt"
-//                    sh "echo ${commitHash} > commit-hash-identity.txt"
-//                    sh "echo ${commitHash} > commit-hash-form.txt"
-//                    sh "echo ${commitHash} > commit-hash-file.txt"
-//                    sh "echo ${commitHash} > commit-hash-dashboard.txt"
-//                    sh "echo ${commitHash} > commit-hash-notification.txt"
-//                    sh "echo ${commitHash} > commit-hash-gateway.txt"
-//                    sh "echo ${commitHash} > commit-hash-promotion.txt"
-//                    archiveArtifacts artifacts: 'commit-hash-auth.txt,commit-hash-identity.txt,commit-hash-form.txt,commit-hash-file.txt,commit-hash-dashboard.txt,commit-hash-notification.txt,commit-hash-gateway.txt,commit-hash-promotion.txt', fingerprint: true
-//                }
-//            }
-//        }
+
     }
     post {
         success {
