@@ -1,43 +1,87 @@
-#  In GKE need to get RBAC permissions first with
-# kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin [--user=<user-name>|--group=<group-name>]
-
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: jenkins
+  namespace: jenkins-agents
 
 ---
-kind: Role
+kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: jenkins
+  name: jenkins-agents
 rules:
 - apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["create","delete","get","list","patch","update","watch"]
-- apiGroups: [""]
-  resources: ["pods/exec"]
-  verbs: ["create","delete","get","list","patch","update","watch"]
-- apiGroups: [""]
-  resources: ["pods/log"]
-  verbs: ["get","list","watch"]
+  resources: ["pods", "pods/exec", "pods/log"]
+  verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
 - apiGroups: [""]
   resources: ["events"]
   verbs: ["watch"]
 - apiGroups: [""]
   resources: ["secrets"]
   verbs: ["get"]
+- apiGroups: [""]
+  resources: ["services", "configmaps", "persistentvolumeclaims"]
+  verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets"]
+  verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: jenkins
+  namespace: jenkins-agents
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: jenkins
+  kind: ClusterRole
+  name: jenkins-agents
 subjects:
 - kind: ServiceAccount
   name: jenkins
+  namespace: jenkins-agents
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: jenkins
+  namespace: circleguard-stage
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jenkins-agents
+subjects:
+- kind: ServiceAccount
+  name: jenkins
+  namespace: jenkins-agents
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: jenkins
+  namespace: circleguard-master
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jenkins-agents
+subjects:
+- kind: ServiceAccount
+  name: jenkins
+  namespace: jenkins-agents
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: jenkins
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jenkins-agents
+subjects:
+- kind: ServiceAccount
+  name: jenkins
+  namespace: jenkins-agents
