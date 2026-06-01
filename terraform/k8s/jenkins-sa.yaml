@@ -18,13 +18,30 @@ rules:
   verbs: ["watch"]
 - apiGroups: [""]
   resources: ["secrets"]
-  verbs: ["get"]
+  verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
 - apiGroups: [""]
   resources: ["services", "configmaps", "persistentvolumeclaims"]
   verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list"]
 - apiGroups: ["apps"]
   resources: ["deployments", "statefulsets"]
   verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: jenkins-agents-default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jenkins-agents
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: jenkins-agents
 
 ---
 kind: RoleBinding
@@ -39,6 +56,9 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: jenkins
+  namespace: jenkins-agents
+- kind: ServiceAccount
+  name: default
   namespace: jenkins-agents
 
 ---
@@ -55,6 +75,9 @@ subjects:
 - kind: ServiceAccount
   name: jenkins
   namespace: jenkins-agents
+- kind: ServiceAccount
+  name: default
+  namespace: jenkins-agents
 
 ---
 kind: RoleBinding
@@ -70,6 +93,9 @@ subjects:
 - kind: ServiceAccount
   name: jenkins
   namespace: jenkins-agents
+- kind: ServiceAccount
+  name: default
+  namespace: jenkins-agents
 
 ---
 kind: RoleBinding
@@ -84,4 +110,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: jenkins
+  namespace: jenkins-agents
+- kind: ServiceAccount
+  name: default
   namespace: jenkins-agents
