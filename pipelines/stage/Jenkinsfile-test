@@ -8,6 +8,7 @@ pipeline {
         kubernetes {
             defaultContainer 'jdk21'
             yaml '''
+            namespace 'jenkins-agents'
             apiVersion: v1
             kind: Pod
             spec:

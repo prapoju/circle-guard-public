@@ -219,7 +219,6 @@ pipeline {
 
                         echo "-------- [${name}] Build & Push --------"
                         try {
-                            sh "./gradlew --no-daemon --no-parallel ${gradle}:bootJar"
                             container('docker') {
                                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                                     sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
