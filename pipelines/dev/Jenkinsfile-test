@@ -2,6 +2,28 @@
 
 def serviceStatus = [:]
 def commitHash = ''
+def fullImageAuth = ''
+def fullImageDashboard = ''
+def fullImageFile = ''
+def fullImageForm = ''
+def fullImageGateway = ''
+def fullImageIdentity = ''
+def fullImageNotification = ''
+def fullImagePromotion = ''
+
+def fullImageFor(name) {
+    switch(name) {
+        case 'auth': return fullImageAuth
+        case 'dashboard': return fullImageDashboard
+        case 'file': return fullImageFile
+        case 'form': return fullImageForm
+        case 'gateway': return fullImageGateway
+        case 'identity': return fullImageIdentity
+        case 'notification': return fullImageNotification
+        case 'promotion': return fullImagePromotion
+        default: return ''
+    }
+}
 
 def services = [
     [name: 'auth',         gradle: ':services:circleguard-auth-service',         dir: 'services/circleguard-auth-service',         image: 'prapoju/circleguard-auth-service'],
@@ -62,6 +84,13 @@ pipeline {
                     limits:
                       memory: "64Mi"
                       cpu: "100m"
+                - name: trivy
+                  image: aquasec/trivy:0.69.3
+                  env:
+                    - name: DOCKER_HOST
+                      value: tcp://localhost:2375
+                  command: ["sleep"]
+                  args: ["infinity"]
             '''
         }
     }
@@ -83,7 +112,35 @@ pipeline {
                         sh 'git config --global --add safe.directory "$(pwd)"'
                         commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                         echo "Commit hash: ${commitHash}"
+
+                        fullImageAuth = "prapoju/circleguard-auth-service:${commitHash}"
+                        fullImageIdentity = "prapoju/circleguard-identity-service:${commitHash}"
+                        fullImageForm = "prapoju/circleguard-form-service:${commitHash}"
+                        fullImageFile = "prapoju/circleguard-file-service:${commitHash}"
+                        fullImageDashboard = "prapoju/circleguard-dashboard-service:${commitHash}"
+                        fullImageNotification = "prapoju/circleguard-notification-service:${commitHash}"
+                        fullImageGateway = "prapoju/circleguard-gateway-service:${commitHash}"
+                        fullImagePromotion = "prapoju/circleguard-promotion-service:${commitHash}"
                     }
+                }
+            }
+        }
+
+        stage('Static Analysis (SonarQube)') {
+            steps {
+                echo 'Running code quality analysis with SonarQube...'
+                container('jdk21') {
+                    withSonarQubeEnv('sonarqube-server') {
+                        sh './gradlew sonar -Dsonar.projectKey=my-app'
+                    }
+                }
+            }
+        }
+
+        stage("Quality Gate") {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
@@ -192,46 +249,103 @@ pipeline {
             }
         }
 
-        stage('Push Images') {
+        stage('Build Images') {
             steps {
                 script {
                     def anyFailed = serviceStatus.values().any { it != 'ok' }
 
                     if (anyFailed) {
-                        echo "Skipping ALL Build & Push — one or more services failed previous stages."
+                        echo "Skipping ALL Builds — one or more services failed previous stages."
                         for (svc in services) {
                             if (serviceStatus[svc.name] != 'ok') {
                                 echo "  [${svc.name}] failed — skip"
                             } else {
-                                echo "  [${svc.name}] passed but will NOT be pushed (other services failed)"
+                                echo "  [${svc.name}] passed but will NOT be built (other services failed)"
+                                serviceStatus[svc.name] = 'skipped:build'
+                            }
+                        }
+                        return
+                    }
+
+                    for (svc in services) {
+                        def name   = svc.name
+                        def dir    = svc.dir
+                        def fullImage = fullImageFor(name)
+
+                        echo "-------- [${name}] Build --------"
+                        try {
+                            container('docker') {
+                                sh "docker build -t ${fullImage} ${dir}/"
+                            }
+                            serviceStatus[name] = 'built'
+                            echo "[${name}] Build: PASSED"
+                        } catch (Exception e) {
+                            serviceStatus[name] = 'fail:build'
+                            echo "[${name}] Build: FAILED"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                script {
+                    for (svc in services) {
+                        def name   = svc.name
+                        def fullImage = fullImageFor(name)
+
+                        echo "-------- [${name}] Security Scan --------"
+                        container('trivy') {
+                            sh """
+                                trivy image --severity CRITICAL --exit-code 0 \
+                                    ${fullImage} \
+                                    > trivy-analysis-${name}.txt
+                            """
+                        }
+                        archiveArtifacts artifacts: "trivy-analysis-${name}.txt", fingerprint: true
+                        echo "[${name}] Security Scan: OK (report saved as trivy-analysis-${name}.txt)"
+                    }
+                }
+            }
+        }
+
+        stage('Push Images') {
+            steps {
+                script {
+                    def anyBuildFailed = serviceStatus.values().any { it == 'fail:build' }
+
+                    if (anyBuildFailed) {
+                        echo "Skipping ALL Pushes — one or more services failed to build."
+                        for (svc in services) {
+                            if (serviceStatus[svc.name] == 'fail:build') {
+                                echo "  [${svc.name}] build failed — skip push"
+                            } else {
+                                echo "  [${svc.name}] built but will NOT be pushed (other builds failed)"
                                 serviceStatus[svc.name] = 'skipped:push'
                             }
                         }
                         return
                     }
 
-                    // Solo llega aqui si todos pasaron
                     for (svc in services) {
                         def name   = svc.name
-                        def gradle = svc.gradle
-                        def dir    = svc.dir
-                        def image  = svc.image
+                        def fullImage = fullImageFor(name)
 
-                        echo "-------- [${name}] Build & Push --------"
+                        echo "-------- [${name}] Push --------"
                         try {
                             container('docker') {
                                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                                     sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
-                                    sh "docker build -t ${image}:${commitHash} ${dir}/"
-                                    sh "docker push ${image}:${commitHash}"
+                                    sh "docker push ${fullImage}"
                                 }
                             }
                             sh "echo ${commitHash} > commit-hash-${name}.txt"
                             archiveArtifacts artifacts: "commit-hash-${name}.txt", fingerprint: true
-                            echo "[${name}] Build & Push: PASSED"
+                            echo "[${name}] Push: PASSED"
                         } catch (Exception e) {
                             serviceStatus[name] = 'fail:push'
-                            echo "[${name}] Build & Push: FAILED"
+                            echo "[${name}] Push: FAILED"
                         }
                     }
                 }
@@ -248,16 +362,20 @@ pipeline {
 
                 for (svc in services) {
                     def status = serviceStatus[svc.name]
-                    if (status == 'ok') {
+                    if (status == 'ok' || status == 'built') {
                         passed << "  OK      ${svc.name}"
+                    } else if (status == 'skipped:build') {
+                        skipped << "  SKIP    ${svc.name} — not built (other services failed)"
                     } else if (status == 'skipped:push') {
-                        skipped << "  SKIP    ${svc.name} — not pushed (other services failed)"
+                        skipped << "  SKIP    ${svc.name} — not pushed (other builds failed)"
                     } else if (status == 'fail:compile') {
-                        failed << "  FAILED  ${svc.name} — at Compile & Unit Tests"
+                        failed << "  FAILED  ${svc.name} — at Compile"
                     } else if (status == 'fail:integration') {
                         failed << "  FAILED  ${svc.name} — at Integration Tests"
+                    } else if (status == 'fail:build') {
+                        failed << "  FAILED  ${svc.name} — at Build"
                     } else if (status == 'fail:push') {
-                        failed << "  FAILED  ${svc.name} — at Build & Push"
+                        failed << "  FAILED  ${svc.name} — at Push"
                     } else {
                         failed << "  FAILED  ${svc.name} — never executed"
                     }
