@@ -24,7 +24,7 @@ pipeline {
                   command: ["dockerd-entrypoint.sh"]
                   args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
                 - name: kubectl
-                  image: alpine/kubectl:1.36.0
+                  image: line/kubectl-kustomize:1.36.1-5.8.1
                   command: ["cat"]
                   tty: true
                 - name: newman
@@ -123,7 +123,6 @@ pipeline {
                     sh "kustomize edit set image=prapoju/circleguard-dashboard-service:dev=prapoju/circleguard-dashboard-service:${dashboardHash}"
                     sh "kustomize edit set image=prapoju/circleguard-notification-service:dev=prapoju/circleguard-notification-service:${notificationHash}"
                     sh "kustomize build | kubectl apply -f -"
-                    sh "sleep 30"
                 }
             }
         }

@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+echo "=== Building all services ==="
+./gradlew bootJar
+
 SERVICES=("auth" "identity" "promotion" "notification" "form" "file" "gateway" "dashboard")
 
 for svc in "${SERVICES[@]}"; do

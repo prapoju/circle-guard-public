@@ -120,6 +120,7 @@ docker compose up -d
 ## Jenkins
 Install suggested plugins
 Create your first user
+Install the Copy artifacts plugin
 
 
 
@@ -179,7 +180,8 @@ kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'
 Kubernetes server certificate key
 They are obtained from
 
-kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}'
+
+kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 -d
 
 
 Credentials
@@ -239,6 +241,26 @@ az aks start \
 terraform destroy
 ```
 
-## Destroy cluster
+## Destroy cluster and activate it again
 terraform destroy -target="module.aks-cluster"
 
+
+
+terraform plan -target=module.aks-cluster -out aks
+terraform apply "aks"
+rm -f ~/.kube/config
+
+az aks get-credentials \
+  --resource-group cgp-rc \
+  --name cgp-cluster
+
+cd k8s 
+./script.sh
+
+Update kubernetes token In jenkins
+
+Url
+kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'
+
+Certificate Key
+kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 -d

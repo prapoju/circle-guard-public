@@ -79,7 +79,7 @@ pipeline {
                 script {
                     container('git') {
                         sh 'rm -rf * .git'
-                        sh 'git clone https://github.com/prapoju/circle-guard-public -b develop .'
+                        sh 'git clone https://github.com/prapoju/circle-guard-public -b feat/ci-cd .'
                         sh 'git config --global --add safe.directory "$(pwd)"'
                         commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                         echo "Commit hash: ${commitHash}"
@@ -88,29 +88,67 @@ pipeline {
             }
         }
 
-        stage('Compile & Unit Tests') {
-            steps {
-                script {
-                    sh 'chmod +x gradlew'
-                    sh './gradlew --no-daemon --version'
-                    for (svc in services) {
-                        def name   = svc.name
-                        def gradle = svc.gradle
-                        echo "-------- [${name}] Unit Tests --------"
-                        try {
-                            sh "./gradlew --no-daemon --no-parallel ${gradle}:test"
-                            serviceStatus[name] = 'ok'
-                            echo "[${name}] Unit Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus[name] = 'fail:compile'
-                            echo "[${name}] Unit Tests: FAILED"
-                        }
+    stage('Compile & Package') {
+        steps {
+            script {
+                sh 'chmod +x gradlew'
+                sh './gradlew --no-daemon --version'
+    
+                for (svc in services) {
+                    def name   = svc.name
+                    def gradle = svc.gradle
+    
+                    echo "-------- [${name}] Compile & Package --------"
+    
+                    try {
+                        sh "./gradlew --no-daemon --no-parallel ${gradle}:bootJar"
+    
+                        sh """
+                            echo "Generated JARs:"
+                            find services/circleguard-${name}-service/build/libs -name '*.jar' || true
+                        """
+    
+                        serviceStatus[name] = 'compiled'
+                        echo "[${name}] Compile & Package: PASSED"
+    
+                    } catch (Exception e) {
+                        serviceStatus[name] = 'fail:compile'
+                        echo "[${name}] Compile & Package: FAILED"
                     }
                 }
             }
         }
-
-        stage('Integration Tests') {
+    }
+    
+    stage('Unit Tests') {
+        steps {
+            script {
+                for (svc in services) {
+                    def name   = svc.name
+                    def gradle = svc.gradle
+    
+                    if (serviceStatus[name] != 'compiled') {
+                        echo "[${name}] Skipping Unit Tests (compile failed)"
+                        continue
+                    }
+    
+                    echo "-------- [${name}] Unit Tests --------"
+    
+                    try {
+                        sh "./gradlew --no-daemon --no-parallel ${gradle}:test"
+    
+                        serviceStatus[name] = 'ok'
+                        echo "[${name}] Unit Tests: PASSED"
+    
+                    } catch (Exception e) {
+                        serviceStatus[name] = 'fail:unit'
+                        echo "[${name}] Unit Tests: FAILED"
+                    }
+                }
+            }
+        }
+    }        
+    stage('Integration Tests') {
             steps {
                 script {
                     for (svc in services) {
