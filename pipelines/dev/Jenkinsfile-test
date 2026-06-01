@@ -96,15 +96,14 @@ pipeline {
                     for (svc in services) {
                         def name   = svc.name
                         def gradle = svc.gradle
-                        echo "-------- [${name}] Compiling --------"
+                        echo "-------- [${name}] Unit Tests --------"
                         try {
-                            sh "./gradlew --no-daemon --no-parallel ${gradle}:compileJava"
                             sh "./gradlew --no-daemon --no-parallel ${gradle}:test"
                             serviceStatus[name] = 'ok'
-                            echo "[${name}] Compile + Unit Tests: PASSED"
+                            echo "[${name}] Unit Tests: PASSED"
                         } catch (Exception e) {
                             serviceStatus[name] = 'fail:compile'
-                            echo "[${name}] Compile + Unit Tests: FAILED"
+                            echo "[${name}] Unit Tests: FAILED"
                         }
                     }
                 }
@@ -114,143 +113,42 @@ pipeline {
         stage('Integration Tests') {
             steps {
                 script {
+                    for (svc in services) {
+                        def name       = svc.name
+                        def gradle     = svc.gradle
+                        def composeDir = "services/circleguard-${name}-service"
+                        def composeFile = "${composeDir}/docker-compose.integration.yml"
 
-                    // --- Auth ---
-                    if (serviceStatus['auth'] == 'ok') {
-                        echo "-------- [auth] Integration Tests --------"
+                        if (serviceStatus[name] != 'ok') {
+                            echo "[${name}] Skipping Integration Tests (unit failed)"
+                            continue
+                        }
+
+                        echo "-------- [${name}] Integration Tests --------"
+
                         try {
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-identity-service:bootJar"
                             container('docker') {
-                                sh "docker compose -f services/circleguard-auth-service/docker-compose.integration.yml up -d --build"
+                                sh """
+                                    if [ -f "${composeFile}" ] && [ \$(docker compose -f "${composeFile}" config --services 2>/dev/null | wc -l) -gt 0 ]; then
+                                        docker compose -p circleguard -f "${composeFile}" down -v 2>/dev/null || true
+                                        docker compose -p circleguard -f "${composeFile}" up -d --wait
+                                    fi
+                                """
                             }
-                            sh 'sleep 60'
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-auth-service:integrationTest"
-                            echo "[auth] Integration Tests: PASSED"
+                            sh "./gradlew --no-daemon --no-parallel ${gradle}:integrationTest"
+                            echo "[${name}] Integration Tests: PASSED"
                         } catch (Exception e) {
-                            serviceStatus['auth'] = 'fail:integration'
-                            echo "[auth] Integration Tests: FAILED"
+                            serviceStatus[name] = 'fail:integration'
+                            echo "[${name}] Integration Tests: FAILED"
                         } finally {
                             container('docker') {
-                                sh "docker compose -f services/circleguard-auth-service/docker-compose.integration.yml down -v || true"
+                                sh """
+                                    if [ -f "${composeFile}" ] && [ \$(docker compose -f "${composeFile}" config --services 2>/dev/null | wc -l) -gt 0 ]; then
+                                        docker compose -p circleguard -f "${composeFile}" down -v 2>/dev/null || true
+                                    fi
+                                """
                             }
                         }
-                    } else {
-                        echo "[auth] Skipping Integration Tests (compile/unit failed)"
-                    }
-
-                    // --- Dashboard ---
-                    if (serviceStatus['dashboard'] == 'ok') {
-                        echo "-------- [dashboard] Integration Tests --------"
-                        try {
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-promotion-service:bootJar"
-                            container('docker') {
-                                sh "docker compose -f services/circleguard-dashboard-service/docker-compose.integration.yml up -d --build"
-                            }
-                            sh 'sleep 90'
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-dashboard-service:integrationTest"
-                            echo "[dashboard] Integration Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus['dashboard'] = 'fail:integration'
-                            echo "[dashboard] Integration Tests: FAILED"
-                        } finally {
-                            container('docker') {
-                                sh "docker compose -f services/circleguard-dashboard-service/docker-compose.integration.yml down -v || true"
-                            }
-                        }
-                    } else {
-                        echo "[dashboard] Skipping Integration Tests (compile/unit failed)"
-                    }
-
-                    // --- File ---
-                    if (serviceStatus['file'] == 'ok') {
-                        echo "-------- [file] Integration Tests --------"
-                        try {
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-file-service:integrationTest"
-                            echo "[file] Integration Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus['file'] = 'fail:integration'
-                            echo "[file] Integration Tests: FAILED"
-                        }
-                    } else {
-                        echo "[file] Skipping Integration Tests (compile/unit failed)"
-                    }
-
-                    // --- Form ---
-                    if (serviceStatus['form'] == 'ok') {
-                        echo "-------- [form] Integration Tests --------"
-                        try {
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-form-service:integrationTest"
-                            echo "[form] Integration Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus['form'] = 'fail:integration'
-                            echo "[form] Integration Tests: FAILED"
-                        }
-                    } else {
-                        echo "[form] Skipping Integration Tests (compile/unit failed)"
-                    }
-
-                    // --- Gateway ---
-                    if (serviceStatus['gateway'] == 'ok') {
-                        echo "-------- [gateway] Integration Tests --------"
-                        try {
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-gateway-service:integrationTest"
-                            echo "[gateway] Integration Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus['gateway'] = 'fail:integration'
-                            echo "[gateway] Integration Tests: FAILED"
-                        }
-                    } else {
-                        echo "[gateway] Skipping Integration Tests (compile/unit failed)"
-                    }
-
-                    // --- Identity ---
-                    if (serviceStatus['identity'] == 'ok') {
-                        echo "-------- [identity] Integration Tests --------"
-                        try {
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-identity-service:integrationTest"
-                            echo "[identity] Integration Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus['identity'] = 'fail:integration'
-                            echo "[identity] Integration Tests: FAILED"
-                        }
-                    } else {
-                        echo "[identity] Skipping Integration Tests (compile/unit failed)"
-                    }
-
-                    // --- Notification ---
-                    if (serviceStatus['notification'] == 'ok') {
-                        echo "-------- [notification] Integration Tests --------"
-                        try {
-                            container('docker') {
-                                sh "docker compose -f services/circleguard-notification-service/docker-compose.integration.yml up -d"
-                            }
-                            sh 'sleep 30'
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-notification-service:integrationTest"
-                            echo "[notification] Integration Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus['notification'] = 'fail:integration'
-                            echo "[notification] Integration Tests: FAILED"
-                        } finally {
-                            container('docker') {
-                                sh "docker compose -f services/circleguard-notification-service/docker-compose.integration.yml down -v || true"
-                            }
-                        }
-                    } else {
-                        echo "[notification] Skipping Integration Tests (compile/unit failed)"
-                    }
-
-                    // --- Promotion ---
-                    if (serviceStatus['promotion'] == 'ok') {
-                        echo "-------- [promotion] Integration Tests --------"
-                        try {
-                            sh "./gradlew --no-daemon --no-parallel :services:circleguard-promotion-service:integrationTest"
-                            echo "[promotion] Integration Tests: PASSED"
-                        } catch (Exception e) {
-                            serviceStatus['promotion'] = 'fail:integration'
-                            echo "[promotion] Integration Tests: FAILED"
-                        }
-                    } else {
-                        echo "[promotion] Skipping Integration Tests (compile/unit failed)"
                     }
                 }
             }
