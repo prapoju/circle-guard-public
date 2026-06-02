@@ -1,0 +1,43 @@
+#!/usr/bin/env groovy
+
+pipeline {
+
+    agent {
+        kubernetes {
+            namespace ''
+            defaultContainer 'jdk21'
+            yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: jdk21
+      image: eclipse-temurin:21-jdk
+      command:
+        - sleep
+      args:
+        - infinity
+'''
+        }
+    }
+
+    stages {
+
+        stage('Hello') {
+            steps {
+                container('jdk21') {
+                    sh 'echo "Hola desde el pod agent de Kubernetes"'
+                    sh 'uname -a'
+                    sh 'java -version'
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo 'Pipeline ejecutada correctamente'
+        }
+    }
+}

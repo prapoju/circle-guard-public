@@ -1,0 +1,149 @@
+#!/usr/bin/env groovy
+
+def devProjectName = 'dev-test'
+def services = ['auth', 'identity', 'form', 'file', 'dashboard', 'notification', 'gateway', 'promotion']
+def hashes = [:]
+
+pipeline {
+
+    agent {
+        kubernetes {
+            defaultContainer 'jdk21'
+            namespace 'jenkins-agents'
+            yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+                - name: jdk21
+                  image: eclipse-temurin:21-jdk
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: kubectl
+                  image: line/kubectl-kustomize:latest
+                  command: ["cat"]
+                  tty: true
+                - name: newman
+                  image: postman/newman:latest
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: locust
+                  image: locustio/locust:2.29.0
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: git
+                  image: alpine/git:latest
+                  command: ["cat"]
+                  tty: true
+            '''
+        }
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                script {
+                    container('git') {
+                        sh 'rm -rf * .git'
+                        sh 'git clone https://github.com/prapoju/circle-guard-public -b feat/ci-cd .'
+                        sh 'git config --global --add safe.directory "$(pwd)"'
+                    }
+                }
+            }
+        }
+
+        stage('Load Dev Hashes') {
+            steps {
+                script {
+                    services.each { svc ->
+                        copyArtifacts(projectName: devProjectName, filter: "commit-hash-${svc}.txt")
+                        hashes[svc] = readFile("commit-hash-${svc}.txt").trim()
+                        echo "[${svc}] hash: ${hashes[svc]}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Stage') {
+            steps {
+                container('kubectl') {
+                    script {
+                        def kustomizeCommands = services.collect { svc ->
+                            "kustomize edit set image prapoju/circleguard-${svc}-service:dev=prapoju/circleguard-${svc}-service:${hashes[svc]}"
+                        }.join('\n')
+
+                        sh """
+                            cd k8s/overlays/stage
+                            ${kustomizeCommands}
+                            kustomize build | kubectl apply -f -
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Verify Rollout') {
+            steps {
+                container('kubectl') {
+                    script {
+                        services.each { svc ->
+                            sh "kubectl rollout status deployment/${svc}-service -n circleguard-stage --timeout=180s"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('E2E Tests') {
+            steps {
+                container('newman') {
+                    sh '''
+                        newman run tests/e2e/circleguard.postman_collection.json \
+                            -e tests/e2e/stage.postman_environment.json \
+                            --reporters cli,junit \
+                            --reporter-junit-export newman-report.xml \
+                            --bail
+                    '''
+                }
+                archiveArtifacts artifacts: 'newman-report.xml', fingerprint: true
+            }
+        }
+
+        stage('Stress Tests') {
+            steps {
+                container('locust') {
+                    sh '''
+                        locust -f tests/stress/locustfile.py \
+                            --headless \
+                            --users 15 \
+                            --spawn-rate 3 \
+                            --run-time 60s \
+                            --loglevel WARNING \
+                            --csv locust-report
+                    '''
+                }
+                archiveArtifacts artifacts: 'locust-report_stats.csv', fingerprint: true
+            }
+        }
+
+        stage('Save Artifacts') {
+            steps {
+                script {
+                    def fileList = services.collect { svc -> "commit-hash-${svc}.txt" }.join(',')
+                    archiveArtifacts artifacts: fileList, fingerprint: true
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo 'Stage pipeline completed successfully! All services promoted to :stage.'
+        }
+        failure {
+            echo 'Stage pipeline failed. Check the logs.'
+        }
+    }
+}

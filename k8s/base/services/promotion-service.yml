@@ -12,6 +12,13 @@ spec:
       labels:
         app: promotion-service
     spec:
+      initContainers:
+        - name: wait-for-neo4j
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - until nc -z neo4j 7687; do echo waiting for neo4j; sleep 2; done
       containers:
         - name: promotion-service
           image: circleguard-promotion-service

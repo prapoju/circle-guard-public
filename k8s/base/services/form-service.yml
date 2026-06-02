@@ -12,6 +12,13 @@ spec:
       labels:
         app: form-service
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16
+          command:
+            - sh
+            - -c
+            - until pg_isready -h postgres; do echo waiting for postgres; sleep 2; done
       containers:
         - name: form-service
           image: circleguard-form-service

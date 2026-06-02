@@ -7,6 +7,7 @@ resources:
   - infra/kafka.yml
   - infra/redis.yml
   - infra/openldap.yml
+  - infra/mailhog.yml
   - config/circleguard-config.yml
   - config/circleguard-secrets.yml
   - services/auth-service.yml

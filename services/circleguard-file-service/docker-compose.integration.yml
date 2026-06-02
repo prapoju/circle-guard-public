@@ -1,0 +1,5 @@
+version: '3.8'
+
+services:
+  # file-service does not require any external infrastructure for integration tests.
+  # All integration tests run with embedded Spring Boot context using MockMvc.

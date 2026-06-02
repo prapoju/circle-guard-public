@@ -16,6 +16,16 @@ output "kubernetes_cluster_stage_node_name" {
 output "kubernetes_cluster_master_node_name" {
   value = module.aks-cluster.kubernetes_cluster_master_pool_name
 }
+
+output "platform_rg_name" {
+  value=module.platform.resource_group_name
+}
+output "platform_jenkins_public_ip" {
+  value =module.platform.jenkins_public_ip
+}
+
+
+
 # output "host" {
 #   value = azurerm_kubernetes_cluster.default.kube_config.0.host
 # }

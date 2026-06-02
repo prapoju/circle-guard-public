@@ -1,5 +1,4 @@
 subscription_id =
-
 aks_app_id    = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 aks_password = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 aks_location = "East US" 
@@ -16,4 +15,23 @@ aks_stage_pool_vm_size = "Standard_B2s"
 
 aks_master_pool_node_count = 1
 aks_master_pool_vm_size = "Standard_B2s"
+
+platform_location = "East US 2"
+platform_rg_name = "plat-rg"
+platform_vn_name = "jenkins"
+platform_subnet_name = "plat-subn"
+platform_sa_diagnostics_name = "platsa"
+platform_jenkins_vm = {
+  name = "vm_jenkins"
+  size = "Standard_B2s"
+}
+platform_jenkins_storage_image_reference = {
+  publisher = "Canonical"
+  offer     = "0001-com-ubuntu-server-jammy"
+  sku       = "22_04-lts-gen2"
+  version   = "latest"
+}
+platform_jenkins_admin = ""
+jenkins_custom_data_path = "./cloud-init-jenkins.txt"
+jenkins_public_key_path = "/home/julio/.ssh/id_ed25519.pub"
 
