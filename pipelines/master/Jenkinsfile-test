@@ -99,7 +99,7 @@ pipeline {
         stage('Generate Release Notes') {
             steps {
                 container('git') {
-                  withCredentials([usernamePassword(credentialsId: 'githubapp-jenkins',
+                  withCredentials([usernamePassword(credentialsId: 'github-app',
                                                     usernameVariable: 'GITHUB_APP',
                                                   passwordVariable: 'GITHUB_ACCESS_TOKEN')]) {
                         sh '''
