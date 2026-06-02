@@ -1,10 +1,15 @@
 #!/usr/bin/env groovy
 
+def devProjectName = 'dev'
+def services = ['auth', 'identity', 'form', 'file', 'dashboard', 'notification', 'gateway', 'promotion']
+def hashes = [:]
+
 pipeline {
 
     agent {
         kubernetes {
             defaultContainer 'jdk21'
+            namespace 'jenkins-agents'
             yaml '''
             apiVersion: v1
             kind: Pod
@@ -14,17 +19,8 @@ pipeline {
                   image: eclipse-temurin:21-jdk
                   command: ["sleep"]
                   args: ["infinity"]
-                - name: docker
-                  image: docker:24-dind
-                  securityContext:
-                    privileged: true
-                  env:
-                    - name: DOCKER_TLS_CERTDIR
-                      value: ""
-                  command: ["dockerd-entrypoint.sh"]
-                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
                 - name: kubectl
-                  image: line/kubectl-kustomize:1.36.1-5.8.1
+                  image: line/kubectl-kustomize:latest
                   command: ["cat"]
                   tty: true
                 - name: newman
@@ -47,44 +43,14 @@ pipeline {
             }
         }
 
-        stage('Pull Dev Images') {
+        stage('Load Dev Hashes') {
             steps {
-                container('docker') {
-                    sh 'until docker info; do sleep 2; done'
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-
-                        // Auth Service
-                        copyArtifacts(projectName: 'dev-auth', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def authHash = readFile('commit-hash.txt').trim()
-                        
-                        // Identity Service
-                        copyArtifacts(projectName: 'dev-identity', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def identityHash = readFile('commit-hash.txt').trim()
-                        
-                        // Form Service
-                        copyArtifacts(projectName: 'dev-form', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def formHash = readFile('commit-hash.txt').trim()
-                        
-                        // File Service
-                        copyArtifacts(projectName: 'dev-file', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def fileHash = readFile('commit-hash.txt').trim()
-                        
-                        // Dashboard Service
-                        copyArtifacts(projectName: 'dev-dashboard', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def dashboardHash = readFile('commit-hash.txt').trim()
-                        
-                        // Notification Service
-                        copyArtifacts(projectName: 'dev-notification', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def notificationHash = readFile('commit-hash.txt').trim()
-
-                        sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
-                        sh "docker pull prapoju/circleguard-auth-service:${authHash}"
-                        sh "docker pull prapoju/circleguard-identity-service:${identityHash}"
-                        sh "docker pull prapoju/circleguard-form-service:${formHash}"
-                        sh "docker pull prapoju/circleguard-file-service:${fileHash}"
-                        sh "docker pull prapoju/circleguard-dashboard-service:${dashboardHash}"
-                        sh "docker pull prapoju/circleguard-notification-service:${notificationHash}"
-                   }
+                script {
+                    services.each { svc ->
+                        copyArtifacts(projectName: devProjectName, filter: "commit-hash-${svc}.txt")
+                        hashes[svc] = readFile("commit-hash-${svc}.txt").trim()
+                        echo "[${svc}] hash: ${hashes[svc]}"
+                    }
                 }
             }
         }
@@ -92,37 +58,29 @@ pipeline {
         stage('Deploy to Stage') {
             steps {
                 container('kubectl') {
-                        // Auth Service
-                    copyArtifacts(projectName: 'dev-auth', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                    def authHash = readFile('commit-hash.txt').trim()
-                    
-                    // Identity Service
-                    copyArtifacts(projectName: 'dev-identity', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                    def identityHash = readFile('commit-hash.txt').trim()
-                    
-                    // Form Service
-                    copyArtifacts(projectName: 'dev-form', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                    def formHash = readFile('commit-hash.txt').trim()
-                    
-                    // File Service
-                    copyArtifacts(projectName: 'dev-file', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                    def fileHash = readFile('commit-hash.txt').trim()
-                    
-                    // Dashboard Service
-                    copyArtifacts(projectName: 'dev-dashboard', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                    def dashboardHash = readFile('commit-hash.txt').trim()
-                    
-                    // Notification Service
-                    copyArtifacts(projectName: 'dev-notification', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                    def notificationHash = readFile('commit-hash.txt').trim()
-                    sh "cd k8s/overlays/stage"
-                    sh "kustomize edit set image=prapoju/circleguard-auth-service:dev=prapoju/circleguard-auth-service:${authHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-identity-service:dev=prapoju/circleguard-identity-service:${identityHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-form-service:dev=prapoju/circleguard-form-service:${formHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-file-service:dev=prapoju/circleguard-file-service:${fileHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-dashboard-service:dev=prapoju/circleguard-dashboard-service:${dashboardHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-notification-service:dev=prapoju/circleguard-notification-service:${notificationHash}"
-                    sh "kustomize build | kubectl apply -f -"
+                    script {
+                        def kustomizeCommands = services.collect { svc ->
+                            "kustomize edit set image prapoju/circleguard-${svc}-service:dev=prapoju/circleguard-${svc}-service:${hashes[svc]}"
+                        }.join('\n')
+
+                        sh """
+                            cd k8s/overlays/stage
+                            ${kustomizeCommands}
+                            kustomize build | kubectl apply -f -
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Verify Rollout') {
+            steps {
+                container('kubectl') {
+                    script {
+                        services.each { svc ->
+                            sh "kubectl rollout status deployment/${svc}-service -n circleguard-stage --timeout=180s"
+                        }
+                    }
                 }
             }
         }
@@ -133,10 +91,12 @@ pipeline {
                     sh '''
                         newman run tests/e2e/circleguard.postman_collection.json \
                             -e tests/e2e/stage.postman_environment.json \
-                            --reporters cli \
+                            --reporters cli,junit \
+                            --reporter-junit-export newman-report.xml \
                             --bail
                     '''
                 }
+                archiveArtifacts artifacts: 'newman-report.xml', fingerprint: true
             }
         }
 
@@ -149,61 +109,23 @@ pipeline {
                             --users 15 \
                             --spawn-rate 3 \
                             --run-time 60s \
-                            --loglevel WARNING
+                            --loglevel WARNING \
+                            --csv locust-report
                     '''
                 }
+                archiveArtifacts artifacts: 'locust-report_stats.csv', fingerprint: true
             }
         }
 
-        stage('Push Stage Images') {
+        stage('Save Artifacts') {
             steps {
-                container('docker') {
-                    script {
-                        def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-
-                        copyArtifacts(projectName: 'dev-auth', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def authHash = readFile('commit-hash.txt').trim()
-
-                        copyArtifacts(projectName: 'dev-identity', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def identityHash = readFile('commit-hash.txt').trim()
-
-                        copyArtifacts(projectName: 'dev-form', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def formHash = readFile('commit-hash.txt').trim()
-
-                        copyArtifacts(projectName: 'dev-file', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def fileHash = readFile('commit-hash.txt').trim()
-
-                        copyArtifacts(projectName: 'dev-dashboard', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def dashboardHash = readFile('commit-hash.txt').trim()
-
-                        copyArtifacts(projectName: 'dev-notification', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def notificationHash = readFile('commit-hash.txt').trim()
-
-                        sh "docker tag prapoju/circleguard-auth-service:${authHash} prapoju/circleguard-auth-service:stage-${commitHash}"
-                        sh "docker push prapoju/circleguard-auth-service:stage-${commitHash}"
-
-                        sh "docker tag prapoju/circleguard-identity-service:${identityHash} prapoju/circleguard-identity-service:stage-${commitHash}"
-                        sh "docker push prapoju/circleguard-identity-service:stage-${commitHash}"
-
-                        sh "docker tag prapoju/circleguard-form-service:${formHash} prapoju/circleguard-form-service:stage-${commitHash}"
-                        sh "docker push prapoju/circleguard-form-service:stage-${commitHash}"
-
-                        sh "docker tag prapoju/circleguard-file-service:${fileHash} prapoju/circleguard-file-service:stage-${commitHash}"
-                        sh "docker push prapoju/circleguard-file-service:stage-${commitHash}"
-
-                        sh "docker tag prapoju/circleguard-dashboard-service:${dashboardHash} prapoju/circleguard-dashboard-service:stage-${commitHash}"
-                        sh "docker push prapoju/circleguard-dashboard-service:stage-${commitHash}"
-
-                        sh "docker tag prapoju/circleguard-notification-service:${notificationHash} prapoju/circleguard-notification-service:stage-${commitHash}"
-                        sh "docker push prapoju/circleguard-notification-service:stage-${commitHash}"
-
-                        // gateway y promotion no tienen pipeline dev aún
-                        sh "echo stage-${commitHash} > commit-hash.txt"
-                        archiveArtifacts artifacts: 'commit-hash.txt', fingerprint: true
-                    }
+                script {
+                    def fileList = services.collect { svc -> "commit-hash-${svc}.txt" }.join(',')
+                    archiveArtifacts artifacts: fileList, fingerprint: true
                 }
             }
         }
+
     }
 
     post {

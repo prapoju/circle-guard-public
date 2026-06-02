@@ -1,30 +1,22 @@
 #!/usr/bin/env groovy
 
+def stageProjectName = 'stage'
+def services = ['auth', 'identity', 'form', 'file', 'dashboard', 'notification', 'gateway', 'promotion']
+def hashes = [:]
+
 pipeline {
 
     agent {
         kubernetes {
-            defaultContainer 'jdk21'
+            defaultContainer 'kubectl'
+            namespace 'jenkins-agents'
             yaml '''
             apiVersion: v1
             kind: Pod
             spec:
               containers:
-                - name: jdk21
-                  image: eclipse-temurin:21-jdk
-                  command: ["sleep"]
-                  args: ["infinity"]
-                - name: docker
-                  image: docker:24-dind
-                  securityContext:
-                    privileged: true
-                  env:
-                    - name: DOCKER_TLS_CERTDIR
-                      value: ""
-                  command: ["dockerd-entrypoint.sh"]
-                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
                 - name: kubectl
-                  image: alpine/kubectl:1.36.0
+                  image: line/kubectl-kustomize:latest
                   command: ["cat"]
                   tty: true
                 - name: git
@@ -37,7 +29,6 @@ pipeline {
 
     environment {
         REPO = 'prapoju/circle-guard-public'
-        SERVICES = 'auth-service identity-service dashboard-service notification-service form-service file-service'
     }
 
     stages {
@@ -48,21 +39,13 @@ pipeline {
             }
         }
 
-        stage('Pull Stage Images') {
+        stage('Load Stage Hashes') {
             steps {
-                container('docker') {
-                    sh 'until docker info; do sleep 2; done'
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        copyArtifacts(projectName: 'stage', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                        def commitHash = readFile('commit-hash.txt').trim()
-                        sh "docker pull prapoju/circleguard-auth-service:${commitHash}"
-                        sh "docker pull prapoju/circleguard-identity-service:${commitHash}"
-                        sh "docker pull prapoju/circleguard-form-service:${commitHash}"
-                        sh "docker pull prapoju/circleguard-file-service:${commitHash}"
-                        sh "docker pull prapoju/circleguard-notification-service:${commitHash}"
-                        sh "docker pull prapoju/circleguard-dashboard-service:${commitHash}"
-                        //sh 'docker pull prapoju/circleguard-promotion-service:stage'
-                        //sh 'docker pull prapoju/circleguard-gateway-service:stage'
+                script {
+                    services.each { svc ->
+                        copyArtifacts(projectName: stageProjectName, filter: "commit-hash-${svc}.txt")
+                        hashes[svc] = readFile("commit-hash-${svc}.txt").trim()
+                        echo "[${svc}] hash: ${hashes[svc]}"
                     }
                 }
             }
@@ -71,104 +54,169 @@ pipeline {
         stage('Deploy to Master') {
             steps {
                 container('kubectl') {
-                    copyArtifacts(projectName: 'stage', selector: lastSuccessful(), filter: 'commit-hash.txt')
-                    def commitHash = readFile('commit-hash.txt').trim()
-                    sh "kustomize edit set image=prapoju/circleguard-auth-service:dev=prapoju/circleguard-auth-service:${commitHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-identity-service:dev=prapoju/circleguard-identity-service:${commitHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-form-service:dev=prapoju/circleguard-form-service:${commitHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-file-service:dev=prapoju/circleguard-file-service:${commitHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-dashboard-service:dev=prapoju/circleguard-dashboard-service:${commitHash}"
-                    sh "kustomize edit set image=prapoju/circleguard-notification-service:dev=prapoju/circleguard-notification-service:${commitHash}"
-                    sh "kustomize build | kubectl apply -f -"
-                    sh "sleep 30"
+                    script {
+                        def kustomizeCommands = services.collect { svc ->
+                            "kustomize edit set image prapoju/circleguard-${svc}-service:stage=prapoju/circleguard-${svc}-service:${hashes[svc]}"
+                        }.join('\n')
+
+                        sh """
+                            cd k8s/overlays/master
+                            ${kustomizeCommands}
+                            kustomize build | kubectl apply -f -
+                        """
+                    }
                 }
             }
         }
 
-
-        stage('Push Stage Images') {
-          steps {
-            container('docker') {
-              def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                sh "docker push prapoju/circleguard-auth-service:${commitHash}"
-                sh "docker push prapoju/circleguard-identity-service:${commitHash}"
-                sh "docker push prapoju/circleguard-form-service:${commitHash}"
-                sh "docker push prapoju/circleguard-file-service:${commitHash}"
-                sh "docker push prapoju/circleguard-notification-service:${commitHash}"
-                sh "docker push prapoju/circleguard-dashboard-service:${commitHash}"
-
-                sh "echo ${commitHash} > commit-hash.txt"
-                archiveArtifacts artifacts: 'commit-hash.txt', fingerprint: true
-                //sh 'docker tag prapoju/circleguard-promotion-service:dev prapoju/circleguard-promotion-service:stage'
-                //sh 'docker push prapoju/circleguard-promotion-service:stage'
-                //sh 'docker tag prapoju/circleguard-gateway-service:dev prapoju/circleguard-gateway-service:stage'
-                //sh 'docker push prapoju/circleguard-gateway-service:stage'
+        stage('Verify Rollout') {
+            steps {
+                container('kubectl') {
+                    script {
+                        services.each { svc ->
+                            sh "kubectl rollout status deployment/${svc}-service -n circleguard-master --timeout=180s"
+                        }
+                    }
+                }
             }
-          }
+        }
+
+        stage('Save Artifacts') {
+            steps {
+                script {
+                    def fileList = services.collect { svc -> "commit-hash-${svc}.txt" }.join(',')
+                    archiveArtifacts artifacts: fileList, fingerprint: true
+                }
+            }
         }
 
         stage('Generate Release Notes') {
             steps {
                 container('git') {
-                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                    sh """
-                        apk add --no-cache curl jq
-                        git config --global --add safe.directory "$WORKSPACE"
+                  withCredentials([usernamePassword(credentialsId: 'github-app',
+                                                    usernameVariable: 'GITHUB_APP',
+                                                  passwordVariable: 'GITHUB_ACCESS_TOKEN')]) {
+                        sh '''
+                            # ─────────────────────────────────────────────
+                            # DEPENDENCIAS
+                            # ─────────────────────────────────────────────
+                            apk add --no-cache curl jq
+                            git config --global --add safe.directory "$WORKSPACE"
 
-                        # Determinar version: fecha + short commit
-                        VERSION="v$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)"
+                            # Caracter backtick como variable para evitar conflictos con Groovy
+                            BT='`'
 
-                        # Obtener el tag anterior
-                        PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+                            # ─────────────────────────────────────────────
+                            # 1. VERSIONAMIENTO
+                            # ─────────────────────────────────────────────
+                            # La version se compone de tres partes:
+                            #   1. Fecha del build     -> orden cronologico y trazabilidad del deploy
+                            #   2. Commit del repo     -> estado del codigo fuente (Jenkinsfile, k8s, configs)
+                            #   3. Commit de la imagen -> codigo que corren los contenedores en produccion
+                            #
+                            # Formato: v<YEAR>.<MONTH>.<DAY>-<sha_repo>-<sha_imagen>
+                            # Ejemplo: v2025.06.01-b1c2d3e-a3f9c12
+                            #
+                            IMAGE_COMMIT=$(cat commit-hash-auth.txt)
+                            SHA_REPO=$(git rev-parse --short HEAD)
+                            SHA_IMAGE=$(echo "$IMAGE_COMMIT" | cut -c1-7)
+                            VERSION="v$(date +%Y.%m.%d)-${SHA_REPO}-${SHA_IMAGE}"
 
-                        # Generar changelog agrupado por tipo de commit
-                        if [ -z "$PREV_TAG" ]; then
-                            LOG=$(git log --pretty=format:"%s|%an" )
-                        else
-                            LOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s|%an")
-                        fi
+                            echo "Version generada: $VERSION"
+                            echo "  - Fecha:         $(date +%Y.%m.%d)"
+                            echo "  - Commit repo:   $SHA_REPO"
+                            echo "  - Commit imagen: $SHA_IMAGE"
 
-                        # Clasificar commits
-                        FEATURES=$(echo "$LOG" | grep -i "^feat" | sed 's/|/ — /' | sed 's/^/- /' || true)
-                        FIXES=$(echo "$LOG"    | grep -i "^fix"  | sed 's/|/ — /' | sed 's/^/- /' || true)
-                        OTHERS=$(echo "$LOG"   | grep -iv "^feat\\|^fix" | sed 's/|/ — /' | sed 's/^/- /' || true)
+                            # ─────────────────────────────────────────────
+                            # 2. RELEASE NOTES
+                            # ─────────────────────────────────────────────
+                            # Buscamos el tag mas reciente para saber desde donde
+                            # listar commits nuevos. Si no hay tag previo es la primera release.
+                            #
+                            PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
-                        # Construir cuerpo del release
-                        BODY="## CircleGuard Release $VERSION\\n\\n"
+                            if [ -z "$PREV_TAG" ]; then
+                                # Primera release: tomamos todo el historial
+                                echo "Sin tag previo — incluyendo todo el historial de commits"
+                                LOG=$(git log --pretty=format:"%s|%an")
+                            else
+                                # Releases siguientes: solo commits despues del tag anterior
+                                echo "Tag anterior encontrado: $PREV_TAG — listando commits nuevos"
+                                LOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s|%an")
+                            fi
 
-                        if [ -n "$FEATURES" ]; then
-                            BODY="${BODY}### New Features\\n${FEATURES}\\n\\n"
-                        fi
-                        if [ -n "$FIXES" ]; then
-                            BODY="${BODY}### Bug Fixes\\n${FIXES}\\n\\n"
-                        fi
-                        if [ -n "$OTHERS" ]; then
-                            BODY="${BODY}### Other Changes\\n${OTHERS}\\n\\n"
-                        fi
+                            # Clasificamos por tipo de commit (Conventional Commits):
+                            #   feat: -> nueva funcionalidad
+                            #   fix:  -> correccion de bug
+                            #   docs: -> documentacion
+                            #   test: -> tests
+                            #   resto -> chore, refactor, style, etc.
+                            #
+                            FEATURES=$(echo "$LOG" | grep -i "^feat"  | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            FIXES=$(echo "$LOG"    | grep -i "^fix"   | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            DOCS=$(echo "$LOG"     | grep -i "^docs"  | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            TESTS=$(echo "$LOG"    | grep -i "^test"  | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            OTHERS=$(echo "$LOG"   | grep -iv "^feat\\|^fix\\|^docs\\|^test" | sed 's/|/ - /' | sed 's/^/- /' || true)
 
-                        BODY="${BODY}---\\n_Deployed by Jenkins build #${BUILD_NUMBER} on $(date '+%Y-%m-%d %H:%M:%S')_"
+                            # Armamos el cuerpo del release en Markdown
+                            BODY="## CircleGuard Release $VERSION"
+                            BODY="$BODY
+"
+                            BODY="${BODY}**Commit repo:**   ${BT}${SHA_REPO}${BT}
+"
+                            BODY="${BODY}**Commit imagen:** ${BT}${IMAGE_COMMIT}${BT}
 
-                        # Crear GitHub Release via API
-                        curl -s -X POST https://api.github.com/repos/${REPO}/releases \
-                            -H "Authorization: token $GITHUB_TOKEN" \
-                            -H "Content-Type: application/json" \
-                            -d "$(jq -n \
-                                --arg tag "$VERSION" \
-                                --arg name "Release $VERSION" \
-                                --arg body "$BODY" \
-                                '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false}')"
+"
+                            [ -n "$FEATURES" ] && BODY="${BODY}### New Features
+${FEATURES}
 
-                        echo "Release $VERSION created successfully"
-                    """
+"
+                            [ -n "$FIXES" ]    && BODY="${BODY}### Bug Fixes
+${FIXES}
+
+"
+                            [ -n "$DOCS" ]     && BODY="${BODY}### Documentation
+${DOCS}
+
+"
+                            [ -n "$TESTS" ]    && BODY="${BODY}### Tests
+${TESTS}
+
+"
+                            [ -n "$OTHERS" ]   && BODY="${BODY}### Other Changes
+${OTHERS}
+
+"
+                            BODY="${BODY}---
+_Jenkins build #${BUILD_NUMBER} - $(date '+%Y-%m-%d %H:%M:%S')_"
+
+                            # ─────────────────────────────────────────────
+                            # 3. PUBLICAR EN GITHUB
+                            # ─────────────────────────────────────────────
+                            # La API de GitHub crea el tag y el release en un solo paso.
+                            # jq construye el JSON de forma segura escapando caracteres especiales.
+                            #
+                            curl -s -X POST "https://api.github.com/repos/${REPO}/releases" \
+                                -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
+                                -H "Content-Type: application/json" \
+                                -d "$(jq -n \
+                                    --arg tag  "$VERSION" \
+                                    --arg name "Release $VERSION" \
+                                    --arg body "$BODY" \
+                                    '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false}')"
+
+                            echo "Release $VERSION publicada exitosamente"
+                        '''
+                    }
                 }
-                } // container
             }
         }
+
     }
 
     post {
         success {
-            echo 'Master pipeline completed. Application deployed and release notes published.'
+            echo 'Master pipeline completed successfully! All services promoted to :master.'
         }
         failure {
             echo 'Master pipeline failed. Check the logs.'

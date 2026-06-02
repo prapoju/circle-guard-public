@@ -154,20 +154,47 @@ pipeline {
                             # Clasificamos por tipo de commit (Conventional Commits):
                             #   feat: -> nueva funcionalidad
                             #   fix:  -> correccion de bug
-                            #   resto -> chore, docs, refactor, etc.
+                            #   docs: -> documentacion
+                            #   test: -> tests
+                            #   resto -> chore, refactor, style, etc.
                             #
-                            FEATURES=$(echo "$LOG" | grep -i "^feat" | sed 's/|/ - /' | sed 's/^/- /' || true)
-                            FIXES=$(echo "$LOG"    | grep -i "^fix"  | sed 's/|/ - /' | sed 's/^/- /' || true)
-                            OTHERS=$(echo "$LOG"   | grep -iv "^feat\\|^fix" | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            FEATURES=$(echo "$LOG" | grep -i "^feat"  | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            FIXES=$(echo "$LOG"    | grep -i "^fix"   | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            DOCS=$(echo "$LOG"     | grep -i "^docs"  | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            TESTS=$(echo "$LOG"    | grep -i "^test"  | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            OTHERS=$(echo "$LOG"   | grep -iv "^feat\\|^fix\\|^docs\\|^test" | sed 's/|/ - /' | sed 's/^/- /' || true)
 
                             # Armamos el cuerpo del release en Markdown
-                            BODY="## CircleGuard Release $VERSION\\n\\n"
-                            BODY="${BODY}**Commit repo:**   ${BT}${SHA_REPO}${BT}\\n"
-                            BODY="${BODY}**Commit imagen:** ${BT}${IMAGE_COMMIT}${BT}\\n\\n"
-                            [ -n "$FEATURES" ] && BODY="${BODY}### New Features\\n${FEATURES}\\n\\n"
-                            [ -n "$FIXES" ]    && BODY="${BODY}### Bug Fixes\\n${FIXES}\\n\\n"
-                            [ -n "$OTHERS" ]   && BODY="${BODY}### Other Changes\\n${OTHERS}\\n\\n"
-                            BODY="${BODY}---\\n_Jenkins build #${BUILD_NUMBER} - $(date '+%Y-%m-%d %H:%M:%S')_"
+                            BODY="## CircleGuard Release $VERSION"
+                            BODY="$BODY
+"
+                            BODY="${BODY}**Commit repo:**   ${BT}${SHA_REPO}${BT}
+"
+                            BODY="${BODY}**Commit imagen:** ${BT}${IMAGE_COMMIT}${BT}
+
+"
+                            [ -n "$FEATURES" ] && BODY="${BODY}### New Features
+${FEATURES}
+
+"
+                            [ -n "$FIXES" ]    && BODY="${BODY}### Bug Fixes
+${FIXES}
+
+"
+                            [ -n "$DOCS" ]     && BODY="${BODY}### Documentation
+${DOCS}
+
+"
+                            [ -n "$TESTS" ]    && BODY="${BODY}### Tests
+${TESTS}
+
+"
+                            [ -n "$OTHERS" ]   && BODY="${BODY}### Other Changes
+${OTHERS}
+
+"
+                            BODY="${BODY}---
+_Jenkins build #${BUILD_NUMBER} - $(date '+%Y-%m-%d %H:%M:%S')_"
 
                             # ─────────────────────────────────────────────
                             # 3. PUBLICAR EN GITHUB
