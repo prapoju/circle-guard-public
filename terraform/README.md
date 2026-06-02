@@ -211,6 +211,34 @@ Username with password
 Username: Docker hub account
 password: token
 id: dockerhub-credentials
+
+###Sonarqube
+
+Instal these plugins
+Sonar Quality GatesVersion
+364.v67a_f255f340f
+SonarQube ScannerVersion
+2.18.2
+
+Enable local webhooks validation
+Forcing local webhooks validation prevents the creation and triggering of local webhooks
+Disabling this setting can expose the instance to security risks
+Disable this n administration settings
+
+Create the cgp project
+
+Create a webhook to localhost:8080
+
+Account token generate token for cgp project
+90 days
+
+1) Go to 
+Jenkins System add sonarqube server
+
+When addind the web hook make sure you write
+http://localhost:8080/sonarqube-webhook/
+
+
 ---
 
 # Kubectl Configuration
