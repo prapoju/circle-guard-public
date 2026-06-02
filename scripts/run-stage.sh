@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-
 cd k8s/overlays/stage
 
 # Hashes
