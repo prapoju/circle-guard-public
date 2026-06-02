@@ -2,28 +2,7 @@
 
 def serviceStatus = [:]
 def commitHash = ''
-def fullImageAuth = ''
-def fullImageDashboard = ''
-def fullImageFile = ''
-def fullImageForm = ''
-def fullImageGateway = ''
-def fullImageIdentity = ''
-def fullImageNotification = ''
-def fullImagePromotion = ''
-
-def fullImageFor(name) {
-    switch(name) {
-        case 'auth': return fullImageAuth
-        case 'dashboard': return fullImageDashboard
-        case 'file': return fullImageFile
-        case 'form': return fullImageForm
-        case 'gateway': return fullImageGateway
-        case 'identity': return fullImageIdentity
-        case 'notification': return fullImageNotification
-        case 'promotion': return fullImagePromotion
-        default: return ''
-    }
-}
+def fullImages = [:]  // ← Map en lugar de variables sueltas
 
 def services = [
     [name: 'auth',         gradle: ':services:circleguard-auth-service',         dir: 'services/circleguard-auth-service',         image: 'prapoju/circleguard-auth-service'],
@@ -113,261 +92,240 @@ pipeline {
                         commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                         echo "Commit hash: ${commitHash}"
 
-                        fullImageAuth = "prapoju/circleguard-auth-service:${commitHash}"
-                        fullImageIdentity = "prapoju/circleguard-identity-service:${commitHash}"
-                        fullImageForm = "prapoju/circleguard-form-service:${commitHash}"
-                        fullImageFile = "prapoju/circleguard-file-service:${commitHash}"
-                        fullImageDashboard = "prapoju/circleguard-dashboard-service:${commitHash}"
-                        fullImageNotification = "prapoju/circleguard-notification-service:${commitHash}"
-                        fullImageGateway = "prapoju/circleguard-gateway-service:${commitHash}"
-                        fullImagePromotion = "prapoju/circleguard-promotion-service:${commitHash}"
+                        // ← Poblar el Map aquí, donde commitHash ya tiene valor
+                        services.each { svc ->
+                            fullImages[svc.name] = "${svc.image}:${commitHash}"
+                        }
                     }
                 }
             }
         }
+
         stage('Compile (for Sonar)') {
-          steps {
-            script {
-              sh 'chmod +x gradlew'
-        
-              for (svc in services) {
-                def gradle = svc.gradle
-        
-                echo "-------- Compile ${svc.name} --------"
-        
-                sh "./gradlew --no-daemon ${gradle}:classes"
-              }
+            steps {
+                script {
+                    sh 'chmod +x gradlew'
+                    for (svc in services) {
+                        echo "-------- Compile ${svc.name} --------"
+                        sh "./gradlew --no-daemon ${svc.gradle}:classes"
+                    }
+                }
             }
-          }
         }
 
         stage('Unit Tests') {
-          steps {
-            script {
-              for (svc in services) {
-                def name   = svc.name
-                  def gradle = svc.gradle
-
-
-                echo "-------- [${name}] Unit Tests --------"
-
-                  try {
-                    sh "./gradlew --no-daemon --no-parallel ${gradle}:test"
-
-                      serviceStatus[name] = 'ok'
-                      echo "[${name}] Unit Tests: PASSED"
-
-                  } catch (Exception e) {
-                    serviceStatus[name] = 'fail:unit'
-                      echo "[${name}] Unit Tests: FAILED"
-                  }
-              }
-            }
-          }
-        }        
-        stage('Static Analysis (SonarQube)') {
-          steps {
-            container('jdk21') {
-              withSonarQubeEnv('sonarqube-server') {
-                sh './gradlew --no-daemon sonar -Dsonar.projectKey=cgp'
-              }
-            }
-          }
-        }
-        stage("Quality Gate") {
-          steps {
-            timeout(time: 5, unit: 'MINUTES') {
-              script {
-                def qg = waitForQualityGate abortPipeline: false
-                echo "Quality Gate status: ${qg.status}"
-        
-                if (qg.status != 'OK') {
-                  error "Quality Gate failed: ${qg.status}"
+            steps {
+                script {
+                    for (svc in services) {
+                        def name   = svc.name
+                        def gradle = svc.gradle
+                        echo "-------- [${name}] Unit Tests --------"
+                        try {
+                            sh "./gradlew --no-daemon --no-parallel ${gradle}:test"
+                            serviceStatus[name] = 'ok'
+                            echo "[${name}] Unit Tests: PASSED"
+                        } catch (Exception e) {
+                            serviceStatus[name] = 'fail:unit'
+                            echo "[${name}] Unit Tests: FAILED"
+                        }
+                    }
                 }
-              }
             }
-          }
         }
 
-//        stage('Compile & Package') {
-//        steps {
-//            script {
-//                sh 'chmod +x gradlew'
-//                sh './gradlew --no-daemon --version'
-//    
-//                for (svc in services) {
-//                    def name   = svc.name
-//                    def gradle = svc.gradle
-//    
-//                    echo "-------- [${name}] Compile & Package --------"
-//    
-//                    try {
-//                        sh "./gradlew --no-daemon --no-parallel ${gradle}:bootJar"
-//    
-//                        sh """
-//                            echo "Generated JARs:"
-//                            find services/circleguard-${name}-service/build/libs -name '*.jar' || true
-//                        """
-//    
-//                        serviceStatus[name] = 'ok'
-//                        echo "[${name}] Compile & Package: PASSED"
-//    
-//                    } catch (Exception e) {
-//                        serviceStatus[name] = 'fail:compile'
-//                        echo "[${name}] Compile & Package: FAILED"
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    
-//
-//    stage('Integration Tests') {
-//            steps {
-//                script {
-//                    for (svc in services) {
-//                        def name       = svc.name
-//                        def gradle     = svc.gradle
-//                        def composeDir = "services/circleguard-${name}-service"
-//                        def composeFile = "${composeDir}/docker-compose.integration.yml"
-//
-//                        if (serviceStatus[name] != 'ok') {
-//                            echo "[${name}] Skipping Integration Tests (unit failed)"
-//                            continue
-//                        }
-//
-//                        echo "-------- [${name}] Integration Tests --------"
-//
-//                        try {
-//                            container('docker') {
-//                                sh """
-//                                    if [ -f "${composeFile}" ] && [ \$(docker compose -f "${composeFile}" config --services 2>/dev/null | wc -l) -gt 0 ]; then
-//                                        docker compose -p circleguard -f "${composeFile}" down -v 2>/dev/null || true
-//                                        docker compose -p circleguard -f "${composeFile}" up -d --wait
-//                                    fi
-//                                """
-//                            }
-//                            sh "./gradlew --no-daemon --no-parallel ${gradle}:integrationTest"
-//                            echo "[${name}] Integration Tests: PASSED"
-//                        } catch (Exception e) {
-//                            serviceStatus[name] = 'fail:integration'
-//                            echo "[${name}] Integration Tests: FAILED"
-//                        } finally {
-//                            container('docker') {
-//                                sh """
-//                                    if [ -f "${composeFile}" ] && [ \$(docker compose -f "${composeFile}" config --services 2>/dev/null | wc -l) -gt 0 ]; then
-//                                        docker compose -p circleguard -f "${composeFile}" down -v 2>/dev/null || true
-//                                    fi
-//                                """
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        stage('Build Images') {
-//            steps {
-//                script {
-//                    def anyFailed = serviceStatus.values().any { it != 'ok' }
-//
-//                    if (anyFailed) {
-//                        echo "Skipping ALL Builds — one or more services failed previous stages."
-//                        for (svc in services) {
-//                            if (serviceStatus[svc.name] != 'ok') {
-//                                echo "  [${svc.name}] failed — skip"
-//                            } else {
-//                                echo "  [${svc.name}] passed but will NOT be built (other services failed)"
-//                                serviceStatus[svc.name] = 'skipped:build'
-//                            }
-//                        }
-//                        return
-//                    }
-//
-//                    for (svc in services) {
-//                        def name   = svc.name
-//                        def dir    = svc.dir
-//                        def fullImage = fullImageFor(name)
-//
-//                        echo "-------- [${name}] Build --------"
-//                        try {
-//                            container('docker') {
-//                                sh "docker build -t ${fullImage} ${dir}/"
-//                            }
-//                            serviceStatus[name] = 'built'
-//                            echo "[${name}] Build: PASSED"
-//                        } catch (Exception e) {
-//                            serviceStatus[name] = 'fail:build'
-//                            echo "[${name}] Build: FAILED"
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        stage('Security Scan') {
-//            steps {
-//                script {
-//                    for (svc in services) {
-//                        def name   = svc.name
-//                        def fullImage = fullImageFor(name)
-//
-//                        echo "-------- [${name}] Security Scan --------"
-//                        container('trivy') {
-//                            sh """
-//                                trivy image --severity CRITICAL --exit-code 0 \
-//                                    ${fullImage} \
-//                                    > trivy-analysis-${name}.txt
-//                            """
-//                        }
-//                        archiveArtifacts artifacts: "trivy-analysis-${name}.txt", fingerprint: true
-//                        echo "[${name}] Security Scan: OK (report saved as trivy-analysis-${name}.txt)"
-//                    }
-//                }
-//            }
-//        }
-//
-//        stage('Push Images') {
-//            steps {
-//                script {
-//                    def anyBuildFailed = serviceStatus.values().any { it == 'fail:build' }
-//
-//                    if (anyBuildFailed) {
-//                        echo "Skipping ALL Pushes — one or more services failed to build."
-//                        for (svc in services) {
-//                            if (serviceStatus[svc.name] == 'fail:build') {
-//                                echo "  [${svc.name}] build failed — skip push"
-//                            } else {
-//                                echo "  [${svc.name}] built but will NOT be pushed (other builds failed)"
-//                                serviceStatus[svc.name] = 'skipped:push'
-//                            }
-//                        }
-//                        return
-//                    }
-//
-//                    for (svc in services) {
-//                        def name   = svc.name
-//                        def fullImage = fullImageFor(name)
-//
-//                        echo "-------- [${name}] Push --------"
-//                        try {
-//                            container('docker') {
-//                                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-//                                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
-//                                    sh "docker push ${fullImage}"
-//                                }
-//                            }
-//                            sh "echo ${commitHash} > commit-hash-${name}.txt"
-//                            archiveArtifacts artifacts: "commit-hash-${name}.txt", fingerprint: true
-//                            echo "[${name}] Push: PASSED"
-//                        } catch (Exception e) {
-//                            serviceStatus[name] = 'fail:push'
-//                            echo "[${name}] Push: FAILED"
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        stage('Static Analysis (SonarQube)') {
+            steps {
+                container('jdk21') {
+                    withSonarQubeEnv('sonarqube-server') {
+                        sh './gradlew --no-daemon sonar -Dsonar.projectKey=cgp'
+                    }
+                }
+            }
+        }
+
+        stage("Quality Gate") {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    script {
+                        def qg = waitForQualityGate abortPipeline: false
+                        echo "Quality Gate status: ${qg.status}"
+                        if (qg.status != 'OK') {
+                            error "Quality Gate failed: ${qg.status}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Compile & Package') {
+            steps {
+                script {
+                    sh 'chmod +x gradlew'
+                    sh './gradlew --no-daemon --version'
+                    for (svc in services) {
+                        def name   = svc.name
+                        def gradle = svc.gradle
+                        echo "-------- [${name}] Compile & Package --------"
+                        try {
+                            sh "./gradlew --no-daemon --no-parallel ${gradle}:bootJar"
+                            sh """
+                                echo "Generated JARs:"
+                                find services/circleguard-${name}-service/build/libs -name '*.jar' || true
+                            """
+                            serviceStatus[name] = 'ok'
+                            echo "[${name}] Compile & Package: PASSED"
+                        } catch (Exception e) {
+                            serviceStatus[name] = 'fail:compile'
+                            echo "[${name}] Compile & Package: FAILED"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                script {
+                    for (svc in services) {
+                        def name        = svc.name
+                        def gradle      = svc.gradle
+                        def composeDir  = "services/circleguard-${name}-service"
+                        def composeFile = "${composeDir}/docker-compose.integration.yml"
+
+                        if (serviceStatus[name] != 'ok') {
+                            echo "[${name}] Skipping Integration Tests (unit failed)"
+                            continue
+                        }
+
+                        echo "-------- [${name}] Integration Tests --------"
+                        try {
+                            container('docker') {
+                                sh """
+                                    if [ -f "${composeFile}" ] && [ \$(docker compose -f "${composeFile}" config --services 2>/dev/null | wc -l) -gt 0 ]; then
+                                        docker compose -p circleguard -f "${composeFile}" down -v 2>/dev/null || true
+                                        docker compose -p circleguard -f "${composeFile}" up -d --wait
+                                    fi
+                                """
+                            }
+                            sh "./gradlew --no-daemon --no-parallel ${gradle}:integrationTest"
+                            echo "[${name}] Integration Tests: PASSED"
+                        } catch (Exception e) {
+                            serviceStatus[name] = 'fail:integration'
+                            echo "[${name}] Integration Tests: FAILED"
+                        } finally {
+                            container('docker') {
+                                sh """
+                                    if [ -f "${composeFile}" ] && [ \$(docker compose -f "${composeFile}" config --services 2>/dev/null | wc -l) -gt 0 ]; then
+                                        docker compose -p circleguard -f "${composeFile}" down -v 2>/dev/null || true
+                                    fi
+                                """
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Images') {
+            steps {
+                script {
+                    def anyFailed = serviceStatus.values().any { it != 'ok' }
+                    if (anyFailed) {
+                        echo "Skipping ALL Builds — one or more services failed previous stages."
+                        for (svc in services) {
+                            if (serviceStatus[svc.name] != 'ok') {
+                                echo "  [${svc.name}] failed — skip"
+                            } else {
+                                echo "  [${svc.name}] passed but will NOT be built (other services failed)"
+                                serviceStatus[svc.name] = 'skipped:build'
+                            }
+                        }
+                        return
+                    }
+
+                    for (svc in services) {
+                        def name      = svc.name
+                        def dir       = svc.dir
+                        def fullImage = fullImages[name]  // ← usando el Map
+                        echo "-------- [${name}] Build --------"
+                        try {
+                            container('docker') {
+                                sh "docker build -t ${fullImage} ${dir}/"
+                            }
+                            serviceStatus[name] = 'built'
+                            echo "[${name}] Build: PASSED"
+                        } catch (Exception e) {
+                            serviceStatus[name] = 'fail:build'
+                            echo "[${name}] Build: FAILED"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                script {
+                    for (svc in services) {
+                        def name      = svc.name
+                        def fullImage = fullImages[name]
+                        echo "-------- [${name}] Security Scan --------"
+                        container('trivy') {
+                            sh """
+                                TRIVY_NO_PROGRESS=true trivy image \
+                                    --severity MEDIUM,HIGH,CRITICAL \
+                                    --exit-code 0 \
+                                    --format table \
+                                    --no-color \
+                                    ${fullImage} \
+                                    > trivy-analysis-${name}.txt 2>&1
+                            """
+                        }
+                        archiveArtifacts artifacts: "trivy-analysis-${name}.txt", fingerprint: true
+                        echo "[${name}] Security Scan: OK"
+                    }
+                }
+            }
+        }
+        stage('Push Images') {
+            steps {
+                script {
+                    def anyBuildFailed = serviceStatus.values().any { it == 'fail:build' }
+                    if (anyBuildFailed) {
+                        echo "Skipping ALL Pushes — one or more services failed to build."
+                        for (svc in services) {
+                            if (serviceStatus[svc.name] == 'fail:build') {
+                                echo "  [${svc.name}] build failed — skip push"
+                            } else {
+                                echo "  [${svc.name}] built but will NOT be pushed (other builds failed)"
+                                serviceStatus[svc.name] = 'skipped:push'
+                            }
+                        }
+                        return
+                    }
+
+                    for (svc in services) {
+                        def name      = svc.name
+                        def fullImage = fullImages[name]  // ← usando el Map
+                        echo "-------- [${name}] Push --------"
+                        try {
+                            container('docker') {
+                                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+                                    sh "docker push ${fullImage}"
+                                }
+                            }
+                            sh "echo ${commitHash} > commit-hash-${name}.txt"
+                            archiveArtifacts artifacts: "commit-hash-${name}.txt", fingerprint: true
+                            echo "[${name}] Push: PASSED"
+                        } catch (Exception e) {
+                            serviceStatus[name] = 'fail:push'
+                            echo "[${name}] Push: FAILED"
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {

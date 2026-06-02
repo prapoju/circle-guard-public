@@ -1,27 +1,20 @@
 #!/usr/bin/env groovy
 
 def stageProjectName = 'stage-test'
+def services = ['auth', 'identity', 'form', 'file', 'dashboard', 'notification', 'gateway', 'promotion']
+def hashes = [:]
 
 pipeline {
 
     agent {
         kubernetes {
-            defaultContainer 'docker'
+            defaultContainer 'kubectl'
             namespace 'jenkins-agents'
             yaml '''
             apiVersion: v1
             kind: Pod
             spec:
               containers:
-                - name: docker
-                  image: docker:24-dind
-                  securityContext:
-                    privileged: true
-                  env:
-                    - name: DOCKER_TLS_CERTDIR
-                      value: ""
-                  command: ["dockerd-entrypoint.sh"]
-                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
                 - name: kubectl
                   image: line/kubectl-kustomize:latest
                   command: ["cat"]
@@ -47,53 +40,18 @@ pipeline {
                         sh 'rm -rf * .git'
                         sh 'git clone https://github.com/prapoju/circle-guard-public -b feat/ci-cd .'
                         sh 'git config --global --add safe.directory "$(pwd)"'
-                        commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                        echo "Commit hash: ${commitHash}"
                     }
                 }
             }
         }
 
-        stage('Pull Stage Images') {
+        stage('Load Stage Hashes') {
             steps {
-                container('docker') {
-                    sh 'until docker info; do sleep 2; done'
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        script {
-                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-auth.txt')
-                            def authHash = readFile('commit-hash-auth.txt').trim()
-
-                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-identity.txt')
-                            def identityHash = readFile('commit-hash-identity.txt').trim()
-
-                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-form.txt')
-                            def formHash = readFile('commit-hash-form.txt').trim()
-
-                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-file.txt')
-                            def fileHash = readFile('commit-hash-file.txt').trim()
-
-                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-dashboard.txt')
-                            def dashboardHash = readFile('commit-hash-dashboard.txt').trim()
-
-                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-notification.txt')
-                            def notificationHash = readFile('commit-hash-notification.txt').trim()
-
-                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-gateway.txt')
-                            def gatewayHash = readFile('commit-hash-gateway.txt').trim()
-
-                            copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-promotion.txt')
-                            def promotionHash = readFile('commit-hash-promotion.txt').trim()
-
-                            sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
-                            sh "docker pull prapoju/circleguard-auth-service:${authHash}"
-                            sh "docker pull prapoju/circleguard-identity-service:${identityHash}"
-                            sh "docker pull prapoju/circleguard-form-service:${formHash}"
-                            sh "docker pull prapoju/circleguard-file-service:${fileHash}"
-                            sh "docker pull prapoju/circleguard-dashboard-service:${dashboardHash}"
-                            sh "docker pull prapoju/circleguard-notification-service:${notificationHash}"
-                            sh "docker pull prapoju/circleguard-gateway-service:${gatewayHash}"
-                            sh "docker pull prapoju/circleguard-promotion-service:${promotionHash}"
-                        }
+                script {
+                    services.each { svc ->
+                        copyArtifacts(projectName: stageProjectName, filter: "commit-hash-${svc}.txt")
+                        hashes[svc] = readFile("commit-hash-${svc}.txt").trim()
+                        echo "[${svc}] hash: ${hashes[svc]}"
                     }
                 }
             }
@@ -103,53 +61,37 @@ pipeline {
             steps {
                 container('kubectl') {
                     script {
-                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-auth.txt')
-                        def authHash = readFile('commit-hash-auth.txt').trim()
-
-                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-identity.txt')
-                        def identityHash = readFile('commit-hash-identity.txt').trim()
-
-                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-form.txt')
-                        def formHash = readFile('commit-hash-form.txt').trim()
-
-                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-file.txt')
-                        def fileHash = readFile('commit-hash-file.txt').trim()
-
-                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-dashboard.txt')
-                        def dashboardHash = readFile('commit-hash-dashboard.txt').trim()
-
-                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-notification.txt')
-                        def notificationHash = readFile('commit-hash-notification.txt').trim()
-
-                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-gateway.txt')
-                        def gatewayHash = readFile('commit-hash-gateway.txt').trim()
-
-                        copyArtifacts(projectName: stageProjectName, filter: 'commit-hash-promotion.txt')
-                        def promotionHash = readFile('commit-hash-promotion.txt').trim()
+                        def kustomizeCommands = services.collect { svc ->
+                            "kustomize edit set image prapoju/circleguard-${svc}-service:stage=prapoju/circleguard-${svc}-service:${hashes[svc]}"
+                        }.join('\n')
 
                         sh """
                             cd k8s/overlays/master
-                            kustomize edit set image prapoju/circleguard-auth-service:dev=prapoju/circleguard-auth-service:${authHash}
-                            kustomize edit set image prapoju/circleguard-identity-service:dev=prapoju/circleguard-identity-service:${identityHash}
-                            kustomize edit set image prapoju/circleguard-form-service:dev=prapoju/circleguard-form-service:${formHash}
-                            kustomize edit set image prapoju/circleguard-file-service:dev=prapoju/circleguard-file-service:${fileHash}
-                            kustomize edit set image prapoju/circleguard-dashboard-service:dev=prapoju/circleguard-dashboard-service:${dashboardHash}
-                            kustomize edit set image prapoju/circleguard-notification-service:dev=prapoju/circleguard-notification-service:${notificationHash}
-                            kustomize edit set image prapoju/circleguard-gateway-service:dev=prapoju/circleguard-gateway-service:${gatewayHash}
-                            kustomize edit set image prapoju/circleguard-promotion-service:dev=prapoju/circleguard-promotion-service:${promotionHash}
+                            ${kustomizeCommands}
                             kustomize build | kubectl apply -f -
                         """
-
-                        sh "echo ${commitHash} > commit-hash-auth.txt"
-                        sh "echo ${commitHash} > commit-hash-identity.txt"
-                        sh "echo ${commitHash} > commit-hash-form.txt"
-                        sh "echo ${commitHash} > commit-hash-file.txt"
-                        sh "echo ${commitHash} > commit-hash-dashboard.txt"
-                        sh "echo ${commitHash} > commit-hash-notification.txt"
-                        sh "echo ${commitHash} > commit-hash-gateway.txt"
-                        sh "echo ${commitHash} > commit-hash-promotion.txt"
-                        archiveArtifacts artifacts: 'commit-hash-auth.txt,commit-hash-identity.txt,commit-hash-form.txt,commit-hash-file.txt,commit-hash-dashboard.txt,commit-hash-notification.txt,commit-hash-gateway.txt,commit-hash-promotion.txt', fingerprint: true
                     }
+                }
+            }
+        }
+
+        stage('Verify Rollout') {
+            steps {
+                container('kubectl') {
+                    script {
+                        services.each { svc ->
+                            sh "kubectl rollout status deployment/${svc}-service -n circleguard-master --timeout=180s"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Save Artifacts') {
+            steps {
+                script {
+                    def fileList = services.collect { svc -> "commit-hash-${svc}.txt" }.join(',')
+                    archiveArtifacts artifacts: fileList, fingerprint: true
                 }
             }
         }
@@ -157,17 +99,103 @@ pipeline {
         stage('Generate Release Notes') {
             steps {
                 container('git') {
-                    withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                        sh 'pipelines/scripts/release_notes.sh'
+                  withCredentials([usernamePassword(credentialsId: 'githubapp-jenkins',
+                                                    usernameVariable: 'GITHUB_APP',
+                                                  passwordVariable: 'GITHUB_ACCESS_TOKEN')]) {
+                        sh '''
+                            # ─────────────────────────────────────────────
+                            # DEPENDENCIAS
+                            # ─────────────────────────────────────────────
+                            apk add --no-cache curl jq
+                            git config --global --add safe.directory "$WORKSPACE"
+
+                            # Caracter backtick como variable para evitar conflictos con Groovy
+                            BT='`'
+
+                            # ─────────────────────────────────────────────
+                            # 1. VERSIONAMIENTO
+                            # ─────────────────────────────────────────────
+                            # La version se compone de tres partes:
+                            #   1. Fecha del build     -> orden cronologico y trazabilidad del deploy
+                            #   2. Commit del repo     -> estado del codigo fuente (Jenkinsfile, k8s, configs)
+                            #   3. Commit de la imagen -> codigo que corren los contenedores en produccion
+                            #
+                            # Formato: v<YEAR>.<MONTH>.<DAY>-<sha_repo>-<sha_imagen>
+                            # Ejemplo: v2025.06.01-b1c2d3e-a3f9c12
+                            #
+                            IMAGE_COMMIT=$(cat commit-hash-auth.txt)
+                            SHA_REPO=$(git rev-parse --short HEAD)
+                            SHA_IMAGE=$(echo "$IMAGE_COMMIT" | cut -c1-7)
+                            VERSION="v$(date +%Y.%m.%d)-${SHA_REPO}-${SHA_IMAGE}"
+
+                            echo "Version generada: $VERSION"
+                            echo "  - Fecha:         $(date +%Y.%m.%d)"
+                            echo "  - Commit repo:   $SHA_REPO"
+                            echo "  - Commit imagen: $SHA_IMAGE"
+
+                            # ─────────────────────────────────────────────
+                            # 2. RELEASE NOTES
+                            # ─────────────────────────────────────────────
+                            # Buscamos el tag mas reciente para saber desde donde
+                            # listar commits nuevos. Si no hay tag previo es la primera release.
+                            #
+                            PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+                            if [ -z "$PREV_TAG" ]; then
+                                # Primera release: tomamos todo el historial
+                                echo "Sin tag previo — incluyendo todo el historial de commits"
+                                LOG=$(git log --pretty=format:"%s|%an")
+                            else
+                                # Releases siguientes: solo commits despues del tag anterior
+                                echo "Tag anterior encontrado: $PREV_TAG — listando commits nuevos"
+                                LOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s|%an")
+                            fi
+
+                            # Clasificamos por tipo de commit (Conventional Commits):
+                            #   feat: -> nueva funcionalidad
+                            #   fix:  -> correccion de bug
+                            #   resto -> chore, docs, refactor, etc.
+                            #
+                            FEATURES=$(echo "$LOG" | grep -i "^feat" | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            FIXES=$(echo "$LOG"    | grep -i "^fix"  | sed 's/|/ - /' | sed 's/^/- /' || true)
+                            OTHERS=$(echo "$LOG"   | grep -iv "^feat\\|^fix" | sed 's/|/ - /' | sed 's/^/- /' || true)
+
+                            # Armamos el cuerpo del release en Markdown
+                            BODY="## CircleGuard Release $VERSION\\n\\n"
+                            BODY="${BODY}**Commit repo:**   ${BT}${SHA_REPO}${BT}\\n"
+                            BODY="${BODY}**Commit imagen:** ${BT}${IMAGE_COMMIT}${BT}\\n\\n"
+                            [ -n "$FEATURES" ] && BODY="${BODY}### New Features\\n${FEATURES}\\n\\n"
+                            [ -n "$FIXES" ]    && BODY="${BODY}### Bug Fixes\\n${FIXES}\\n\\n"
+                            [ -n "$OTHERS" ]   && BODY="${BODY}### Other Changes\\n${OTHERS}\\n\\n"
+                            BODY="${BODY}---\\n_Jenkins build #${BUILD_NUMBER} - $(date '+%Y-%m-%d %H:%M:%S')_"
+
+                            # ─────────────────────────────────────────────
+                            # 3. PUBLICAR EN GITHUB
+                            # ─────────────────────────────────────────────
+                            # La API de GitHub crea el tag y el release en un solo paso.
+                            # jq construye el JSON de forma segura escapando caracteres especiales.
+                            #
+                            curl -s -X POST "https://api.github.com/repos/${REPO}/releases" \
+                                -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
+                                -H "Content-Type: application/json" \
+                                -d "$(jq -n \
+                                    --arg tag  "$VERSION" \
+                                    --arg name "Release $VERSION" \
+                                    --arg body "$BODY" \
+                                    '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false}')"
+
+                            echo "Release $VERSION publicada exitosamente"
+                        '''
                     }
                 }
             }
         }
+
     }
 
     post {
         success {
-            echo 'Master pipeline completed successfully! All services deployed and release notes published.'
+            echo 'Master pipeline completed successfully! All services promoted to :master.'
         }
         failure {
             echo 'Master pipeline failed. Check the logs.'
