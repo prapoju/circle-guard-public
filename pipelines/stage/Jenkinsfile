@@ -139,7 +139,7 @@ pipeline {
                         servicesToZap.each { url ->
                             def safeName = url.replaceAll(/[^a-zA-Z0-9]/, '_')
                             sh """
-                                zap-baseline-scan.py \
+                                zap-baseline.py \
                                     -t ${url} \
                                     -r zap-baseline-${safeName}.html
                             """
