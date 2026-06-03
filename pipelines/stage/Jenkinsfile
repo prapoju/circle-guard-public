@@ -45,6 +45,12 @@ pipeline {
                   image: zaproxy/zap-stable 
                   command: ["sleep"]
                   args: ["infinity"]
+                  volumeMounts:
+                   - name: zap-wrk
+                     mountPath: /zap/wrk
+              volumes:
+                - name: zap-wrk
+                  emptyDir: {}
             '''
         }
     }
@@ -138,12 +144,11 @@ pipeline {
                         servicesToZap.each { url ->
                             def safeName = url.replaceAll(/[^a-zA-Z0-9]/, '_')
                             sh """
-                                mkdir -p /tmp/zap
                                 zap-baseline.py \
                                     -t ${url} \
-                                    -r /tmp/zap/zap-baseline-${safeName}.html \
+                                    -r /zap/wrk/zap-baseline-${safeName}.html \
                                     -d
-                                cp /tmp/zap/zap-baseline-${safeName}.html ${WORKSPACE}/zap-baseline-${safeName}.html
+                                cp /zap/wrk/zap-baseline-${safeName}.html ${WORKSPACE}/zap-baseline-${safeName}.html
                             """
                         }
                     }
@@ -151,7 +156,6 @@ pipeline {
                 archiveArtifacts artifacts: 'zap-baseline-*.html', fingerprint: true
             }
         }
-
         stage('Save Artifacts') {
             steps {
                 script {
