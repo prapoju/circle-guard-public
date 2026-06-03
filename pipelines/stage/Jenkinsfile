@@ -3,6 +3,16 @@
 def devProjectName = 'dev'
 def services = ['auth', 'identity', 'form', 'file', 'dashboard', 'notification', 'gateway', 'promotion']
 def hashes = [:]
+def servicesToZap = [
+    'http://auth-service.circleguard-stage.svc.cluster.local:8180',
+//     'http://dashboard-service.circleguard-stage.svc.cluster.local:8080',
+//     'http://file-service.circleguard-stage.svc.cluster.local:8085',
+//     'http://form-service.circleguard-stage.svc.cluster.local:8086',
+//     'http://gateway-service.circleguard-stage.svc.cluster.local:8087',
+//     'http://identity-service.circleguard-stage.svc.cluster.local:8083',
+//     'http://notification-service.circleguard-stage.svc.cluster.local:8082',
+//     'http://promotion-service.circleguard-stage.svc.cluster.local:8088'
+ ]
 
 pipeline {
 
@@ -29,6 +39,10 @@ pipeline {
                   args: ["infinity"]
                 - name: locust
                   image: locustio/locust:2.29.0
+                  command: ["sleep"]
+                  args: ["infinity"]
+                - name: zap
+                  image: zaproxy/zap-stable 
                   command: ["sleep"]
                   args: ["infinity"]
             '''
@@ -110,10 +124,30 @@ pipeline {
                             --spawn-rate 3 \
                             --run-time 60s \
                             --loglevel WARNING \
-                            --csv locust-report
+                            --csv locust-report_stats.csv \
+                            --html locust-report.html
                     '''
                 }
                 archiveArtifacts artifacts: 'locust-report_stats.csv', fingerprint: true
+                archiveArtifacts artifacts: 'locust-report.html', fingerprint: true
+            }
+        }
+
+        stage('ZAP') {
+            steps {
+                container('zap') {
+                    script {
+                        servicesToZap.each { url ->
+                            def safeName = url.replaceAll(/[^a-zA-Z0-9]/, '_')
+                            sh """
+                                zap-baseline-scan.py \
+                                    -t ${url} \
+                                    -r zap-baseline-${safeName}.html
+                            """
+                        }
+                    }
+                }
+                archiveArtifacts artifacts: 'zap-baseline-*.html', fingerprint: true
             }
         }
 
