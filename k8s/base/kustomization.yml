@@ -10,6 +10,8 @@ resources:
   - infra/mailhog.yml
   - infra/prometheus.yml
   - infra/grafana.yml
+  - infra/grafana-dashboards.yml
+  - infra/grafana-dashboard-provisioning.yml
   - config/circleguard-config.yml
   - config/circleguard-secrets.yml
   - services/auth-service.yml
