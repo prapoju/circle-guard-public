@@ -131,7 +131,6 @@ pipeline {
                 archiveArtifacts artifacts: 'locust-report_stats.csv,locust-report.html', fingerprint: true
             }
         }
-
         stage('ZAP') {
             steps {
                 container('zap') {
@@ -139,9 +138,12 @@ pipeline {
                         servicesToZap.each { url ->
                             def safeName = url.replaceAll(/[^a-zA-Z0-9]/, '_')
                             sh """
+                                mkdir -p /tmp/zap
                                 zap-baseline.py \
                                     -t ${url} \
-                                    -r zap-baseline-${safeName}.html
+                                    -r /tmp/zap/zap-baseline-${safeName}.html \
+                                    -d
+                                cp /tmp/zap/zap-baseline-${safeName}.html ${WORKSPACE}/zap-baseline-${safeName}.html
                             """
                         }
                     }
