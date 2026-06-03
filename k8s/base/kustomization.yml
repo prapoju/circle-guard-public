@@ -13,6 +13,8 @@ resources:
   - infra/grafana-dashboards.yml
   - infra/grafana-dashboard-provisioning.yml
   - infra/jaeger.yml
+  - infra/loki.yml
+  - infra/promtail.yml
   - config/circleguard-config.yml
   - config/circleguard-secrets.yml
   - services/auth-service.yml
