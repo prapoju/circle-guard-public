@@ -84,7 +84,7 @@ terraform init
 ## 3. Deploy Infrastructure
 
 ```bash
-terraform apply
+terraform apply 
 ```
 
 
