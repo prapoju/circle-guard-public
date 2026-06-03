@@ -236,7 +236,7 @@ Account token generate token for cgp project
 Jenkins System add sonarqube server
 
 When addind the web hook make sure you write
-http://localhost:8080/sonarqube-webhook/
+http://<PUBLIC-IP>:8080/sonarqube-webhook/
 
 
 ---
