@@ -627,6 +627,184 @@
           }
         }
       ]
+    },
+    {
+      "name": "Flujo 10 - Stats directos de promotion-service",
+      "item": [
+        {
+          "name": "Stats globales de health-status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Tiene totalUsers y timestamp', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('totalUsers');",
+                  "    pm.expect(json).to.have.property('timestamp');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{promotionServiceUrl}}/api/v1/health-status/stats",
+              "host": ["{{promotionServiceUrl}}"],
+              "path": ["api", "v1", "health-status", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Stats por departamento INGENIERIA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Retorna el departamento solicitado', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.department).to.eql('INGENIERIA');",
+                  "    pm.expect(json).to.have.property('totalUsers');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{promotionServiceUrl}}/api/v1/health-status/stats/department/INGENIERIA",
+              "host": ["{{promotionServiceUrl}}"],
+              "path": ["api", "v1", "health-status", "stats", "department", "INGENIERIA"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flujo 11 - Validacion de check-in en gateway-service",
+      "item": [
+        {
+          "name": "Validar token QR valido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Respuesta tiene valid, status y message', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('valid');",
+                  "    pm.expect(json).to.have.property('status');",
+                  "    pm.expect(json).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{qrToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayServiceUrl}}/api/v1/gate/validate",
+              "host": ["{{gatewayServiceUrl}}"],
+              "path": ["api", "v1", "gate", "validate"]
+            }
+          }
+        },
+        {
+          "name": "Rechazar token QR invalido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Token invalido marca valid=false y status=RED', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.valid).to.be.false;",
+                  "    pm.expect(json.status).to.eql('RED');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"this-is-not-a-valid-token\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayServiceUrl}}/api/v1/gate/validate",
+              "host": ["{{gatewayServiceUrl}}"],
+              "path": ["api", "v1", "gate", "validate"]
+            }
+          }
+        },
+        {
+          "name": "Rechazar request con token vacio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Token vacio marca valid=false', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.valid).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayServiceUrl}}/api/v1/gate/validate",
+              "host": ["{{gatewayServiceUrl}}"],
+              "path": ["api", "v1", "gate", "validate"]
+            }
+          }
+        }
+      ]
     }
   ]
 }

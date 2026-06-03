@@ -9,8 +9,8 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   mail:
-    host: localhost
-    port: 25
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:25}
     properties:
       mail:
         smtp:
@@ -56,3 +56,36 @@ qr:
 
 server:
   port: 8082
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      show-components: always
+      group:
+        readiness:
+          include: readinessState,mail
+        liveness:
+          include: livenessState
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failureRateThreshold: 50
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slowCallDurationThreshold: 2s
+        slowCallRateThreshold: 50
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      gotifyApi:
+        baseConfig: default

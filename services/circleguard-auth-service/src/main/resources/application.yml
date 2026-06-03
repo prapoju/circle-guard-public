@@ -36,3 +36,36 @@ identity:
 auth:
   service:
     base-url: ${AUTH_SERVICE_URL:http://localhost:8180}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      show-components: always
+      group:
+        readiness:
+          include: readinessState,db,ldap
+        liveness:
+          include: livenessState
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failureRateThreshold: 50
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slowCallDurationThreshold: 2s
+        slowCallRateThreshold: 50
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      identityService:
+        baseConfig: default

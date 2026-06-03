@@ -1,6 +1,7 @@
 package com.circleguard.auth.security;
 
 import com.circleguard.auth.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.support.LdapContextSource;
@@ -27,6 +28,7 @@ public class SecurityConfig {
             .cors(org.springframework.security.config.Customizer.withDefaults())
             .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
                 .requestMatchers("/api/v1/auth/login", "/api/v1/auth/qr/verify").permitAll()
                 .requestMatchers("/api/v1/auth/qr/generate").authenticated()
                 .anyRequest().permitAll())
@@ -54,12 +56,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public LdapContextSource contextSource() {
+    public LdapContextSource contextSource(
+            @Value("${spring.ldap.urls}") String ldapUrl,
+            @Value("${spring.ldap.base}") String ldapBase,
+            @Value("${spring.ldap.username}") String ldapUsername,
+            @Value("${spring.ldap.password}") String ldapPassword) {
         LdapContextSource contextSource = new LdapContextSource();
-        contextSource.setUrl("ldap://localhost:389");
-        contextSource.setBase("dc=circleguard,dc=edu");
-        contextSource.setUserDn("cn=admin,dc=circleguard,dc=edu");
-        contextSource.setPassword("admin");
+        contextSource.setUrl(ldapUrl);
+        contextSource.setBase(ldapBase);
+        contextSource.setUserDn(ldapUsername);
+        contextSource.setPassword(ldapPassword);
         return contextSource;
     }
 

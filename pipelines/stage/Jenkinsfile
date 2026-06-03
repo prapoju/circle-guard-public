@@ -1,10 +1,25 @@
 #!/usr/bin/env groovy
 
+def devProjectName = 'dev'
+def services = ['auth', 'identity', 'form', 'file', 'dashboard', 'notification', 'gateway', 'promotion']
+def hashes = [:]
+def servicesToZap = [
+    'http://auth-service.circleguard-stage.svc.cluster.local:8180',
+//     'http://dashboard-service.circleguard-stage.svc.cluster.local:8080',
+//     'http://file-service.circleguard-stage.svc.cluster.local:8085',
+//     'http://form-service.circleguard-stage.svc.cluster.local:8086',
+//     'http://gateway-service.circleguard-stage.svc.cluster.local:8087',
+//     'http://identity-service.circleguard-stage.svc.cluster.local:8083',
+//     'http://notification-service.circleguard-stage.svc.cluster.local:8082',
+//     'http://promotion-service.circleguard-stage.svc.cluster.local:8088'
+ ]
+
 pipeline {
 
     agent {
         kubernetes {
             defaultContainer 'jdk21'
+            namespace 'jenkins-agents'
             yaml '''
             apiVersion: v1
             kind: Pod
@@ -14,17 +29,8 @@ pipeline {
                   image: eclipse-temurin:21-jdk
                   command: ["sleep"]
                   args: ["infinity"]
-                - name: docker
-                  image: docker:24-dind
-                  securityContext:
-                    privileged: true
-                  env:
-                    - name: DOCKER_TLS_CERTDIR
-                      value: ""
-                  command: ["dockerd-entrypoint.sh"]
-                  args: ["--host=tcp://0.0.0.0:2375","--host=unix:///var/run/docker.sock"]
                 - name: kubectl
-                  image: alpine/kubectl:1.36.0
+                  image: line/kubectl-kustomize:latest
                   command: ["cat"]
                   tty: true
                 - name: newman
@@ -35,6 +41,16 @@ pipeline {
                   image: locustio/locust:2.29.0
                   command: ["sleep"]
                   args: ["infinity"]
+                - name: zap
+                  image: zaproxy/zap-stable 
+                  command: ["sleep"]
+                  args: ["infinity"]
+                  volumeMounts:
+                   - name: zap-wrk
+                     mountPath: /zap/wrk
+              volumes:
+                - name: zap-wrk
+                  emptyDir: {}
             '''
         }
     }
@@ -47,20 +63,13 @@ pipeline {
             }
         }
 
-        stage('Pull Dev Images') {
+        stage('Load Dev Hashes') {
             steps {
-                container('docker') {
-                    sh 'until docker info; do sleep 2; done'
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
-                        sh 'docker pull prapoju/circleguard-auth-service:dev'
-                        sh 'docker pull prapoju/circleguard-identity-service:dev'
-                        sh 'docker pull prapoju/circleguard-form-service:dev'
-                        sh 'docker pull prapoju/circleguard-file-service:dev'
-                        sh 'docker pull prapoju/circleguard-dashboard-service:dev'
-                        sh 'docker pull prapoju/circleguard-notification-service:dev'
-                        //sh 'docker pull prapoju/circleguard-promotion-service:dev'
-                        //sh 'docker pull prapoju/circleguard-gateway-service:dev'
+                script {
+                    services.each { svc ->
+                        copyArtifacts(projectName: devProjectName, filter: "commit-hash-${svc}.txt")
+                        hashes[svc] = readFile("commit-hash-${svc}.txt").trim()
+                        echo "[${svc}] hash: ${hashes[svc]}"
                     }
                 }
             }
@@ -69,10 +78,29 @@ pipeline {
         stage('Deploy to Stage') {
             steps {
                 container('kubectl') {
-                    sh 'kubectl apply -k k8s/overlays/stage'
-                    sh 'kubectl rollout restart deployment -n circleguard-stage'
-                    sh 'kubectl rollout status deployment -n circleguard-stage --timeout=120s'
-                    sh 'sleep 30'
+                    script {
+                        def kustomizeCommands = services.collect { svc ->
+                            "kustomize edit set image prapoju/circleguard-${svc}-service:dev=prapoju/circleguard-${svc}-service:${hashes[svc]}"
+                        }.join('\n')
+
+                        sh """
+                            cd k8s/overlays/stage
+                            ${kustomizeCommands}
+                            kustomize build | kubectl apply -f -
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Verify Rollout') {
+            steps {
+                container('kubectl') {
+                    script {
+                        services.each { svc ->
+                            sh "kubectl rollout status deployment/${svc}-service -n circleguard-stage --timeout=180s"
+                        }
+                    }
                 }
             }
         }
@@ -83,10 +111,12 @@ pipeline {
                     sh '''
                         newman run tests/e2e/circleguard.postman_collection.json \
                             -e tests/e2e/stage.postman_environment.json \
-                            --reporters cli \
+                            --reporters cli,junit \
+                            --reporter-junit-export newman-report.xml \
                             --bail
                     '''
                 }
+                archiveArtifacts artifacts: 'newman-report.xml', fingerprint: true
             }
         }
 
@@ -99,44 +129,43 @@ pipeline {
                             --users 15 \
                             --spawn-rate 3 \
                             --run-time 60s \
-                            --loglevel WARNING
+                            --loglevel WARNING \
+                            --csv locust-report \
+                            --html locust-report.html
                     '''
                 }
+                archiveArtifacts artifacts: 'locust-report_stats.csv,locust-report.html', fingerprint: true
             }
         }
-
-        stage('Push Stage Images') {
+        stage('ZAP') {
             steps {
-                container('docker') {
-                    sh 'docker tag prapoju/circleguard-auth-service:dev prapoju/circleguard-auth-service:stage'
-                    sh 'docker push prapoju/circleguard-auth-service:stage'
-
-                    sh 'docker tag prapoju/circleguard-identity-service:dev prapoju/circleguard-identity-service:stage'
-                    sh 'docker push prapoju/circleguard-identity-service:stage'
-
-                    sh 'docker tag prapoju/circleguard-form-service:dev prapoju/circleguard-form-service:stage'
-                    sh 'docker push prapoju/circleguard-form-service:stage'
-
-                    sh 'docker tag prapoju/circleguard-file-service:dev prapoju/circleguard-file-service:stage'
-                    sh 'docker push prapoju/circleguard-file-service:stage'
-
-                    sh 'docker tag prapoju/circleguard-notification-service:dev prapoju/circleguard-notification-service:stage'
-                    sh 'docker push prapoju/circleguard-notification-service:stage'
-
-
-                    sh 'docker tag prapoju/circleguard-dashboard-service:dev prapoju/circleguard-dashboard-service:stage'
-                    sh 'docker push prapoju/circleguard-dashboard-service:stage'
-
-
-
-                    //sh 'docker tag prapoju/circleguard-promotion-service:dev prapoju/circleguard-promotion-service:stage'
-                    //sh 'docker push prapoju/circleguard-promotion-service:stage'
-
-                    //sh 'docker tag prapoju/circleguard-gateway-service:dev prapoju/circleguard-gateway-service:stage'
-                    //sh 'docker push prapoju/circleguard-gateway-service:stage'
+                container('zap') {
+                    script {
+                        servicesToZap.each { url ->
+                            def safeName = url.replaceAll(/[^a-zA-Z0-9]/, '_')
+                            sh """
+                                zap-baseline.py \
+                                    -t ${url} \
+                                    -r zap-baseline-${safeName}.html \
+                                    -d \
+                                    -I 
+                                cp /zap/wrk/zap-baseline-${safeName}.html ${WORKSPACE}/zap-baseline-${safeName}.html
+                            """
+                        }
+                    }
+                }
+                archiveArtifacts artifacts: 'zap-baseline-*.html', fingerprint: true
+            }
+        }
+        stage('Save Artifacts') {
+            steps {
+                script {
+                    def fileList = services.collect { svc -> "commit-hash-${svc}.txt" }.join(',')
+                    archiveArtifacts artifacts: fileList, fingerprint: true
                 }
             }
         }
+
     }
 
     post {

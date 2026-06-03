@@ -15,22 +15,30 @@ spec:
       containers:
         - name: identity-service
           image: circleguard-identity-service
-          imagePullPolicy: Always
           ports:
             - containerPort: 8083
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /actuator/health/readiness
               port: 8083
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8083
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 6
           env:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres:5432/circleguard_identity
-            - name: SPRING_DATASOURCE_USERNAME
-              value: admin
-            - name: SPRING_DATASOURCE_PASSWORD
-              value: password
+          envFrom:
+            - configMapRef:
+                name: circleguard-config
+            - secretRef:
+                name: circleguard-secrets
 ---
 apiVersion: v1
 kind: Service
