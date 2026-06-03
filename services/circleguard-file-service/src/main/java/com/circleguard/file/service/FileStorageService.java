@@ -9,8 +9,10 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
     private final Path root = Paths.get("uploads");
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
-    public FileStorageService() {
+    public FileStorageService(io.micrometer.core.instrument.MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
         try {
             Files.createDirectories(root);
         } catch (IOException e) {
@@ -22,6 +24,7 @@ public class FileStorageService {
         String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
         try {
             Files.copy(file.getInputStream(), this.root.resolve(filename));
+            meterRegistry.counter("circleguard.file.uploaded.total").increment();
             return filename;
         } catch (Exception e) {
             throw new RuntimeException("Could not store file", e);

@@ -20,6 +20,7 @@ public class HealthSurveyService {
     private final QuestionnaireService questionnaireService;
     private final SymptomMapper symptomMapper;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
     private static final String TOPIC_SURVEY_SUBMITTED = "survey.submitted";
     private static final String TOPIC_CERTIFICATE_VALIDATED = "certificate.validated";
@@ -42,7 +43,8 @@ public class HealthSurveyService {
         }
         
         HealthSurvey saved = repository.save(survey);
-        
+        meterRegistry.counter("circleguard.form.surveys.submitted.total").increment();
+
         // Emit Event for Promotion Service
         Map<String, Object> event = Map.of(
             "anonymousId", saved.getAnonymousId(),

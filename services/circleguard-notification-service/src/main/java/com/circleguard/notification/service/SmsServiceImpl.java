@@ -27,6 +27,9 @@ public class SmsServiceImpl implements SmsService {
     @jakarta.annotation.Resource
     private AuditLogService auditLogService;
 
+    @jakarta.annotation.Resource
+    private io.micrometer.core.instrument.MeterRegistry meterRegistry;
+
     @PostConstruct
     public void init() {
         if (!accountSid.startsWith("AC_MOCK")) {
@@ -46,6 +49,7 @@ public class SmsServiceImpl implements SmsService {
         if (accountSid.startsWith("AC_MOCK")) {
             log.info("[MOCK SMS] To: {}, Content: {}", userId, messageContent);
             auditLogService.logDelivery(userId, "SMS", "SUCCESS", correlationId);
+            meterRegistry.counter("circleguard.notification.delivered.total").increment();
             return CompletableFuture.completedFuture(null);
         }
 
@@ -62,6 +66,7 @@ public class SmsServiceImpl implements SmsService {
 
             log.info("SMS sent successfully to user: {}", userId);
             auditLogService.logDelivery(userId, "SMS", "SUCCESS", correlationId);
+            meterRegistry.counter("circleguard.notification.delivered.total").increment();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
             log.warn("Failed to send SMS to user {} (correlationId: {}): {}", userId, correlationId, e.getMessage());
@@ -74,6 +79,7 @@ public class SmsServiceImpl implements SmsService {
     public CompletableFuture<Void> recover(Exception e, String userId, String messageContent) {
         log.error("SMS delivery failed after max retries for user: {}. Error: {}", userId, e.getMessage());
         auditLogService.logDelivery(userId, "SMS", "FAILED", null);
+        meterRegistry.counter("circleguard.notification.failed.total").increment();
         return CompletableFuture.failedFuture(e);
     }
 }
