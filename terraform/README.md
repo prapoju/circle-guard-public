@@ -1,5 +1,4 @@
 # Blob Storage Backend Configuration
-
 ## 1. Create Resource Group
 
 ```bash
