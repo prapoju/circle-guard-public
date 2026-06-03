@@ -71,20 +71,19 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                checkout scm
-                script {
-                    commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    echo "Commit hash: ${commitHash}"
-
-                    services.each { svc ->
-                        fullImages[svc.name] = "${svc.image}:${commitHash}"
-                    }
-                }
-            }
-        }
-
+      stage('Checkout') {
+          steps {
+              checkout scm
+              script {
+                  commitHash = env.GIT_COMMIT.take(7)
+                  echo "Commit hash: ${commitHash}"
+                  
+                  services.each { svc ->
+                      fullImages[svc.name] = "${svc.image}:${commitHash}"
+                  }
+              }
+          }
+      }
         stage('Compile (for Sonar)') {
             steps {
                 script {
