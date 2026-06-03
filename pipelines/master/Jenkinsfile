@@ -51,6 +51,29 @@ pipeline {
             }
         }
 
+        stage('Approval') {
+            steps {
+                script {
+                    def masterHash = env.GIT_COMMIT?.take(7) ?: 'desconocido'
+                    def serviceDetails = services.collect { svc ->
+                        "  - ${svc}: prapoju/circleguard-${svc}-service:${hashes[svc]}"
+                    }.join('\n')
+                    timeout(time: 24, unit: 'HOURS') {
+                        input message: """
+        ¿Aprobar despliegue a Master?
+        
+        Build:         #${env.BUILD_NUMBER}
+        Commit Master: ${masterHash}
+        
+        Imágenes y commits a desplegar:
+        ${serviceDetails}
+        """,
+                        ok: 'Sí, desplegar a Master'
+                    }
+                }
+            }
+        }
+
         stage('Deploy to Master') {
             steps {
                 container('kubectl') {
