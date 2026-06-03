@@ -2,6 +2,7 @@ package com.circleguard.auth.controller;
 
 import com.circleguard.auth.service.JwtTokenService;
 import com.circleguard.auth.client.IdentityClient;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -17,6 +18,7 @@ public class LoginController {
     private final AuthenticationManager authManager;
     private final JwtTokenService jwtService;
     private final IdentityClient identityClient;
+    private final MeterRegistry meterRegistry;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> request) {
@@ -24,6 +26,8 @@ public class LoginController {
         String password = request.get("password");
         
         System.out.println("Login attempt for user: " + username + " (pass length: " + (password != null ? password.length() : 0) + ")");
+
+        meterRegistry.counter("circleguard.auth.login.attempts.total").increment();
 
         try {
             // 1. Authenticate (Dual-Chain)
@@ -46,6 +50,7 @@ public class LoginController {
             ));
         } catch (org.springframework.security.core.AuthenticationException e) {
             System.err.println("Authentication failed for " + username + ": " + e.getMessage());
+            meterRegistry.counter("circleguard.auth.login.failures.total").increment();
             return ResponseEntity.status(401).body(Map.of("message", "Invalid username or password"));
         } catch (Exception e) {
             System.err.println("Unexpected error during login for " + username + ":");

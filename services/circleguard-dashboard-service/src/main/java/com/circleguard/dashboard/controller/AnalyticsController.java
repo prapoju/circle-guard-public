@@ -12,6 +12,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AnalyticsController {
     private final AnalyticsService analyticsService;
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
     @GetMapping("/trends/{locationId}")
     public ResponseEntity<List<Map<String, Object>>> getTrends(@PathVariable UUID locationId) {
@@ -25,6 +26,7 @@ public class AnalyticsController {
 
     @GetMapping("/summary")
     public ResponseEntity<Map<String, Object>> getSummary() {
+        meterRegistry.counter("circleguard.dashboard.queries.total").increment();
         return ResponseEntity.ok(analyticsService.getCampusSummary());
     }
 

@@ -14,6 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class QrValidationService {
     private final StringRedisTemplate redisTemplate;
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
     @Value("${qr.secret}")
     private String qrSecret;
@@ -35,12 +36,15 @@ public class QrValidationService {
             String status = redisTemplate.opsForValue().get(STATUS_KEY_PREFIX + anonymousId);
             
             if ("CONTAGIED".equals(status) || "POTENTIAL".equals(status)) {
+                meterRegistry.counter("circleguard.gateway.qr.validations.total", "result", "red").increment();
                 return new ValidationResult(false, "RED", "Access Denied: Health Risk Detected");
             }
 
+            meterRegistry.counter("circleguard.gateway.qr.validations.total", "result", "green").increment();
             return new ValidationResult(true, "GREEN", "Welcome to Campus");
-            
+
         } catch (Exception e) {
+            meterRegistry.counter("circleguard.gateway.qr.validations.total", "result", "red").increment();
             return new ValidationResult(false, "RED", "Invalid or Expired Token");
         }
     }

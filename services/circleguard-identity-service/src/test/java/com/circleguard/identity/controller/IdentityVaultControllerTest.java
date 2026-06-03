@@ -16,10 +16,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.context.annotation.Import;
 import com.circleguard.identity.config.SecurityConfig;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 
 @WebMvcTest(IdentityVaultController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, IdentityVaultControllerTest.MetricsTestConfig.class})
 class IdentityVaultControllerTest {
+
+    @TestConfiguration
+    static class MetricsTestConfig {
+        @Bean
+        MeterRegistry meterRegistry() {
+            return new SimpleMeterRegistry();
+        }
+    }
 
     @Autowired
     private MockMvc mockMvc;

@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline
+data:
+  logstash.conf: |
+    input {
+      file {
+        path => "/var/log/pods/*/*/*.log"
+        start_position => "beginning"
+        sincedb_path => "/usr/share/logstash/data/sincedb_containers"
+        mode => "tail"
+      }
+    }
+    filter {
+      grok {
+        match => { "message" => "%{TIMESTAMP_ISO8601:log_timestamp} %{DATA:stream} %{DATA:flags} %{GREEDYDATA:log_message}" }
+      }
+      mutate {
+        add_field => { "source_path" => "%{[log][file][path]}" }
+      }
+    }
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch:9200"]
+        index => "circleguard-logs-%{+YYYY.MM.dd}"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: logstash
+spec:
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: logstash
+          image: docker.elastic.co/logstash/logstash:8.13.4
+          env:
+            - name: XPACK_MONITORING_ENABLED
+              value: "false"
+            - name: LS_JAVA_OPTS
+              value: -Xms512m -Xmx512m
+          ports:
+            - containerPort: 5044
+          volumeMounts:
+            - name: pipeline
+              mountPath: /usr/share/logstash/pipeline
+            - name: pods
+              mountPath: /var/log/pods
+              readOnly: true
+      volumes:
+        - name: pipeline
+          configMap:
+            name: logstash-pipeline
+        - name: pods
+          hostPath:
+            path: /var/log/pods

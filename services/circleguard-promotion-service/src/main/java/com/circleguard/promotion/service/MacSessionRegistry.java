@@ -9,12 +9,14 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class MacSessionRegistry {
     private final StringRedisTemplate redisTemplate;
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
     private static final String KEY_PREFIX = "session:mac:";
     private static final Duration DEFAULT_TTL = Duration.ofHours(8);
 
     public void registerSession(String macAddress, String anonymousId) {
         String key = KEY_PREFIX + macAddress.toLowerCase();
         redisTemplate.opsForValue().set(key, anonymousId, DEFAULT_TTL);
+        meterRegistry.counter("circleguard.promotion.checkins.total").increment();
     }
 
     public String getAnonymousId(String macAddress) {
