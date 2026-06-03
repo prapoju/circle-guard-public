@@ -146,7 +146,7 @@ pipeline {
                             sh """
                                 zap-baseline.py \
                                     -t ${url} \
-                                    -r /zap/wrk/zap-baseline-${safeName}.html \
+                                    -r zap-baseline-${safeName}.html \
                                     -d
                                 cp /zap/wrk/zap-baseline-${safeName}.html ${WORKSPACE}/zap-baseline-${safeName}.html
                             """
