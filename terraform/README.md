@@ -227,7 +227,7 @@ Disable this n administration settings
 
 Create the cgp project
 
-Create a webhook to localhost:8080
+Create a webhook to <PUBLIC-IP>:8080
 
 Account token generate token for cgp project
 90 days
