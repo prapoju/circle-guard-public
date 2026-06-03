@@ -259,7 +259,6 @@ pipeline {
                                     --severity MEDIUM,HIGH,CRITICAL \
                                     --exit-code 0 \
                                     --format table \
-                                    --no-color \
                                     ${fullImage} \
                                     > trivy-analysis-${name}.txt 2>&1
                             """
