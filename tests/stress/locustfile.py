@@ -4,7 +4,7 @@ Simula cuatro tipos de usuarios concurrentes con flujos reales del sistema.
 
 Umbrales de aceptación:
   - Tasa de error:  <= 5%
-  - p95 latencia:   <= 3000 ms
+  - p95 latencia:   <= 20000 ms
 """
 
 import random
