@@ -2,6 +2,7 @@ package com.circleguard.auth.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,7 @@ class QrTokenServiceTest {
 
     @BeforeEach
     void setUp() {
-        qrTokenService = new QrTokenService(SECRET, EXPIRATION);
+        qrTokenService = new QrTokenService(SECRET, EXPIRATION, new SimpleMeterRegistry());
     }
 
     @Test
