@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    scrape_configs:
+      - job_name: prometheus
+        static_configs:
+          - targets: ['localhost:9090']
+      - job_name: circleguard-auth-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['auth-service:8180']
+      - job_name: circleguard-identity-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['identity-service:8083']
+      - job_name: circleguard-dashboard-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['dashboard-service:8080']
+      - job_name: circleguard-notification-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['notification-service:8082']
+      - job_name: circleguard-form-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['form-service:8086']
+      - job_name: circleguard-file-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['file-service:8085']
+      - job_name: circleguard-promotion-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['promotion-service:8088']
+      - job_name: circleguard-gateway-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['gateway-service:8087']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.51.0
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus
+      volumes:
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - port: 9090
+      targetPort: 9090
