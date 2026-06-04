@@ -23,6 +23,7 @@ public class HealthStatusService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final com.circleguard.promotion.repository.jpa.SystemSettingsRepository systemSettingsRepository;
     private final com.circleguard.promotion.repository.graph.CircleNodeRepository circleNodeRepository;
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
     private static final String STATUS_KEY_PREFIX = "user:status:";
     private static final String TOPIC_STATUS_CHANGED = "promotion.status.changed";
@@ -117,6 +118,10 @@ public class HealthStatusService {
             payload.put("timestamp", System.currentTimeMillis());
 
             kafkaTemplate.send(TOPIC_STATUS_CHANGED, anonymousId, payload);
+
+            if ("CONFIRMED".equals(status)) {
+                meterRegistry.counter("circleguard.promotion.contagions.confirmed.total").increment();
+            }
 
             // Story 5.4: Automated Room Reservation Cancellation
             checkAndBroadcastFencedCircles(anonymousId);

@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+data:
+  circleguard-services.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "schemaVersion": 39,
+      "title": "CircleGuard - Services Overview",
+      "uid": "circleguard-services",
+      "tags": ["circleguard"],
+      "time": { "from": "now-1h", "to": "now" },
+      "refresh": "15s",
+      "templating": {
+        "list": [
+          {
+            "name": "application",
+            "label": "Service",
+            "type": "query",
+            "datasource": { "type": "prometheus", "uid": "${datasource}" },
+            "query": "label_values(http_server_requests_seconds_count, application)",
+            "refresh": 2,
+            "includeAll": true,
+            "multi": true,
+            "current": { "text": "All", "value": "$__all" }
+          },
+          {
+            "name": "datasource",
+            "label": "Datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": { "text": "Prometheus", "value": "Prometheus" }
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Request rate (req/s)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum by (application) (rate(http_server_requests_seconds_count{application=~\"$application\"}[1m]))",
+              "legendFormat": "{{application}}"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Latency p95 (s)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum by (le, application) (rate(http_server_requests_seconds_bucket{application=~\"$application\"}[5m])))",
+              "legendFormat": "{{application}}"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Error rate 5xx (req/s)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum by (application) (rate(http_server_requests_seconds_count{application=~\"$application\",status=~\"5..\"}[1m]))",
+              "legendFormat": "{{application}}"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "JVM heap used (bytes)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum by (application) (jvm_memory_used_bytes{application=~\"$application\",area=\"heap\"})",
+              "legendFormat": "{{application}}"
+            }
+          ]
+        }
+      ]
+    }

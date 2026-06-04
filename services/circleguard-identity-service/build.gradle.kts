@@ -40,6 +40,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security") // for encryption utils
     implementation("org.flywaydb:flyway-core")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.micrometer:micrometer-tracing-bridge-otel")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
     runtimeOnly("org.postgresql:postgresql")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
