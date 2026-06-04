@@ -19,6 +19,7 @@ spec:
             - sh
             - -c
             - until nc -z neo4j 7687; do echo waiting for neo4j; sleep 2; done
+      serviceAccountName: promotion-service-sa
       containers:
         - name: promotion-service
           image: circleguard-promotion-service
