@@ -19,6 +19,7 @@ spec:
             - sh
             - -c
             - until pg_isready -h postgres; do echo waiting for postgres; sleep 2; done
+      serviceAccountName: form-service-sa
       containers:
         - name: form-service
           image: circleguard-form-service
