@@ -4,6 +4,7 @@ namespace: circleguard-do-stage
 resources:
 - namespace.yml
 - ../../base
+- ../../base/backup/restore
 patches:
 - path: configmap-patches.yml
 images:

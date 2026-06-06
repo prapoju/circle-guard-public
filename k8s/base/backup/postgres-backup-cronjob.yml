@@ -1,0 +1,82 @@
+# Cross-cloud Postgres backup.
+# Runs on the primary cluster (Azure) and pushes a pg_dumpall to a DigitalOcean
+# Space (S3-compatible) so the DOKS cluster can restore from it (see
+# postgres-restore-cronjob.yml). Spaces auth uses access keys from a Secret
+# (spaces-credentials), portable across clouds.
+#
+# The Secret is NOT committed. Create it once per cluster:
+#   kubectl create secret generic spaces-credentials \
+#     --from-literal=AWS_ACCESS_KEY_ID=<spaces-key> \
+#     --from-literal=AWS_SECRET_ACCESS_KEY=<spaces-secret> -n <namespace>
+#
+# RPO ~1h (backup cadence). RTO ~15m (restore time on a fresh cluster).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          initContainers:
+            - name: pg-dump
+              image: postgres:16
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  pg_dumpall -h postgres -U admin > /backup/dump.sql
+                  echo "dump size: $(wc -c < /backup/dump.sql) bytes"
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: circleguard-secrets
+                      key: SPRING_DATASOURCE_PASSWORD
+              volumeMounts:
+                - name: dump
+                  mountPath: /backup
+          containers:
+            - name: spaces-upload
+              image: amazon/aws-cli:2.15.30
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  TS=$(date +%Y%m%d-%H%M%S)
+                  aws s3 cp /backup/dump.sql "s3://${SPACES_BUCKET}/${ENV_NAME}/backup-${TS}.sql" --endpoint-url "${SPACES_ENDPOINT}"
+                  aws s3 cp /backup/dump.sql "s3://${SPACES_BUCKET}/${ENV_NAME}/latest.sql" --endpoint-url "${SPACES_ENDPOINT}"
+                  echo "uploaded s3://${SPACES_BUCKET}/${ENV_NAME}/backup-${TS}.sql"
+              env:
+                - name: SPACES_BUCKET
+                  value: circleguard-backups-do
+                - name: SPACES_ENDPOINT
+                  value: https://nyc3.digitaloceanspaces.com
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: spaces-credentials
+                      key: AWS_ACCESS_KEY_ID
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: spaces-credentials
+                      key: AWS_SECRET_ACCESS_KEY
+              envFrom:
+                - configMapRef:
+                    name: circleguard-config
+              volumeMounts:
+                - name: dump
+                  mountPath: /backup
+          volumes:
+            - name: dump
+              emptyDir: {}

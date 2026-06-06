@@ -1,0 +1,75 @@
+# Cross-cloud Postgres restore.
+# Runs ONLY on the DOKS cluster (referenced from the do-stage overlay, not from
+# the base kustomization). Pulls the latest pg_dumpall produced by the primary
+# cluster (postgres-backup-cronjob.yml) from the shared DigitalOcean Space and
+# replays it into the local Postgres, keeping DOKS warm for failover.
+#
+# SOURCE_ENV selects which cluster's backups to pull (the Azure primary).
+# Uses the same spaces-credentials Secret as the backup job.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-restore
+spec:
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          initContainers:
+            - name: spaces-download
+              image: amazon/aws-cli:2.15.30
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  aws s3 cp "s3://${SPACES_BUCKET}/${SOURCE_ENV}/latest.sql" /restore/latest.sql --endpoint-url "${SPACES_ENDPOINT}"
+                  echo "downloaded $(wc -c < /restore/latest.sql) bytes"
+              env:
+                - name: SPACES_BUCKET
+                  value: circleguard-backups-do
+                - name: SPACES_ENDPOINT
+                  value: https://nyc3.digitaloceanspaces.com
+                - name: SOURCE_ENV
+                  value: stage
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: spaces-credentials
+                      key: AWS_ACCESS_KEY_ID
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: spaces-credentials
+                      key: AWS_SECRET_ACCESS_KEY
+              volumeMounts:
+                - name: restore
+                  mountPath: /restore
+          containers:
+            - name: pg-restore
+              image: postgres:16
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  psql -h postgres -U admin -d postgres -f /restore/latest.sql
+                  echo "restore complete"
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: circleguard-secrets
+                      key: SPRING_DATASOURCE_PASSWORD
+              volumeMounts:
+                - name: restore
+                  mountPath: /restore
+          volumes:
+            - name: restore
+              emptyDir: {}

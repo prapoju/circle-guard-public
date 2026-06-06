@@ -26,3 +26,4 @@ resources:
   - services/file-service.yml
   - services/promotion-service.yml
   - services/gateway-service.yml
+  - backup/postgres-backup-cronjob.yml
