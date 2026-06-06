@@ -1,0 +1,13 @@
+# Copy to terraform.tfvars and fill in your values, OR export TF_VAR_do_token.
+# terraform.tfvars is gitignored: do not commit real tokens.
+
+# Prefer exporting the token instead of writing it here:
+#   export TF_VAR_do_token=dop_v1_xxx   (bash / Git Bash)
+#   $env:TF_VAR_do_token = "dop_v1_xxx" (PowerShell)
+# do_token = "dop_v1_xxxxxxxx"
+
+# Optional overrides (defaults shown):
+# doks_cluster_name = "circleguard-doks"
+# doks_region       = "nyc3"
+# doks_node_size    = "s-2vcpu-4gb"
+# doks_node_count   = 2
