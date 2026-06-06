@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: circleguard-config
+data:
+  ENV_NAME: do-stage
+  LOG_LEVEL: INFO
