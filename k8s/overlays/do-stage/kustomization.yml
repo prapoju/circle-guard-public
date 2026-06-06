@@ -5,6 +5,8 @@ resources:
 - namespace.yml
 - ../../base
 - ../../base/backup/restore
+components:
+- ../../components/no-observability
 patches:
 - path: configmap-patches.yml
 images:

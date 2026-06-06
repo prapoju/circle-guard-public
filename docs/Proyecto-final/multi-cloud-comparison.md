@@ -22,10 +22,12 @@ y DOKS usa nodos amd64, así que las imágenes existentes corren sin rebuild.
 |---|---|---|
 | IaC | `terraform/` (módulo `modules/aks`) | `terraform/digitalocean/` (módulo `modules/doks`) |
 | Backend de estado | Azure Blob (`cgpaccount/tfstate`) | DO Spaces S3-compat (`circleguard-tfstate-do-jda`) |
-| Overlay K8s | `k8s/overlays/stage` (`circleguard-stage`) | `k8s/overlays/do-stage` (`circleguard-do-stage`) |
+| Overlays K8s | `stage`, `master` | `do-dev`, `do-stage`, `do-master` |
+| Entornos (namespaces) | `circleguard-stage`, `circleguard-master` | `circleguard-do-{dev,stage,master}` |
 | Región | (según tfvars de AKS) | `nyc3` |
-| Nodos | pools `default`/`stage`/`master` | pool `stage`, 2× `s-2vcpu-4gb` |
+| Nodos | pools `default`/`stage`/`master` | 3× `s-4vcpu-8gb` (24 GB) |
 | Plano de control | Gratis (tier Free) | Gratis (no-HA) |
+| Observabilidad | Stack completo (ELK, Jaeger, Prometheus, Grafana) | Recortada (component `no-observability`) por límite de RAM de la cuenta free |
 
 ## Metodología de medición
 
