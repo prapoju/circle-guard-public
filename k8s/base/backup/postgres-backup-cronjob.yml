@@ -58,7 +58,7 @@ spec:
                   echo "uploaded s3://${SPACES_BUCKET}/${ENV_NAME}/backup-${TS}.sql"
               env:
                 - name: SPACES_BUCKET
-                  value: circleguard-backups-do
+                  value: circleguard-backups-do-jda
                 - name: SPACES_ENDPOINT
                   value: https://nyc3.digitaloceanspaces.com
                 - name: AWS_ACCESS_KEY_ID

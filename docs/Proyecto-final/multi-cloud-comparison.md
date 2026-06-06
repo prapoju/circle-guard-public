@@ -21,7 +21,7 @@ y DOKS usa nodos amd64, así que las imágenes existentes corren sin rebuild.
 | Aspecto | Azure (AKS) | DigitalOcean (DOKS) |
 |---|---|---|
 | IaC | `terraform/` (módulo `modules/aks`) | `terraform/digitalocean/` (módulo `modules/doks`) |
-| Backend de estado | Azure Blob (`cgpaccount/tfstate`) | DO Spaces S3-compat (`circleguard-tfstate-do`) |
+| Backend de estado | Azure Blob (`cgpaccount/tfstate`) | DO Spaces S3-compat (`circleguard-tfstate-do-jda`) |
 | Overlay K8s | `k8s/overlays/stage` (`circleguard-stage`) | `k8s/overlays/do-stage` (`circleguard-do-stage`) |
 | Región | (según tfvars de AKS) | `nyc3` |
 | Nodos | pools `default`/`stage`/`master` | pool `stage`, 2× `s-2vcpu-4gb` |
@@ -89,7 +89,7 @@ desde el panel/`doctl`, o `terraform destroy` en `terraform/digitalocean/`.
 
 - **Backup** (`k8s/base/backup/postgres-backup-cronjob.yml`): CronJob horario que
   hace `pg_dumpall` del Postgres del cluster primario y sube el dump a una DO
-  Space S3-compatible (`circleguard-backups-do/<env>/`, timestamped + `latest.sql`).
+  Space S3-compatible (`circleguard-backups-do-jda/<env>/`, timestamped + `latest.sql`).
 - **Restore** (`k8s/base/backup/restore/`): CronJob cada 6 h, solo en el overlay de
   DO, que descarga `latest.sql` del entorno origen y lo restaura en el Postgres de
   DOKS, manteniéndolo caliente para failover.

@@ -33,7 +33,7 @@ spec:
                   echo "downloaded $(wc -c < /restore/latest.sql) bytes"
               env:
                 - name: SPACES_BUCKET
-                  value: circleguard-backups-do
+                  value: circleguard-backups-do-jda
                 - name: SPACES_ENDPOINT
                   value: https://nyc3.digitaloceanspaces.com
                 - name: SOURCE_ENV

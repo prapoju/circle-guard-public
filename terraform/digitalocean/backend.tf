@@ -9,7 +9,7 @@ terraform {
     endpoints = {
       s3 = "https://nyc3.digitaloceanspaces.com"
     }
-    bucket = "circleguard-tfstate-do"
+    bucket = "circleguard-tfstate-do-jda"
     key    = "terraform/state/terraform.tfstate"
     region = "us-east-1"
 
