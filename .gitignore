@@ -56,3 +56,12 @@ terraform/terraform.tfvars
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 terraform.tfstate
+# Terraform DigitalOcean (multi-cloud)
+terraform/digitalocean/.terraform*
+terraform/digitalocean/terraform.tfvars
+terraform/digitalocean/*.tfstate*
+terraform/digitalocean/tfplan
+# Cloud credentials / kubeconfig (never commit)
+spaces-credentials
+kubeconfig
+kubeconfig-do
