@@ -1,0 +1,150 @@
+controller:
+  serviceType: LoadBalancer
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      cpu: 1500m
+      memory: 2Gi
+
+  # Plugins extra para replicar el CI de Azure: SonarQube, GitHub y JobDSL
+  # (los jobs se crean como codigo via JCasC).
+  additionalPlugins:
+    - sonar
+    - github
+    - github-branch-source
+    - job-dsl
+
+  # Credenciales del CI inyectadas desde el Secret 'cgp-ci-credentials'
+  # (creado aparte, NO versionado). JCasC las resuelve via ${VAR}.
+  containerEnvFrom:
+    - secretRef:
+        name: cgp-ci-credentials
+
+  JCasC:
+    configScripts:
+      cgp-jobs: |
+        jobs:
+          - script: >
+              pipelineJob('dev') {
+                description('CI dev - circleguard (DOKS)')
+                definition {
+                  cpsScm {
+                    scm {
+                      git {
+                        remote { url('https://github.com/prapoju/circle-guard-public.git') }
+                        branches('*/develop')
+                      }
+                    }
+                    scriptPath('pipelines/dev/Jenkinsfile')
+                    lightweight(true)
+                  }
+                }
+              }
+          - script: >
+              pipelineJob('stage') {
+                description('Promote a stage - circleguard (DOKS)')
+                definition {
+                  cpsScm {
+                    scm {
+                      git {
+                        remote { url('https://github.com/prapoju/circle-guard-public.git') }
+                        branches('*/stage')
+                      }
+                    }
+                    scriptPath('pipelines/stage/Jenkinsfile')
+                    lightweight(true)
+                  }
+                }
+              }
+          - script: >
+              pipelineJob('master') {
+                description('Promote a master - circleguard (DOKS)')
+                definition {
+                  cpsScm {
+                    scm {
+                      git {
+                        remote { url('https://github.com/prapoju/circle-guard-public.git') }
+                        branches('*/master')
+                      }
+                    }
+                    scriptPath('pipelines/master/Jenkinsfile')
+                    lightweight(true)
+                  }
+                }
+              }
+      # Permite que JobDSL desde JCasC cree los jobs sin aprobacion manual de scripts.
+      cgp-jobdsl-security: |
+        security:
+          globalJobDslSecurityConfiguration:
+            useScriptSecurity: false
+      # Credenciales (valores desde env del Secret cgp-ci-credentials).
+      cgp-credentials: |
+        credentials:
+          system:
+            domainCredentials:
+              - credentials:
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: "dockerhub-credentials"
+                      username: "${DOCKERHUB_USER}"
+                      password: "${DOCKERHUB_PASS}"
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: "github-app"
+                      username: "${GITHUB_APP_USER}"
+                      password: "${GITHUB_APP_TOKEN}"
+                  - string:
+                      scope: GLOBAL
+                      id: "sonar-token"
+                      secret: "${SONAR_TOKEN}"
+      # Servidor SonarQube usado por withSonarQubeEnv('sonarqube-server').
+      cgp-sonar: |
+        unclassified:
+          sonarGlobalConfiguration:
+            buildWrapperEnabled: true
+            installations:
+              - name: "sonarqube-server"
+                serverUrl: "${SONAR_URL}"
+                credentialsId: "sonar-token"
+      # Job multibranch que descubre PRs del repo (polling) y postea checks
+      # en GitHub usando la credencial 'github-app'. No afecta el CI de Azure.
+      cgp-pr-multibranch: |
+        jobs:
+          - script: >
+              multibranchPipelineJob('circleguard-pr') {
+                displayName('CircleGuard PR checks (DOKS)')
+                branchSources {
+                  branchSource {
+                    source {
+                      github {
+                        id('cgp-do-pr')
+                        repoOwner('prapoju')
+                        repository('circle-guard-public')
+                        repositoryUrl('https://github.com/prapoju/circle-guard-public')
+                        configuredByUrl(true)
+                        credentialsId('github-app')
+                        traits {
+                          gitHubPullRequestDiscovery { strategyId(1) }
+                        }
+                      }
+                    }
+                  }
+                }
+                factory {
+                  workflowBranchProjectFactory {
+                    scriptPath('pipelines/dev/Jenkinsfile')
+                  }
+                }
+                triggers {
+                  periodicFolderTrigger { interval('5m') }
+                }
+                orphanedItemStrategy {
+                  discardOldItems { numToKeep(10) }
+                }
+              }
+
+persistence:
+  enabled: true
+  existingClaim: jenkins-home
