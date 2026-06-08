@@ -6,7 +6,7 @@ resources:
 - ../../base
 - ../../base/backup/restore
 components:
-- ../../components/no-observability
+- ../../components/no-logging
 patches:
 - path: configmap-patches.yml
 images:
