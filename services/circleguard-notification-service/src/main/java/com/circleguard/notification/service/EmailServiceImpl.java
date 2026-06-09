@@ -16,6 +16,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
     private final AuditLogService auditLogService;
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
     @Override
     @Async
@@ -36,6 +37,7 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(mailMessage);
             log.info("Email sent successfully to user: {}", userId);
             auditLogService.logDelivery(userId, "EMAIL", "SUCCESS", correlationId);
+            meterRegistry.counter("circleguard.notification.delivered.total").increment();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
             log.warn("Failed to send email to user {} (correlationId: {}): {}", userId, correlationId, e.getMessage());
@@ -48,6 +50,7 @@ public class EmailServiceImpl implements EmailService {
     public CompletableFuture<Void> recover(Exception e, String userId, String message) {
         log.error("Email delivery failed after max retries for user: {}. Error: {}", userId, e.getMessage());
         auditLogService.logDelivery(userId, "EMAIL", "FAILED", null);
+        meterRegistry.counter("circleguard.notification.failed.total").increment();
         return CompletableFuture.failedFuture(e);
     }
 }

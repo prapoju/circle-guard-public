@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class IdentityVaultService {
     private final IdentityMappingRepository repository;
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
     @Value("${vault.hash-salt:circleguard-default-salt}")
     private String hashSalt;
@@ -29,7 +30,10 @@ public class IdentityVaultService {
         String hash = computeHash(realIdentity);
         
         return repository.findByIdentityHash(hash)
-                .map(IdentityMapping::getAnonymousId)
+                .map(mapping -> {
+                    meterRegistry.counter("circleguard.identity.anonymous.ids.resolved.total").increment();
+                    return mapping.getAnonymousId();
+                })
                 .orElseGet(() -> {
                     String salt = KeyGenerators.string().generateKey();
                     IdentityMapping mapping = IdentityMapping.builder()

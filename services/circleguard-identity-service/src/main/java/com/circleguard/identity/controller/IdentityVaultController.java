@@ -19,6 +19,7 @@ import java.time.Instant;
 public class IdentityVaultController {
     private final IdentityVaultService vaultService;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
     /**
      * Maps a real identity to an anonymous ID. 
@@ -43,7 +44,8 @@ public class IdentityVaultController {
         // Combine details into a single identity string for the vault
         String realIdentity = "VISITOR|" + email + "|" + name + "|" + reason;
         UUID anonymousId = vaultService.getOrCreateAnonymousId(realIdentity);
-        
+        meterRegistry.counter("circleguard.identity.visitors.registered.total").increment();
+
         return ResponseEntity.ok(Map.of("anonymousId", anonymousId));
     }
 

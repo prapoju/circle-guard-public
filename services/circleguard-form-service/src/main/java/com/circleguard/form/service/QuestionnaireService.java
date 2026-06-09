@@ -14,6 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class QuestionnaireService {
     private final QuestionnaireRepository repository;
+    private final io.micrometer.core.instrument.MeterRegistry meterRegistry;
 
     public List<Questionnaire> getAllQuestionnaires() {
         return repository.findAll();
@@ -28,7 +29,9 @@ public class QuestionnaireService {
         if (questionnaire.getQuestions() != null) {
             questionnaire.getQuestions().forEach(q -> q.setQuestionnaire(questionnaire));
         }
-        return repository.save(questionnaire);
+        Questionnaire saved = repository.save(questionnaire);
+        meterRegistry.counter("circleguard.form.questionnaires.created.total").increment();
+        return saved;
     }
 
     @Transactional
