@@ -365,13 +365,10 @@ flowchart LR
 | Seguridad (DAST) | OWASP ZAP (baseline) | etapa ZAP (`stage`) |
 | Cobertura/calidad | SonarQube | dashboard Sonar |
 
-**Perfiles de carga de Locust:** Estudiante (50%, login + QR), Visitante (30%, registro
-+ encuesta), Personal de salud (20%, dashboards), Guardia (validación de QR en el gateway).
-Umbrales: error ≤ 5%, p95 ≤ 3000 ms. **Resultados** en §11 (Comparativa Multi-Cloud).
+
 
 ## 5.1 Evidencia
 
-> La **cobertura** se evidencia en la captura del Quality Gate de SonarQube del punto 4 (Coverage 20.3%).
 
 ### Pruebas unitarias — Gradle (etapa `Unit Tests` del pipeline `dev`)
 
@@ -426,7 +423,15 @@ Escaneo `zap-baseline.py` contra `auth-service`: **0 alertas High / Medium / Low
 
 ## 6.1 Evidencia
 
-> 📸 **Captura pendiente:** Release publicado en GitHub con su tag `v<fecha>-<sha>` y las notas generadas. → `![Release](../../capturas/proyecto/06-release.png)`
+**Releases publicados en GitHub** — cada promoción a `master` genera un tag y un release automático.
+
+![Lista de releases en GitHub](../../capturas/proyecto/7%29Releases/releases-lista.png)
+
+**Release `v2026.06.09-803ccdb-e6e3292` con notas generadas automáticamente**
+
+Notas clasificadas por tipo (New Features / Tests / Other Changes), tag `v<fecha>-<sha_repo>-<sha_imagen>`, PRs mergeados enlazados y referencia al `Jenkins build #4` que lo publicó vía la API de GitHub.
+
+![Release con notas generadas automáticamente](../../capturas/proyecto/7%29Releases/release-notes-detalle.png)
 
 ---
 
