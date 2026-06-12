@@ -30,7 +30,7 @@ sin esperar al cierre de un sprint. Las iteraciones son cadencias marcadas con
 - `In Review`: PR abierto con checks corriendo (límite suave: 5).
 - `Done`: mergeada a `develop`, DoD cumplida.
 
-**Ceremonias:** mínimas — standup async diario, refinamiento bajo demanda, revisión
+**Ceremonias:** mínimas: standup async diario, refinamiento bajo demanda, revisión
 obligatoria por PR (al menos un reviewer distinto del autor).
 
 **Métricas:** cycle time (<5 días), throughput semanal (≥5 en M1, ≥8 en M2), WIP
@@ -70,10 +70,10 @@ Toda la trazabilidad HU ↔ código vive en GitHub (issues, PRs, commits, labels
 milestones). Project v2 [CircleGuard - Proyecto Final](https://github.com/users/ItsJuanda17/projects/3),
 owner `ItsJuanda17`, `prapoju` como admin.
 
-- **Labels — Épicas** (una por requisito): `epic:metodologia`, `epic:terraform`,
+- **Labels de épica** (una por requisito): `epic:metodologia`, `epic:terraform`,
   `epic:patrones`, `epic:cicd`, `epic:pruebas`, `epic:releases`, `epic:observabilidad`,
   `epic:seguridad`, `epic:documentacion`.
-- **Labels — Bonus:** `bonus:multicloud`, `bonus:servicemesh`, `bonus:chaos`, `bonus:finops`.
+- **Labels de bonus:** `bonus:multicloud`, `bonus:servicemesh`, `bonus:chaos`, `bonus:finops`.
 - **Soporte:** `type:story|task|bug`, `priority:high|medium|low`.
 - **Workflows automáticos:** ítem agregado → `Backlog`; PR mergeado → `Done`; issue
   cerrado → `Done`; issues nuevos del repo se agregan al project.
@@ -97,11 +97,11 @@ owner `ItsJuanda17`, `prapoju` como admin.
 
 ## 1.5 Definición de Ready (DoR) y Done (DoD)
 
-**DoR** — una HU se puede tomar cuando: título `US-XX: <verbo> <objeto>`, descripción
+**DoR.** Una HU se puede tomar cuando: título `US-XX: <verbo> <objeto>`, descripción
 tipo HU (`Como <rol>, quiero <funcionalidad> para <beneficio>`), ≥2 criterios de
 aceptación verificables, labels de épica + milestone, y sin dependencias bloqueadas.
 
-**DoD** — una HU pasa a `Done` cuando: criterios cumplidos, código según convenciones
+**DoD.** Una HU pasa a `Done` cuando: criterios cumplidos, código según convenciones
 (sin TODOs sueltos ni secretos hardcodeados), pruebas unitarias agregadas/actualizadas
 (cobertura no baja del baseline), CI verde (build/tests/lint/Sonar/Trivy sin nuevas
 vulnerabilidades HIGH/CRITICAL), documentación actualizada, PR revisado por alguien
@@ -109,20 +109,20 @@ distinto del autor y mergeado a `develop`.
 
 ## 1.6 Evidencia
 
-**Metodología ágil — Tablero Kanban en GitHub Projects**
+**Tablero Kanban en GitHub Projects**
 
 ![Tablero Kanban en GitHub Projects](../../capturas/proyecto/4%29Project%20management/kanban-board.png)
 
-**Automatización del tablero — Workflows del Project**
+**Workflows del Project que automatizan el tablero**
 
 ![Workflows del Project](../../capturas/proyecto/4%29Project%20management/project-workflows.png)
 
-**Estrategia de branching — ramas del repositorio (GitFlow: master, stage, develop, feat/*, fix/*, test/*)**
+**Ramas del repositorio bajo GitFlow (master, stage, develop, feat/*, fix/*, test/*)**
 
 ![Ramas del repositorio (1)](../../capturas/proyecto/4%29Project%20management/branches-1.png)
 ![Ramas del repositorio (2)](../../capturas/proyecto/4%29Project%20management/branches-2.png)
 
-**Iteraciones — Milestones (M1 Fundamentos y M2 Completitud + Bonus, 100% completados)**
+**Milestones de las iteraciones (M1 Fundamentos y M2 Completitud + Bonus, 100% completados)**
 
 ![Milestones de las dos iteraciones](../../capturas/proyecto/4%29Project%20management/milestones-iteraciones.png)
 
@@ -167,11 +167,11 @@ en su propio módulo reutilizable, y la raíz solo invoca esos módulos pasándo
 
 ![Estructura de módulos Terraform](../../capturas/proyecto/5%29Terraform/terraform-estructura.png)
 
-**Estado en backend remoto (DOKS)** — `terraform state list` leído desde DO Spaces:
+**Estado en backend remoto (DOKS).** `terraform state list` leído desde DO Spaces:
 
 ![terraform state list (DOKS)](../../capturas/proyecto/5%29Terraform/terraform-doks-state.png)
 
-**Infraestructura desplegada (AKS)** — los 3 node pools (`default`/`master`/`stage`) que define declarativamente `modules/aks`:
+**Infraestructura desplegada (AKS).** Los 3 node pools (`default`/`master`/`stage`) que define declarativamente `modules/aks`:
 
 ![Nodos del AKS por node pool](../../capturas/proyecto/5%29Terraform/terraform-aks-nodes.png)
 
@@ -208,7 +208,7 @@ Estados CLOSED → OPEN (al superar el umbral, rechaza y ejecuta fallback) → H
 (llamadas de prueba) → CLOSED/OPEN. Fallbacks por cliente (503, mapa degradado, log
 `CB_OPEN`). Test: `IdentityClientCircuitBreakerTest` valida los 4 escenarios.
 
-**Diagrama — máquina de estados del Circuit Breaker**
+**Diagrama: máquina de estados del Circuit Breaker**
 
 ```mermaid
 stateDiagram-v2
@@ -223,7 +223,7 @@ stateDiagram-v2
     end note
 ```
 
-**Diagrama — dónde está aplicado (3 puntos)**
+**Diagrama: dónde está aplicado (3 puntos)**
 
 ```mermaid
 flowchart LR
@@ -242,7 +242,7 @@ común** (`circleguard-secrets`), con override por ambiente vía Kustomize. Los 
 consumen con `envFrom`; solo `SPRING_DATASOURCE_URL` queda por servicio (BD distinta).
 Overlays: `stage` → `ENV_NAME: stage`, `LOG_LEVEL: DEBUG`; `master` → `prod`/`WARN`.
 
-**Diagrama — External Configuration con ConfigMap + Secret y override por overlay**
+**Diagrama: External Configuration con ConfigMap + Secret y override por overlay**
 
 ```mermaid
 flowchart TB
@@ -264,7 +264,7 @@ dependencias para evitar reinicios en cascada). Spring Boot autoconfigura los
 `HealthIndicator`. Probes en los deployments: readiness (delay 30s, cada 10s, fail 10),
 liveness (delay 60s, cada 20s, fail 6).
 
-**Diagrama — Health Check (readiness vs liveness)**
+**Diagrama: Health Check (readiness vs liveness)**
 
 ```mermaid
 flowchart LR
@@ -324,7 +324,7 @@ flowchart LR
 
 ![Jenkins](../../capturas/proyecto/1%29Jenkins/1jenkins.png)
 
-**Integración con GitHub — GitHub App (webhook, permisos, llave privada y uso de credenciales en Jenkins)**
+**Integración con GitHub mediante GitHub App (webhook, permisos, llave privada y uso de credenciales en Jenkins)**
 
 ![GitHub App - webhook URL](../../capturas/proyecto/2%29GITHUB_APP/2-webhook-url.png)
 ![GitHub App - permisos](../../capturas/proyecto/2%29GITHUB_APP/3-permisos1.png)
@@ -340,7 +340,7 @@ flowchart LR
 
 > El paso a paso completo del setup (más capturas de permisos, ulimit, vm.max_map_count, etc.) está en `capturas/proyecto/`.
 
-**Pipeline `dev` ejecutado en verde — todas las etapas (Checkout, Compile, Unit Tests, Static Analysis, Quality Gate, Package, Integration Tests, Build Images, Security Scan, Push)**
+**Pipeline `dev` ejecutado en verde, con todas las etapas (Checkout, Compile, Unit Tests, Static Analysis, Quality Gate, Package, Integration Tests, Build Images, Security Scan, Push)**
 
 ![Pipeline dev en verde](../../capturas/proyecto/2%29GITHUB_APP/pipeline-dev-verde.png)
 
@@ -348,7 +348,7 @@ flowchart LR
 
 ![PR con check de Jenkins](../../capturas/proyecto/2%29GITHUB_APP/pr-check-jenkins.png)
 
-**SonarQube — proyecto circleguard con Quality Gate "Passed"**
+**SonarQube: proyecto circleguard con Quality Gate "Passed"**
 
 ![SonarQube Quality Gate Passed](../../capturas/proyecto/2%29GITHUB_APP/sonarqube-quality-gate.png)
 
@@ -370,19 +370,19 @@ flowchart LR
 ## 5.1 Evidencia
 
 
-### Pruebas unitarias — Gradle (etapa `Unit Tests` del pipeline `dev`)
+### Pruebas unitarias con Gradle (etapa `Unit Tests` del pipeline `dev`)
 
 `./gradlew :test` por servicio; ejemplo `[auth] Unit Tests: PASSED`.
 
 ![Etapa Unit Tests en verde](../../capturas/proyecto/6%29Pruebas/unit-tests-stage-verde.png)
 
-### Pruebas de integración — docker-compose (etapa `Integration Tests`)
+### Pruebas de integración con docker-compose (etapa `Integration Tests`)
 
 Cada servicio levanta sus dependencias con `docker-compose.integration.yml` y ejecuta `:integrationTest`; ejemplo `[auth] Integration Tests: PASSED`.
 
 ![Etapa Integration Tests en verde](../../capturas/proyecto/6%29Pruebas/integration-tests-stage-verde.png)
 
-### Pruebas E2E — Newman (etapa `E2E Tests` del pipeline `stage`)
+### Pruebas E2E con Newman (etapa `E2E Tests` del pipeline `stage`)
 
 Colección Postman ejecutada en el CI: **1 iteración, 23 requests, 45 assertions, 0 fallos** (duración 2.2 s).
 
@@ -390,7 +390,7 @@ Colección Postman ejecutada en el CI: **1 iteración, 23 requests, 45 assertion
 
 ![Resumen de Newman](../../capturas/proyecto/6%29Pruebas/newman-summary.png)
 
-### Pruebas de carga / estrés — Locust (etapa `Stress Tests`)
+### Pruebas de carga y estrés con Locust (etapa `Stress Tests`)
 
 15 usuarios concurrentes con los 4 perfiles de carga: **476 requests, 0 fallos**, p95 agregado 560 ms (umbrales error ≤ 5 %, p95 ≤ 3000 ms cumplidos).
 
@@ -402,7 +402,7 @@ Colección Postman ejecutada en el CI: **1 iteración, 23 requests, 45 assertion
 
 ![Locust — Perfiles de carga](../../capturas/proyecto/6%29Pruebas/locust-perfiles-carga.png)
 
-### Seguridad DAST — OWASP ZAP (etapa `ZAP`)
+### Seguridad DAST con OWASP ZAP (etapa `ZAP`)
 
 Escaneo `zap-baseline.py` contra `auth-service`: **0 alertas High / Medium / Low**, solo informativas.
 
@@ -423,7 +423,7 @@ Escaneo `zap-baseline.py` contra `auth-service`: **0 alertas High / Medium / Low
 
 ## 6.1 Evidencia
 
-**Releases publicados en GitHub** — cada promoción a `master` genera un tag y un release automático.
+**Releases publicados en GitHub.** Cada promoción a `master` genera un tag y un release automático.
 
 ![Lista de releases en GitHub](../../capturas/proyecto/7%29Releases/releases-lista.png)
 
@@ -439,13 +439,13 @@ Notas clasificadas por tipo (New Features / Tests / Other Changes), tag `v<fecha
 
 | Pilar | Herramienta | Azure | DO |
 |---|---|---|---|
-| Métricas | Prometheus (`/actuator/prometheus`) | ✅ | ✅ |
-| Dashboards | Grafana (datasource: Prometheus) | ✅ | ✅ |
-| Logs centralizados | ELK (Logstash → Elasticsearch → Kibana) | ✅ | ❌ (RAM) |
-| Tracing distribuido | Jaeger (OpenTelemetry) | ✅ | ✅ |
-| Health checks | readiness/liveness probes (ver §3.2) | ✅ | ✅ |
-| Alertas | Reglas Prometheus: error 5xx, latencia p95, PodDown, JVM heap | ✅ | ✅ |
-| Métricas técnicas + negocio | `http_server_requests`, JVM + métricas de la app | ✅ | ✅ |
+| Métricas | Prometheus (`/actuator/prometheus`) | Sí | Sí |
+| Dashboards | Grafana (datasource: Prometheus) | Sí | Sí |
+| Logs centralizados | ELK (Logstash, Elasticsearch, Kibana) | Sí | No (RAM) |
+| Tracing distribuido | Jaeger (OpenTelemetry) | Sí | Sí |
+| Health checks | readiness/liveness probes (ver §3.2) | Sí | Sí |
+| Alertas | Reglas Prometheus: error 5xx, latencia p95, PodDown, JVM heap | Sí | Sí |
+| Métricas técnicas + negocio | `http_server_requests`, JVM + métricas de la app | Sí | Sí |
 
 - **Dashboards**: dashboard `Services Overview` parametrizado por servicio (Request
   rate, Latency p95, Error rate 5xx, JVM heap).
@@ -456,7 +456,7 @@ Notas clasificadas por tipo (New Features / Tests / Other Changes), tag `v<fecha
 
 ## 7.1 Evidencia
 
-### Métricas y dashboards — Grafana
+### Métricas y dashboards con Grafana
 
 Dashboard `CircleGuard - Services Overview` (datasource Prometheus) con tráfico real: Request rate, Latency p95, Error rate 5xx y JVM heap, parametrizado por servicio.
 
@@ -466,7 +466,7 @@ Dashboard `CircleGuard - Services Overview` (datasource Prometheus) con tráfico
 
 ![Grafana — dashboard parametrizado por servicio](../../capturas/proyecto/8%29Observabilidad/grafana-variable-servicio.png)
 
-### Recolección de métricas y alertas — Prometheus
+### Recolección de métricas y alertas con Prometheus
 
 Targets de los 8 microservicios scrapeando `/actuator/prometheus`, todos en estado **UP**, y las reglas de alerta `circleguard-critical` cargadas.
 
@@ -476,7 +476,7 @@ Targets de los 8 microservicios scrapeando `/actuator/prometheus`, todos en esta
 
 ![Prometheus — reglas de alerta (HighErrorRate, HighLatencyP95, PodDown, HighMemoryUsage)](../../capturas/proyecto/8%29Observabilidad/prometheus-alertas.png)
 
-### Logs centralizados — Kibana / ELK (Azure)
+### Logs centralizados con Kibana y ELK (Azure)
 
 Pila ELK desplegada en AKS: Logstash parsea los logs de los pods (`circleguard-stage`) hacia Elasticsearch; Discover muestra los logs centralizados (21.339 documentos) con campos estructurados.
 
@@ -484,7 +484,7 @@ Pila ELK desplegada en AKS: Logstash parsea los logs de los pods (`circleguard-s
 
 ![Kibana — campos estructurados parseados](../../capturas/proyecto/8%29Observabilidad/kibana-campos-estructurados.png)
 
-### Tracing distribuido — Jaeger
+### Tracing distribuido con Jaeger
 
 Trazas con OpenTelemetry de los servicios instrumentados; búsqueda de trazas de `notification-service` con sus spans.
 
@@ -505,7 +505,7 @@ Trazas con OpenTelemetry de los servicios instrumentados; búsqueda de trazas de
 
 ## 8.1 Evidencia
 
-### Escaneo de imágenes — Trivy (etapa `Security Scan` del pipeline `dev`)
+### Escaneo de imágenes con Trivy (etapa `Security Scan` del pipeline `dev`)
 
 Cada imagen se escanea con `trivy image --severity MEDIUM,HIGH,CRITICAL --format table` y el reporte se archiva como artefacto (`trivy-analysis-<servicio>.txt`) por cada uno de los 8 servicios.
 
@@ -519,7 +519,7 @@ Cada microservicio corre con su propio ServiceAccount (no el `default`); el Role
 
 ![RBAC — SAs, Role y RoleBindings + describe del Role](../../capturas/proyecto/9%29Seguridad/rbac-sa-role-rolebinding.png)
 
-### TLS — cert-manager + Ingress nginx
+### TLS con cert-manager e Ingress nginx
 
 Certificado `gateway-tls` emitido por el ClusterIssuer (Let's Encrypt) en estado **Ready=True**, montado en el `gateway-ingress` (host `circleguard.stage.local`, puertos 80/443).
 
@@ -566,7 +566,7 @@ flowchart LR
 
 ---
 
-# 10. Bonus 1 — Implementación Multi-Cloud (5%)
+# 10. Bonus 1: Implementación Multi-Cloud (5%)
 
 Despliegue en **dos proveedores**: Azure (AKS, primario) y DigitalOcean (DOKS,
 secundario), corriendo el **mismo binario** (`prapoju/circleguard-*`, amd64).
@@ -596,26 +596,25 @@ secundario), corriendo el **mismo binario** (`prapoju/circleguard-*`, amd64).
 | Métrica | Azure (AKS) | DigitalOcean (DOKS) |
 |---|---|---|
 | Requests totales | 1095 | 4220 |
-| Tasa de error (%) | 7.2 % (❌ > 5%) | 4.1 % (✅ ≤ 5%) |
+| Tasa de error (%) | 7.2 % (no cumple, > 5%) | 4.1 % (cumple, ≤ 5%) |
 | Throughput (req/s) | 6.61 | 23.52 |
 | Latencia p50 (ms) | 1600 | 9 |
-| Latencia p95 (ms) | 9600 (❌ > 3000) | 440 (✅ ≤ 3000) |
+| Latencia p95 (ms) | 9600 (no cumple, > 3000) | 440 (cumple, ≤ 3000) |
 | Latencia p99 (ms) | 63000 | 740 |
 | Latencia máx (ms) | 67607 | 14792 |
 
 Umbrales del proyecto: error ≤ 5%, p95 ≤ 3000 ms.
 
-> **Interpretación (importante):** los resultados **no** reflejan que DigitalOcean sea
-> intrínsecamente más rápido que Azure, sino el **estado de carga de cada cluster al
-> momento de la prueba**. El cluster de Azure corría el **stack completo de observabilidad
-> (ELK incluido)** + un **generador de carga adicional** activo + las apps recién
-> repobladas (JVMs/cachés en frío), todo bajo presión de memoria; eso infló las latencias
-> (p95 9.6 s) y elevó la tasa de error. El cluster de DO, con la **observabilidad recortada
-> (sin ELK)**, tenía más recursos libres para atender la carga. Para una comparación justa
-> habría que **igualar condiciones**: mismo stack de observabilidad, sin generador de carga
-> paralelo y con ambos clusters estabilizados (warm-up previo). Conclusión válida: ambos
-> entornos sirven, pero **el headroom de recursos es el factor dominante** en el rendimiento
-> observado, no el proveedor.
+> **Interpretación.** Los resultados no reflejan que DigitalOcean sea intrínsecamente
+> más rápido que Azure, sino el estado de carga de cada cluster al momento de la prueba.
+> El cluster de Azure corría el stack completo de observabilidad (ELK incluido), un
+> generador de carga adicional activo y las apps recién repobladas (JVMs y cachés en frío),
+> todo bajo presión de memoria; eso infló las latencias (p95 de 9.6 s) y elevó la tasa de
+> error. El cluster de DO, con la observabilidad recortada (sin ELK), tenía más recursos
+> libres para atender la carga. Para una comparación justa habría que igualar condiciones:
+> mismo stack de observabilidad, sin generador de carga paralelo y con ambos clusters
+> estabilizados con warm-up previo. La conclusión válida es que ambos entornos sirven, pero
+> el factor dominante en el rendimiento observado es el headroom de recursos, no el proveedor.
 
 ## 10.3 Estrategia de respaldo entre clouds
 
