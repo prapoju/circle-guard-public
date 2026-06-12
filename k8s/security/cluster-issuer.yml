@@ -1,0 +1,8 @@
+# Emisor de certificados self-signed para TLS de demo (cert-manager).
+# Cluster-scoped: lo usan los Ingress via la anotacion cert-manager.io/cluster-issuer.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}

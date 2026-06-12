@@ -1,0 +1,26 @@
+# Expone el gateway publicamente por HTTPS.
+# cert-manager (ingress-shim) crea el Certificate y el Secret 'gateway-tls'
+# automaticamente a partir de la anotacion cluster-issuer.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gateway-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - circleguard.stage.local
+      secretName: gateway-tls
+  rules:
+    - host: circleguard.stage.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-service
+                port:
+                  number: 8087

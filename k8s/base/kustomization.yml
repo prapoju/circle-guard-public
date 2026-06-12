@@ -18,6 +18,7 @@ resources:
   - infra/kibana.yml
   - config/circleguard-config.yml
   - config/circleguard-secrets.yml
+  - security/rbac.yml
   - services/auth-service.yml
   - services/identity-service.yml
   - services/dashboard-service.yml
@@ -26,3 +27,4 @@ resources:
   - services/file-service.yml
   - services/promotion-service.yml
   - services/gateway-service.yml
+  - backup/postgres-backup-cronjob.yml

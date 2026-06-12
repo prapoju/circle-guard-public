@@ -1,0 +1,115 @@
+# Reusable component that strips the observability tier (ELK, Jaeger,
+# Prometheus, Grafana) from an overlay. Used by the DigitalOcean overlays so
+# three full environments fit on a small (24 GB) free-tier cluster; the core
+# app + critical infra still run. Azure keeps the full stack.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+# Elasticsearch
+- patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: elasticsearch
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: elasticsearch
+    $patch: delete
+# Logstash
+- patch: |
+    apiVersion: apps/v1
+    kind: DaemonSet
+    metadata:
+      name: logstash
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: logstash-pipeline
+    $patch: delete
+# Kibana
+- patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: kibana
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: kibana
+    $patch: delete
+# Jaeger
+- patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: jaeger
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: jaeger-collector
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: jaeger-query
+    $patch: delete
+# Prometheus
+- patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: prometheus
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: prometheus
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: prometheus-config
+    $patch: delete
+# Grafana
+- patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: grafana
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: grafana
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: grafana-datasources
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: grafana-dashboards
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: grafana-dashboard-provider
+    $patch: delete
