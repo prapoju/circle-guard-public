@@ -456,13 +456,41 @@ Notas clasificadas por tipo (New Features / Tests / Other Changes), tag `v<fecha
 
 ## 7.1 Evidencia
 
-> 📸 **Captura pendiente:** Dashboard de Grafana (Services Overview con tráfico). → `![Grafana](../../capturas/proyecto/07-grafana.png)`
->
-> 📸 **Captura pendiente:** Prometheus → Status → Targets (todos UP). → `![Prometheus targets](../../capturas/proyecto/07-prometheus.png)`
->
-> 📸 **Captura pendiente:** Kibana → Discover (logs centralizados, Azure). → `![Kibana](../../capturas/proyecto/07-kibana.png)`
->
-> 📸 **Captura pendiente:** Jaeger → una traza con sus spans. → `![Jaeger](../../capturas/proyecto/07-jaeger.png)`
+### Métricas y dashboards — Grafana
+
+Dashboard `CircleGuard - Services Overview` (datasource Prometheus) con tráfico real: Request rate, Latency p95, Error rate 5xx y JVM heap, parametrizado por servicio.
+
+![Grafana — lista de dashboards](../../capturas/proyecto/8%29Observabilidad/grafana-dashboards-lista.png)
+
+![Grafana — Services Overview con tráfico](../../capturas/proyecto/8%29Observabilidad/grafana-services-overview.png)
+
+![Grafana — dashboard parametrizado por servicio](../../capturas/proyecto/8%29Observabilidad/grafana-variable-servicio.png)
+
+### Recolección de métricas y alertas — Prometheus
+
+Targets de los 8 microservicios scrapeando `/actuator/prometheus`, todos en estado **UP**, y las reglas de alerta `circleguard-critical` cargadas.
+
+![Prometheus — Targets UP (1/4)](../../capturas/proyecto/8%29Observabilidad/prometheus-targets-1.png)
+
+![Prometheus — Targets UP (2/4)](../../capturas/proyecto/8%29Observabilidad/prometheus-targets-2.png)
+
+![Prometheus — reglas de alerta (HighErrorRate, HighLatencyP95, PodDown, HighMemoryUsage)](../../capturas/proyecto/8%29Observabilidad/prometheus-alertas.png)
+
+### Logs centralizados — Kibana / ELK (Azure)
+
+Pila ELK desplegada en AKS: Logstash parsea los logs de los pods (`circleguard-stage`) hacia Elasticsearch; Discover muestra los logs centralizados (21.339 documentos) con campos estructurados.
+
+![Kibana — Discover con logs centralizados](../../capturas/proyecto/8%29Observabilidad/kibana-discover-logs.png)
+
+![Kibana — campos estructurados parseados](../../capturas/proyecto/8%29Observabilidad/kibana-campos-estructurados.png)
+
+### Tracing distribuido — Jaeger
+
+Trazas con OpenTelemetry de los servicios instrumentados; búsqueda de trazas de `notification-service` con sus spans.
+
+![Jaeger — trazas con spans](../../capturas/proyecto/8%29Observabilidad/jaeger-trazas.png)
+
+![Jaeger — servicios instrumentados](../../capturas/proyecto/8%29Observabilidad/jaeger-servicios-instrumentados.png)
 
 ---
 
