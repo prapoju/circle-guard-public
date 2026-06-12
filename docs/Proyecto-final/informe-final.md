@@ -373,6 +373,18 @@ Umbrales: error ≤ 5%, p95 ≤ 3000 ms. **Resultados** en §11 (Comparativa Mul
 
 > La **cobertura** se evidencia en la captura del Quality Gate de SonarQube del punto 4 (Coverage 20.3%).
 
+### Pruebas unitarias — Gradle (etapa `Unit Tests` del pipeline `dev`)
+
+`./gradlew :test` por servicio; ejemplo `[auth] Unit Tests: PASSED`.
+
+![Etapa Unit Tests en verde](../../capturas/proyecto/6%29Pruebas/unit-tests-stage-verde.png)
+
+### Pruebas de integración — docker-compose (etapa `Integration Tests`)
+
+Cada servicio levanta sus dependencias con `docker-compose.integration.yml` y ejecuta `:integrationTest`; ejemplo `[auth] Integration Tests: PASSED`.
+
+![Etapa Integration Tests en verde](../../capturas/proyecto/6%29Pruebas/integration-tests-stage-verde.png)
+
 ### Pruebas E2E — Newman (etapa `E2E Tests` del pipeline `stage`)
 
 Colección Postman ejecutada en el CI: **1 iteración, 23 requests, 45 assertions, 0 fallos** (duración 2.2 s).
