@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: circleguard-do-dev
+resources:
+- namespace.yml
+- ../../base
+components:
+- ../../components/no-observability
+patches:
+- path: configmap-patches.yml
+images:
+- name: circleguard-auth-service
+  newName: prapoju/circleguard-auth-service
+  newTag: 67b3f13
+- name: circleguard-dashboard-service
+  newName: prapoju/circleguard-dashboard-service
+  newTag: 67b3f13
+- name: circleguard-file-service
+  newName: prapoju/circleguard-file-service
+  newTag: 67b3f13
+- name: circleguard-form-service
+  newName: prapoju/circleguard-form-service
+  newTag: 67b3f13
+- name: circleguard-gateway-service
+  newName: prapoju/circleguard-gateway-service
+  newTag: 67b3f13
+- name: circleguard-identity-service
+  newName: prapoju/circleguard-identity-service
+  newTag: 67b3f13
+- name: circleguard-notification-service
+  newName: prapoju/circleguard-notification-service
+  newTag: 67b3f13
+- name: circleguard-promotion-service
+  newName: prapoju/circleguard-promotion-service
+  newTag: 67b3f13

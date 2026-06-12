@@ -1,0 +1,47 @@
+# Reusable component that strips ONLY the logging tier (Elasticsearch,
+# Logstash, Kibana) from an overlay, keeping metrics (Prometheus), dashboards
+# (Grafana) and tracing (Jaeger). Useful for small clusters (e.g. the
+# DigitalOcean 3-node cluster) where the full ELK stack does not fit in memory
+# but metrics + dashboards + tracing still do.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+# Elasticsearch
+- patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: elasticsearch
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: elasticsearch
+    $patch: delete
+# Logstash
+- patch: |
+    apiVersion: apps/v1
+    kind: DaemonSet
+    metadata:
+      name: logstash
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: logstash-pipeline
+    $patch: delete
+# Kibana
+- patch: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: kibana
+    $patch: delete
+- patch: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: kibana
+    $patch: delete

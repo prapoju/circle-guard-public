@@ -1,0 +1,148 @@
+# RBAC de menor privilegio para los microservicios.
+# Cada servicio corre con su propio ServiceAccount (en vez del 'default')
+# y solo puede leer su ConfigMap y Secret de configuracion.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: circleguard-app-reader
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    resourceNames: ["circleguard-config", "circleguard-secrets"]
+    verbs: ["get"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: auth-service-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: identity-service-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dashboard-service-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: notification-service-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: form-service-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: file-service-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: promotion-service-sa
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gateway-service-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: auth-service-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-app-reader
+subjects:
+  - kind: ServiceAccount
+    name: auth-service-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: identity-service-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-app-reader
+subjects:
+  - kind: ServiceAccount
+    name: identity-service-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: dashboard-service-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-app-reader
+subjects:
+  - kind: ServiceAccount
+    name: dashboard-service-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: notification-service-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-app-reader
+subjects:
+  - kind: ServiceAccount
+    name: notification-service-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: form-service-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-app-reader
+subjects:
+  - kind: ServiceAccount
+    name: form-service-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: file-service-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-app-reader
+subjects:
+  - kind: ServiceAccount
+    name: file-service-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: promotion-service-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-app-reader
+subjects:
+  - kind: ServiceAccount
+    name: promotion-service-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gateway-service-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-app-reader
+subjects:
+  - kind: ServiceAccount
+    name: gateway-service-sa

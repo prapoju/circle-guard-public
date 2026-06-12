@@ -1,0 +1,7 @@
+# Recursos de TLS (cert-manager + ingress). Se aplican APARTE del base
+# porque dependen de los CRDs de cert-manager; ver install-security.sh.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - cluster-issuer.yml
+  - gateway-ingress.yml

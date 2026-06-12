@@ -12,6 +12,7 @@ spec:
       labels:
         app: file-service
     spec:
+      serviceAccountName: file-service-sa
       containers:
         - name: file-service
           image: circleguard-file-service
