@@ -505,28 +505,31 @@ Trazas con OpenTelemetry de los servicios instrumentados; búsqueda de trazas de
 
 ## 8.1 Evidencia
 
-> 📸 **Captura pendiente:** Reporte de Trivy (artefacto en Jenkins, tabla de vulnerabilidades). → `![Trivy](../../capturas/proyecto/08-trivy.png)`
->
-> 📸 **Captura pendiente:** `kubectl get sa,role,rolebinding` + `describe role circleguard-app-reader` (RBAC). → `![RBAC](../../capturas/proyecto/08-rbac.png)`
->
-> 📸 **Captura pendiente:** Certificado `gateway-tls` Ready (`kubectl get certificate` / `ingress`). → `![TLS](../../capturas/proyecto/08-tls.png)`
+### Escaneo de imágenes — Trivy (etapa `Security Scan` del pipeline `dev`)
 
----
+Cada imagen se escanea con `trivy image --severity MEDIUM,HIGH,CRITICAL --format table` y el reporte se archiva como artefacto (`trivy-analysis-<servicio>.txt`) por cada uno de los 8 servicios.
 
-# 9. Documentación y Presentación (10%)
+![Etapa Security Scan (Trivy) en verde](../../capturas/proyecto/9%29Seguridad/trivy-security-scan-stage.png)
 
-| Requisito | Estado |
-|---|---|
-| Documentación completa | ✅ Este informe (autocontenido) + READMEs por servicio |
-| Repositorio organizado | ✅ |
-| Costos de infraestructura | ✅ §11 (Comparativa) |
-| Manual de operaciones | ⚠️ Parcial — comandos clave repartidos; pendiente consolidar |
-| Video demostrativo | 🎥 En grabación (guiones por punto preparados) |
-| Presentación | ⏳ Pendiente |
+![Reportes de Trivy archivados por servicio](../../capturas/proyecto/9%29Seguridad/trivy-artefactos.png)
 
----
+### RBAC de mínimo privilegio
 
-# 10. Arquitectura (diagramas)
+Cada microservicio corre con su propio ServiceAccount (no el `default`); el Role `circleguard-app-reader` solo permite `get` sobre `circleguard-config` y `circleguard-secrets`, enlazado a cada SA por su RoleBinding.
+
+![RBAC — SAs, Role y RoleBindings + describe del Role](../../capturas/proyecto/9%29Seguridad/rbac-sa-role-rolebinding.png)
+
+### TLS — cert-manager + Ingress nginx
+
+Certificado `gateway-tls` emitido por el ClusterIssuer (Let's Encrypt) en estado **Ready=True**, montado en el `gateway-ingress` (host `circleguard.stage.local`, puertos 80/443).
+
+![Certificado gateway-tls Ready](../../capturas/proyecto/9%29Seguridad/tls-certificate-ready.png)
+
+![Detalle del certificado + Ingress con 443](../../capturas/proyecto/9%29Seguridad/tls-describe-ingress.png)
+
+
+
+# 9. Arquitectura (diagramas)
 
 ```mermaid
 flowchart TB
@@ -563,7 +566,7 @@ flowchart LR
 
 ---
 
-# 11. Bonus 1 — Implementación Multi-Cloud (5%)
+# 10. Bonus 1 — Implementación Multi-Cloud (5%)
 
 Despliegue en **dos proveedores**: Azure (AKS, primario) y DigitalOcean (DOKS,
 secundario), corriendo el **mismo binario** (`prapoju/circleguard-*`, amd64).
@@ -572,7 +575,7 @@ secundario), corriendo el **mismo binario** (`prapoju/circleguard-*`, amd64).
 > se pivoteó a DO, cubierto por el crédito de **$200 del GitHub Student Pack**, con
 > nodos amd64 (sin rebuild).
 
-## 11.1 Arquitectura comparada
+## 10.1 Arquitectura comparada
 
 | Aspecto | Azure (AKS) | DigitalOcean (DOKS) |
 |---|---|---|
@@ -588,7 +591,7 @@ secundario), corriendo el **mismo binario** (`prapoju/circleguard-*`, amd64).
 > droplets**, lo que impide escalar el cluster y es la razón por la que el ELK completo
 > (Elasticsearch es intensivo en RAM) no cabe en DOKS.
 
-## 11.2 Resultados de rendimiento (Locust, 50 VUs, 3 min)
+## 10.2 Resultados de rendimiento (Locust, 50 VUs, 3 min)
 
 | Métrica | Azure (AKS) | DigitalOcean (DOKS) |
 |---|---|---|
@@ -614,7 +617,7 @@ Umbrales del proyecto: error ≤ 5%, p95 ≤ 3000 ms.
 > entornos sirven, pero **el headroom de recursos es el factor dominante** en el rendimiento
 > observado, no el proveedor.
 
-## 11.3 Estrategia de respaldo entre clouds
+## 10.3 Estrategia de respaldo entre clouds
 
 - **Backup** (`k8s/base/backup/postgres-backup-cronjob.yml`): CronJob horario que hace
   `pg_dumpall` del Postgres primario y lo sube a una DO Space (timestamped + `latest.sql`).
@@ -627,51 +630,11 @@ Umbrales del proyecto: error ≤ 5%, p95 ≤ 3000 ms.
 | RPO | ~1 h (cadencia del backup) |
 | RTO | ~15 min (restore en cluster nuevo) |
 
-## 11.4 Balanceo de carga entre clouds
+## 10.4 Balanceo de carga entre clouds
 
 - **Recomendado:** DNS de Cloudflare con dos registros A (ingress Azure + DO), weighted
   DNS + TTL bajo para failover.
 - **Fallback local:** `scripts/multicloud-loadbalance.sh` (health-check + round-robin).
 
-## 11.5 Costos
 
-| Concepto | Azure (AKS) | DigitalOcean (DOKS) |
-|---|---|---|
-| Plano de control | Gratis (Free) | Gratis (no-HA) |
-| Nodos | Según VM size de los pools — TBD | 3× `s-4vcpu-8gb` ≈ $144/mes |
-| LoadBalancer | — | ≈ $12/mes por LB |
-| Volúmenes | — | ≈ $3/mes |
-| Estado/backup | Azure Blob | DO Spaces ≈ $5/mes |
-| **Aprox. DO/mes** | TBD | **≈ $164/mes** |
 
-El crédito de $200 del Student Pack cubre ~1 mes del cluster DOKS. Para ahorrar: bajar
-`doks_node_count`, escalar a 0, o `terraform destroy`.
-
-## 11.6 Evidencia
-
-> 📸 **Captura pendiente:** `kubectl get nodes` de ambos clusters (Azure AKS y DO DOKS), y pods corriendo en cada uno. → `![Nodos multi-cloud](../../capturas/proyecto/11-nodes.png)`
->
-> 📸 **Captura pendiente:** Panel de DigitalOcean (cluster `circleguard-doks` + créditos/billing). → `![DO panel](../../capturas/proyecto/11-do-panel.png)`
->
-> 📸 **Captura pendiente:** Resumen de métricas de Locust en cada cluster (lado a lado). → `![Locust multi-cloud](../../capturas/proyecto/11-locust.png)`
-
----
-
-# 12. Otras bonificaciones
-
-| Bonus | Estado |
-|---|---|
-| 2. Service Mesh (Istio/Linkerd) | ❌ No implementado |
-| 3. Chaos Engineering | ❌ No implementado |
-| 4. FinOps | ⚠️ Parcial — análisis de costos documentado (§11.5); faltan dashboards de costos y políticas automáticas (scale-to-zero) |
-
----
-
-# 13. Entregables
-
-| Entregable | Estado |
-|---|---|
-| Código fuente en Git | ✅ |
-| Documentación (este informe) | ✅ |
-| Release Notes por versión | ✅ (automáticas, job master) |
-| Presentación/demo (20-30 min) | ⏳ En preparación |
