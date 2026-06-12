@@ -371,13 +371,35 @@ Umbrales: error ≤ 5%, p95 ≤ 3000 ms. **Resultados** en §11 (Comparativa Mul
 
 ## 5.1 Evidencia
 
-> 📸 **Captura pendiente:** Reporte de cobertura en SonarQube. → `![Cobertura](../../capturas/proyecto/05-cobertura.png)`
->
-> 📸 **Captura pendiente:** Salida de Newman (E2E) en el pipeline. → `![E2E Newman](../../capturas/proyecto/05-newman.png)`
->
-> 📸 **Captura pendiente:** Resumen de métricas de Locust. → `![Locust](../../capturas/proyecto/05-locust.png)`
->
-> 📸 **Captura pendiente:** Reporte de OWASP ZAP. → `![ZAP](../../capturas/proyecto/05-zap.png)`
+> La **cobertura** se evidencia en la captura del Quality Gate de SonarQube del punto 4 (Coverage 20.3%).
+
+### Pruebas E2E — Newman (etapa `E2E Tests` del pipeline `stage`)
+
+Colección Postman ejecutada en el CI: **1 iteración, 23 requests, 45 assertions, 0 fallos** (duración 2.2 s).
+
+![Etapa E2E Tests en verde](../../capturas/proyecto/6%29Pruebas/newman-e2e-stage-verde.png)
+
+![Resumen de Newman](../../capturas/proyecto/6%29Pruebas/newman-summary.png)
+
+### Pruebas de carga / estrés — Locust (etapa `Stress Tests`)
+
+15 usuarios concurrentes con los 4 perfiles de carga: **476 requests, 0 fallos**, p95 agregado 560 ms (umbrales error ≤ 5 %, p95 ≤ 3000 ms cumplidos).
+
+![Locust — Request Statistics](../../capturas/proyecto/6%29Pruebas/locust-request-statistics.png)
+
+![Locust — Response Time Statistics (percentiles)](../../capturas/proyecto/6%29Pruebas/locust-response-times.png)
+
+![Locust — Charts (RPS, tiempos de respuesta, usuarios)](../../capturas/proyecto/6%29Pruebas/locust-charts.png)
+
+![Locust — Perfiles de carga](../../capturas/proyecto/6%29Pruebas/locust-perfiles-carga.png)
+
+### Seguridad DAST — OWASP ZAP (etapa `ZAP`)
+
+Escaneo `zap-baseline.py` contra `auth-service`: **0 alertas High / Medium / Low**, solo informativas.
+
+![OWASP ZAP — Summary of Alerts](../../capturas/proyecto/6%29Pruebas/zap-summary-alerts.png)
+
+![OWASP ZAP — Alerts](../../capturas/proyecto/6%29Pruebas/zap-alerts.png)
 
 ---
 
