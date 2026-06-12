@@ -340,11 +340,17 @@ flowchart LR
 
 > El paso a paso completo del setup (más capturas de permisos, ulimit, vm.max_map_count, etc.) está en `capturas/proyecto/`.
 
-> 📸 **Captura pendiente:** Build `dev` en verde con todas las etapas (Stage View / Blue Ocean). → `![Pipeline dev](../../capturas/proyecto/04-pipeline-dev.png)`
->
-> 📸 **Captura pendiente:** PR en GitHub con el check `continuous-integration/jenkins/pr-merge`. → `![PR check](../../capturas/proyecto/04-pr-check.png)`
->
-> 📸 **Captura pendiente:** SonarQube proyecto `cgp` con Quality Gate "Passed". → `![Quality Gate](../../capturas/proyecto/04-quality-gate.png)`
+**Pipeline `dev` ejecutado en verde — todas las etapas (Checkout, Compile, Unit Tests, Static Analysis, Quality Gate, Package, Integration Tests, Build Images, Security Scan, Push)**
+
+![Pipeline dev en verde](../../capturas/proyecto/2%29GITHUB_APP/pipeline-dev-verde.png)
+
+**Validación de PR con el check de Jenkins en GitHub**
+
+![PR con check de Jenkins](../../capturas/proyecto/2%29GITHUB_APP/pr-check-jenkins.png)
+
+**SonarQube — proyecto circleguard con Quality Gate "Passed"**
+
+![SonarQube Quality Gate Passed](../../capturas/proyecto/2%29GITHUB_APP/sonarqube-quality-gate.png)
 
 ---
 
